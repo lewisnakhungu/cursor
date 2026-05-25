@@ -133,12 +133,12 @@ export function PosTerminal() {
       subtitle="FEFO batch selection · transactional checkout · thermal receipt"
       actions={
         <>
-          <Badge variant="secondary" className="hidden sm:inline-flex">
+          <Badge variant="secondary" className="w-full justify-center sm:w-auto sm:inline-flex">
             {lines.length} line(s) · {cartUnits} units · {formatKes(cartTotal)}
           </Badge>
           <Button
             size="lg"
-            className="min-h-11 px-6 text-base"
+            className="min-h-11 w-full px-6 text-base sm:w-auto"
             onClick={handleDispense}
             disabled={isDispensing || lines.length === 0}
           >
@@ -253,7 +253,7 @@ export function PosTerminal() {
       </div>
 
       <Dialog open={batchDialogOpen} onOpenChange={setBatchDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="mx-2 max-h-[90dvh] max-w-[calc(100vw-1rem)] overflow-y-auto sm:mx-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Select batch (FEFO)</DialogTitle>
           </DialogHeader>
