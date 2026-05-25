@@ -1,0 +1,2583 @@
+{
+  "Symbols [Fluorine-18] Prostate Specific Membrane Antigen (PSMA) 1007 92, 111 [lodine-131] sodium iodide": [
+    93,
+    111
+  ],
+  "B-Sitosterol": [
+    82
+  ],
+  "Abacavir + lamivudine (ABC+3TC)": [
+    29
+  ],
+  "Abacavir (ABC)": [
+    28,
+    98
+  ],
+  "Abatacept": [
+    80
+  ],
+  "Abiraterone": [
+    42
+  ],
+  "Acamprosate": [
+    76,
+    108
+  ],
+  "Acetazolamide": [
+    16,
+    69,
+    95
+  ],
+  "Acetylcysteine": [
+    15
+  ],
+  "Acetylsalicylic acid (Aspirin)": [
+    11,
+    34,
+    54,
+    81,
+    103
+  ],
+  "Acetylsalicylic acid (Aspirin) + Clopidogrel": [
+    54,
+    103
+  ],
+  "Activated Charcoal": [
+    15
+  ],
+  "Acyclovir": [
+    28,
+    68
+  ],
+  "Adalimumab": [
+    80,
+    81,
+    109
+  ],
+  "Adenosine": [
+    49
+  ],
+  "Adult nutritionally complete elemental peptide formula": [
+    89
+  ],
+  "Adult nutritionally complete isocaloric formula": [
+    89
+  ],
+  "Aflibercept": [
+    70,
+    107
+  ],
+  "Albendazole": [
+    18,
+    19,
+    96
+  ],
+  "Alcohol-based hand rub": [
+    59
+  ],
+  "Alendronate": [
+    82,
+    116
+  ],
+  "Allopurinol": [
+    43,
+    80
+  ],
+  "All-trans retinoid acid (ATRA)": [
+    36,
+    41
+  ],
+  "Alprazolam": [
+    76,
+    108
+  ],
+  "Alteplase": [
+    54,
+    103
+  ],
+  "Amidotrizoate": [
+    57
+  ],
+  "Amikacin": [
+    19,
+    25,
+    125
+  ],
+  "Amikacin (Am)": [
+    25
+  ],
+  "Amino acids": [
+    87,
+    89
+  ],
+  "Amino acids and Vitamin granules": [
+    89
+  ],
+  "Amiodarone": [
+    49
+  ],
+  "Amitriptyline": [
+    13,
+    75
+  ],
+  "Amlodipine": [
+    50,
+    52,
+    102
+  ],
+  "Amlodipine + Hydrochlorothiazide (HCTZ)": [
+    52
+  ],
+  "Amlodipine + Indapamide": [
+    52,
+    102
+  ],
+  "Amoxicillin": [
+    19,
+    20,
+    25,
+    96,
+    125
+  ],
+  "Amoxicillin + clavulanic acid": [
+    20,
+    25,
+    96,
+    125
+  ],
+  "Amoxicillin + clavulanic acid (Amx+Clv)": [
+    25
+  ],
+  "Amphotericin B": [
+    26,
+    32,
+    97
+  ],
+  "Ampicillin": [
+    20,
+    125
+  ],
+  "Anastrozole": [
+    42
+  ],
+  "Anti-D immunoglobulin": [
+    47
+  ],
+  "Anti-Hepatitis B immunoglobulin (HBIG)": [
+    47
+  ],
+  "Anti-Rabies immunoglobulin": [
+    47
+  ],
+  "Anti Snake venom immunoglobulin": [
+    66,
+    115
+  ],
+  "Antithymocyte globulin (ATG) (Equine)": [
+    35,
+    99
+  ],
+  "Ant-Tetanus immunoglobulin": [
+    47
+  ],
+  "Aripiprazole": [
+    74,
+    108
+  ],
+  "Arsenic trioxide": [
+    36
+  ],
+  "Artemether": [
+    32
+  ],
+  "Calamine": [
+    55,
+    56
+  ],
+  "Calcitriol (Vit D3)": [
+    65,
+    85,
+    105
+  ],
+  "Calcium carbonate": [
+    83,
+    85,
+    110
+  ],
+  "Calcium Carbonate with Vitamin D": [
+    83,
+    110
+  ],
+  "Calcium folinate": [
+    15,
+    37
+  ],
+  "Calcium gluconate": [
+    15,
+    83,
+    85
+  ],
+  "Calcium polystyrene sulphonate": [
+    83,
+    110
+  ],
+  "Capecitabine": [
+    37,
+    113,
+    114
+  ],
+  "Carbamazepin": [
+    76
+  ],
+  "Carbamazepine": [
+    13,
+    16,
+    95,
+    96,
+    108
+  ],
+  "Carbetocin": [
+    72
+  ],
+  "Carbimazole": [
+    65,
+    105
+  ],
+  "Carboplatin": [
+    37
+  ],
+  "Carboprost": [
+    72,
+    107
+  ],
+  "Carvedilol": [
+    48,
+    49,
+    53,
+    101,
+    114
+  ],
+  "Cefalexin": [
+    20,
+    96,
+    125
+  ],
+  "Cefazolin": [
+    20,
+    96,
+    125
+  ],
+  "Cefixime": [
+    22,
+    118,
+    125
+  ],
+  "Cefotaxime": [
+    22,
+    97,
+    125
+  ],
+  "Ceftazidime": [
+    22,
+    23,
+    97,
+    125
+  ],
+  "Ceftazidime + avibactam": [
+    23,
+    97,
+    125
+  ],
+  "Ceftriaxone": [
+    22,
+    97,
+    118,
+    125
+  ],
+  "Cefuroxime": [
+    22,
+    97,
+    125
+  ],
+  "Celecoxib": [
+    11
+  ],
+  "Cetirizine": [
+    14,
+    95
+  ],
+  "Chlorambucil": [
+    37
+  ],
+  "Chlorhexidine": [
+    59,
+    74,
+    79
+  ],
+  "Chlorpheniramine": [
+    14,
+    95
+  ],
+  "Chlorpromazine": [
+    74
+  ],
+  "Chlorthalidone": [
+    51,
+    102
+  ],
+  "Cholecalciferol (Vit D3)": [
+    85
+  ],
+  "Cholera vaccine": [
+    67
+  ],
+  "Cinacalcet": [
+    105
+  ],
+  "Cinnarizine": [
+    79
+  ],
+  "Ciprofloxacin": [
+    22,
+    79,
+    97,
+    125
+  ],
+  "Ciprofloxacin + Dexamethasone": [
+    79
+  ],
+  "Cisatracurium": [
+    10
+  ],
+  "Cisplatin": [
+    37,
+    40,
+    44
+  ],
+  "Clarithromycin": [
+    23,
+    125
+  ],
+  "Clindamycin": [
+    23,
+    125
+  ],
+  "Clobazam": [
+    16,
+    95
+  ],
+  "Clobetasone propionate": [
+    55
+  ],
+  "Clofazamine": [
+    24
+  ],
+  "Clofazimine (Cfx)": [
+    26
+  ],
+  "Clomifene": [
+    72
+  ],
+  "Clomipramine": [
+    76
+  ],
+  "Clonazepam": [
+    16,
+    95
+  ],
+  "Clopidogrel": [
+    54,
+    103
+  ],
+  "Clotrimazole": [
+    26,
+    55,
+    79
+  ],
+  "Clozapine": [
+    74
+  ],
+  "Coagulation factor IX": [
+    48
+  ],
+  "Coagulation factor VIII": [
+    47,
+    101
+  ],
+  "Colchicine": [
+    80
+  ],
+  "Colistin": [
+    23,
+    125
+  ],
+  "Collagenase clostridiopeptidase A + Proteases": [
+    82
+  ],
+  "Combined amino acid and glucose formulation for central administration-two chamber bag for central admnistration": [
+    87
+  ],
+  "Combined amino acid, glucose, and lipids with medium chain Triglycerides (MCT) + Long chain Triglycerides (LCT) - three chamber bag for peripherial administration": [
+    87
+  ],
+  "Domperidone": [
+    60
+  ],
+  "Donepezil": [
+    44
+  ],
+  "Dopamine": [
+    53
+  ],
+  "Dorzolamide": [
+    69
+  ],
+  "Doxazosin": [
+    51
+  ],
+  "Doxorubicin": [
+    38,
+    39,
+    99,
+    113
+  ],
+  "Doxycycline": [
+    21,
+    33,
+    125
+  ],
+  "DPT + HiB + Hep B vaccine (pentavalent)": [
+    66
+  ],
+  "Eflornithine": [
+    34
+  ],
+  "Empagliflozin": [
+    53,
+    64,
+    103,
+    105
+  ],
+  "Empagliflozin + Metformin": [
+    64,
+    105
+  ],
+  "Enalapril": [
+    50,
+    53,
+    102
+  ],
+  "Enoxaparin": [
+    46
+  ],
+  "Entecavir": [
+    31
+  ],
+  "Ephedrine": [
+    9,
+    94
+  ],
+  "Epinephrine (adrenaline)": [
+    9,
+    14,
+    49,
+    78,
+    94,
+    101
+  ],
+  "Eplerenone": [
+    53,
+    103
+  ],
+  "Ergocalciferol (Vit D2)": [
+    85
+  ],
+  "Ergometrine": [
+    73
+  ],
+  "Erythromycin": [
+    23,
+    68,
+    97,
+    125
+  ],
+  "Erythropoetin (alfa or beta) stimulating agents": [
+    45
+  ],
+  "Escitalopram": [
+    75,
+    76
+  ],
+  "Estradiol": [
+    62,
+    72
+  ],
+  "Etanercept": [
+    80,
+    81
+  ],
+  "Ethambutol (E)": [
+    25
+  ],
+  "Ethanol": [
+    15,
+    59
+  ],
+  "Ethinylestradiol + Levonorgestrel": [
+    71
+  ],
+  "Ethinylestradiol + Norethisterone": [
+    71
+  ],
+  "Etomidate": [
+    8,
+    94
+  ],
+  "Etonorgestrel-releasing implant": [
+    72
+  ],
+  "Etoposide": [
+    38
+  ],
+  "Etravirine (ETV)": [
+    28
+  ],
+  "Everolimus": [
+    36
+  ],
+  "Fat (lipid)": [
+    87
+  ],
+  "Fat-soluble vitamins": [
+    88
+  ],
+  "Febuxostat": [
+    43,
+    80,
+    100
+  ],
+  "Fentanyl": [
+    8,
+    9,
+    12,
+    94
+  ],
+  "Ferrous salt": [
+    45
+  ],
+  "Ferrous Salt + Folic acid": [
+    45
+  ],
+  "Filgrastim": [
+    42,
+    100
+  ],
+  "Finasteride": [
+    93
+  ],
+  "Flucloxacillin": [
+    21,
+    96,
+    125
+  ],
+  "Fluconazole": [
+    27
+  ],
+  "Flucytosine": [
+    27,
+    97
+  ],
+  "Fludrocortisone": [
+    62
+  ],
+  "Flumazenil": [
+    15
+  ],
+  "Fluorescein": [
+    57
+  ],
+  "Fluorodeoxyglucose (FDG) (Fluorine -18)": [
+    92
+  ],
+  "Fluorometholone": [
+    68
+  ],
+  "Fluorouracil": [
+    38
+  ],
+  "Fluoxetine": [
+    75
+  ],
+  "Flupentixol": [
+    74
+  ],
+  "Fluphenazine": [
+    74
+  ],
+  "Fluticasone": [
+    79
+  ],
+  "Folic acid": [
+    45
+  ],
+  "Fomepizole": [
+    15
+  ],
+  "Hypertonic saline": [
+    70
+  ],
+  "Ibrutinib": [
+    41,
+    99
+  ],
+  "Ibuprofen": [
+    11,
+    35,
+    74
+  ],
+  "Ifosfamide + Mesna": [
+    38
+  ],
+  "Imatinib": [
+    41,
+    113
+  ],
+  "Imipenem + Cilastatin": [
+    26
+  ],
+  "Indapamide": [
+    51,
+    52,
+    102
+  ],
+  "Infliximab": [
+    80
+  ],
+  "Influenza vaccine (inactivated)": [
+    67
+  ],
+  "Insulin, intermediate-acting (NPH)": [
+    63
+  ],
+  "Insulin, Long-acting (basal), Glargine": [
+    63
+  ],
+  "Insulin, long-acting, Detemir": [
+    63
+  ],
+  "Insulin, Premixed (Short acting + Intermediate acting) (Human)": [
+    63
+  ],
+  "Insulin, Premixed (Ultra short acting + Intermediate acting)": [
+    63,
+    104
+  ],
+  "Insulin, Short acting (Soluble / regular)": [
+    63
+  ],
+  "Insulin, Ultra short-acting (Rapid) (Insulin Lispro and Aspart) 63 lodine -123 (sodium iodide) 91 lodine 131(sodium iodide)": [
+    91
+  ],
+  "Ipratropium bromide": [
+    78
+  ],
+  "Irinotecan": [
+    39
+  ],
+  "Iron sucrose": [
+    45
+  ],
+  "Isoflurane": [
+    8
+  ],
+  "Isoniazid (H) 25, 97 lso-osmolar contrast media": [
+    57
+  ],
+  "Isosorbide dinitrate": [
+    48,
+    53,
+    101
+  ],
+  "Itraconazole": [
+    27
+  ],
+  "Ivabradine": [
+    53
+  ],
+  "Ivermectin": [
+    19,
+    34,
+    115
+  ],
+  "Ketamine": [
+    8,
+    9
+  ],
+  "Ketorolac": [
+    11,
+    68
+  ],
+  "Labetalol": [
+    50,
+    102
+  ],
+  "Lactulose": [
+    13,
+    61
+  ],
+  "Lamivudine (3TC)": [
+    28,
+    31
+  ],
+  "Lamotrigine": [
+    17,
+    76,
+    108
+  ],
+  "Lansoprazole": [
+    60
+  ],
+  "L-Asparaginase": [
+    39
+  ],
+  "Latanoprost": [
+    69,
+    106
+  ],
+  "Ledipasvir+ Sofosbuvir": [
+    31
+  ],
+  "Leflunomide": [
+    81
+  ],
+  "Lenalidomide": [
+    42
+  ],
+  "Letrozole": [
+    42,
+    43,
+    72,
+    100
+  ],
+  "Leuprorelin (Leuprolide)": [
+    72
+  ],
+  "Levetiracetam": [
+    17,
+    96
+  ],
+  "Levodopa+ Carbidopa": [
+    44
+  ],
+  "Levofloxacin (Lfx)": [
+    26
+  ],
+  "Levonorgestrel": [
+    71,
+    72
+  ],
+  "Levonorgestrel (LNG)": [
+    71,
+    72
+  ],
+  "Levonorgestrel-releasing implant": [
+    72
+  ],
+  "Mifepristone + Misoprostol": [
+    73
+  ],
+  "Milrinone": [
+    54
+  ],
+  "Mirtazapine": [
+    75,
+    76
+  ],
+  "Misoprostol": [
+    73
+  ],
+  "Mitomycin C": [
+    39,
+    99
+  ],
+  "Molybdenum-gg / Technetium-99m radionuclide generator": [
+    92
+  ],
+  "Mometasone": [
+    56
+  ],
+  "Montelukast": [
+    78
+  ],
+  "Morphine": [
+    9,
+    12,
+    94
+  ],
+  "Moxifloxacin": [
+    26,
+    68,
+    106
+  ],
+  "Moxifloxacin (Mfx)": [
+    26
+  ],
+  "Mupirocin": [
+    55
+  ],
+  "Mycophenolate mofetil": [
+    36
+  ],
+  "Mycophenolic acid": [
+    36
+  ],
+  "Naloxone": [
+    16,
+    77
+  ],
+  "Naltrexone": [
+    77
+  ],
+  "Natamycin": [
+    68
+  ],
+  "Nebivolol": [
+    50,
+    102
+  ],
+  "Neomycin + Betamethasone": [
+    79,
+    109,
+    115
+  ],
+  "Neostigmine": [
+    11
+  ],
+  "Nevirapine (NVP)": [
+    28,
+    113
+  ],
+  "Niacinamide": [
+    85
+  ],
+  "Nicotine (NRT)": [
+    77
+  ],
+  "Nifedipine": [
+    51
+  ],
+  "Nifurtimox": [
+    34
+  ],
+  "Nilotinib": [
+    41
+  ],
+  "Nintedanib": [
+    79,
+    108
+  ],
+  "Nitrofurantoin": [
+    21,
+    125
+  ],
+  "Nitroglycerin (NTG)": [
+    54
+  ],
+  "Nitrous oxide": [
+    10,
+    112
+  ],
+  "Non-ionic low osmolar water-soluble iodinated contrast media": [
+    58
+  ],
+  "Norepinephrine (Noradrenaline)": [
+    54
+  ],
+  "Norethisterone": [
+    71,
+    72
+  ],
+  "Normalimmunoglobulin": [
+    47
+  ],
+  "Nutritionally complete elemental hepatic formula with MCT for oral/ tube feeding": [
+    88
+  ],
+  "Nutritionally complete glutamine-enriched liquid formula": [
+    88
+  ],
+  "Nutritionally complete High energy, high protein oral/tube feed": [
+    88
+  ],
+  "Nutritionally complete hydrolysed feeds with MCT fibre-free": [
+    88
+  ],
+  "Nutritionally complete hypercaloric liquid formula feed": [
+    88
+  ],
+  "Nutritionally complete, hypocaloric oral / tube feed liquid diet with fibre": [
+    89
+  ],
+  "Nutritionally complete isocaloric liquid diet fibre- free for oral / tube feeding": [
+    89
+  ],
+  "Nutritionally complete isocaloric liquid diet with fibre for oral/ tube feeding": [
+    89
+  ],
+  "Nutritionally complete Iso-caloric paediatric liquid diet for oral / tube feeding": [
+    89
+  ],
+  "Nutritionally complete liquid low sodium formula": [
+    89
+  ],
+  "Pneumococcal vaccine (13 valent or higher adsorbed conjugate)": [
+    67
+  ],
+  "Podophyllin resin": [
+    56
+  ],
+  "Polio vaccine (IPV)": [
+    67
+  ],
+  "Polio vaccine, oral (OPV) (live attenuated)": [
+    67
+  ],
+  "Polyacrylic acid": [
+    71,
+    107
+  ],
+  "Polygeline": [
+    48
+  ],
+  "Polymyxin B": [
+    24,
+    125
+  ],
+  "Posaconazole": [
+    27,
+    97
+  ],
+  "Potassium acid phosphate": [
+    84,
+    110
+  ],
+  "Potassium chloride": [
+    83,
+    84
+  ],
+  "Povidone iodine": [
+    59
+  ],
+  "Pralidoxime": [
+    16
+  ],
+  "Pramipexole": [
+    44
+  ],
+  "Praziquantel": [
+    19,
+    112
+  ],
+  "Prazosin": [
+    51,
+    102
+  ],
+  "Prednisolone": [
+    14,
+    15,
+    36,
+    42,
+    43,
+    61,
+    68,
+    69,
+    81,
+    100
+  ],
+  "Pregabalin": [
+    14,
+    18,
+    95,
+    96
+  ],
+  "Pretomanid": [
+    26
+  ],
+  "Primaquine": [
+    33
+  ],
+  "Probenecid": [
+    80
+  ],
+  "Procarbazine": [
+    40
+  ],
+  "Proguanil": [
+    33
+  ],
+  "Proparacaine": [
+    69,
+    106
+  ],
+  "Propofol": [
+    8,
+    10
+  ],
+  "Propranolol": [
+    35,
+    62,
+    65,
+    76,
+    99,
+    104,
+    108
+  ],
+  "Propylthiouracil": [
+    65
+  ],
+  "Prostaglandin E2": [
+    73,
+    74
+  ],
+  "Protamine": [
+    16
+  ],
+  "Prothionamide (Pto)": [
+    26
+  ],
+  "Pyrazinamide (Z)": [
+    25
+  ],
+  "Pyridostigmine": [
+    11,
+    94
+  ],
+  "Pyridoxine (Vit B6)": [
+    86
+  ],
+  "Pyrimethamine": [
+    33,
+    34
+  ],
+  "Quetiapine": [
+    75,
+    76,
+    108
+  ],
+  "Quinine": [
+    32,
+    33
+  ],
+  "Rabies vaccine (cell culture)": [
+    67
+  ],
+  "Ranibizumab": [
+    70,
+    107
+  ],
+  "Rasburicase": [
+    44
+  ],
+  "Ready to use supplemental food (RUSF)": [
+    90
+  ],
+  "Ready to use therapeutic food (RUTF)": [
+    90
+  ],
+  "Red blood cells": [
+    47
+  ],
+  "Rehydration solution for malnutrition (ReSoMal)": [
+    61,
+    83
+  ],
+  "Remifentanyl": [
+    8,
+    10
+  ],
+  "Reteplase": [
+    54,
+    103
+  ],
+  "Retinol (Vit A)": [
+    86
+  ],
+  "Ribavirin": [
+    30
+  ],
+  "Riboflavin": [
+    71,
+    107
+  ],
+  "Rifampicin + Isoniazid + Pyrazinamide + Ethambutol (RHZE)": [
+    25
+  ],
+  "Rifampicin + Isoniazid + Pyrazinamide (RHZ)": [
+    25
+  ],
+  "Rifampicin + Isoniazid (RH)": [
+    25
+  ],
+  "Rifampicin (R)": [
+    24,
+    25,
+    97
+  ],
+  "Rifapentine + Isoniazid (3HP)": [
+    25,
+    97
+  ],
+  "Technetium - 99m mebrofenin (BRIDA)": [
+    92,
+    111
+  ],
+  "Technetium-99m pentetate (DTPA)": [
+    92
+  ],
+  "Technetium-99m sodium pertechnetate": [
+    92
+  ],
+  "Technetium Tc- 99m (99m Tc) Succimer (Technetium Tc-99m Dimercaptosuccinic Acid (DMSA)": [
+    91
+  ],
+  "Teicoplanin": [
+    24,
+    125
+  ],
+  "Telmisartan": [
+    50,
+    52,
+    102
+  ],
+  "Telmisartan + Amlodipine": [
+    52
+  ],
+  "Telmisartan+ Amlodipine+ Hydrochlorothiazide (HCTZ)": [
+    52
+  ],
+  "Telmisartan + Hydrochlorothiazide (HCTZ)": [
+    52
+  ],
+  "Temozolomide": [
+    40,
+    99
+  ],
+  "Tenecteplase": [
+    55,
+    103
+  ],
+  "Tenofovir Alafenamide + Lamivudine + Dolutegravir (TAF+3TC+DTG)": [
+    30
+  ],
+  "Tenofovir Alafenamide (TAF)": [
+    28,
+    31,
+    98
+  ],
+  "Tenofovir disoproxil fumarate + Emtricitabine (TDF+FTC)": [
+    29
+  ],
+  "Tenofovir disoproxil fumarate + Lamivudine + Dolutegravir (TDF+3TC+DTG)": [
+    30
+  ],
+  "Tenofovir disoproxil fumarate + Lamivudine + Efavirenz (TDF+3TC+EFV)": [
+    30
+  ],
+  "Tenofovir disoproxil fumarate + Lamivudine (TDF+3TC)": [
+    30
+  ],
+  "Tenofovir disoproxil fumarate (TDF)": [
+    28,
+    31
+  ],
+  "Terbinafine": [
+    27,
+    55,
+    98
+  ],
+  "Terbutaline": [
+    73,
+    107
+  ],
+  "Terizidone (Trd)": [
+    26
+  ],
+  "Terlipressin": [
+    61
+  ],
+  "Testosterone": [
+    62
+  ],
+  "Tetanus + Diphtheria + Pertussis (Tdap) vaccine": [
+    67
+  ],
+  "Tetanus + Diphtheria (Td) vaccine": [
+    67,
+    115
+  ],
+  "Tetracaine": [
+    69
+  ],
+  "Tetracycline": [
+    68
+  ],
+  "Thalidomide": [
+    42
+  ],
+  "Therapeutic diet feed (F-75)": [
+    90
+  ],
+  "Therapeutic diet feed (F-100)": [
+    91
+  ],
+  "Thiamine (Vit B1)": [
+    86,
+    112
+  ],
+  "Thiopental sodium": [
+    8
+  ],
+  "Tigecycline": [
+    24,
+    125
+  ],
+  "Timolol": [
+    69,
+    70,
+    106
+  ],
+  "Tinidazole": [
+    21,
+    32,
+    98,
+    125
+  ],
+  "Tioguanine": [
+    40
+  ],
+  "Tiotropium": [
+    79,
+    108
+  ],
+  "Tobramycin": [
+    68,
+    106
+  ],
+  "Tobramycin + Dexamethasone": [
+    68,
+    106
+  ],
+  "Tocilizumab": [
+    81,
+    82,
+    109
+  ],
+  "Tolvaptan": [
+    83
+  ],
+  "Topiramate": [
+    18,
+    35,
+    96,
+    99
+  ],
+  "Topotecan": [
+    40
+  ],
+  "Torsemide": [
+    54,
+    60,
+    103,
+    115
+  ],
+  "Trace elements": [
+    88
+  ],
+  "Tramadol": [
+    12,
+    95
+  ],
+  "Tranexamic acid": [
+    46,
+    73,
+    114
+  ],
+  "Trastuzumab": [
+    42,
+    100
+  ],
+  "Tretinoin": [
+    56,
+    103
+  ],
+  "Triamcinolone": [
+    69,
+    81,
+    82,
+    109,
+    110
+  ],
+  "Trimetazidine": [
+    49
+  ],
+  "Index Artemether+ lumefantrine (AL)": [
+    32
+  ],
+  "Artesunate": [
+    32,
+    33,
+    99
+  ],
+  "Artesunate + Pyronaridine tetraphosphate": [
+    32
+  ],
+  "Ascorbic acid (Vit C)": [
+    85,
+    110
+  ],
+  "Atazanavir + Ritonavir (ATV/r)": [
+    28
+  ],
+  "Atomoxetine": [
+    77,
+    108
+  ],
+  "Atorvastatin": [
+    55,
+    103
+  ],
+  "Atovaquone + Proguanil": [
+    33
+  ],
+  "Atracurium": [
+    10
+  ],
+  "Atropine": [
+    11,
+    15,
+    49,
+    70,
+    101
+  ],
+  "Azathioprine": [
+    35,
+    80
+  ],
+  "Azelastine": [
+    70
+  ],
+  "Azithromycin": [
+    22,
+    115,
+    118,
+    125
+  ],
+  "Baricitinib": [
+    80,
+    109
+  ],
+  "Barium sulphate": [
+    57
+  ],
+  "Basiliximab": [
+    35
+  ],
+  "BCG vaccine (live attenuated)": [
+    66
+  ],
+  "Bedaquiline (Bdq)": [
+    25
+  ],
+  "Bendamustine": [
+    36
+  ],
+  "Benzathine benzylpenicillin": [
+    20,
+    125
+  ],
+  "Benzhexol": [
+    44
+  ],
+  "Benzocaine + Chlorbutol + Paradichlorobenzene   + Turpentine oil": [
+    79,
+    109
+  ],
+  "Benzoyl peroxide": [
+    56
+  ],
+  "Benzyl Benzoate": [
+    56,
+    57
+  ],
+  "Benzylpenicillin": [
+    20,
+    125
+  ],
+  "Betahistine": [
+    79,
+    109
+  ],
+  "Betamethasone": [
+    55,
+    79,
+    109,
+    115
+  ],
+  "Bevacizumab": [
+    41,
+    70,
+    99,
+    107
+  ],
+  "Bicalutamide": [
+    43
+  ],
+  "Bimatoprost": [
+    69,
+    106
+  ],
+  "Bimatoprost + Timolol": [
+    69,
+    106
+  ],
+  "Biperiden": [
+    44,
+    100
+  ],
+  "Bisacodyl": [
+    13,
+    61
+  ],
+  "Bisoprolol": [
+    48,
+    49,
+    50,
+    53,
+    101,
+    102,
+    114,
+    115
+  ],
+  "Bleomycin": [
+    37
+  ],
+  "Bortezomib": [
+    41
+  ],
+  "Bosentan": [
+    52,
+    102
+  ],
+  "Brimonidine + Timolol": [
+    69,
+    106
+  ],
+  "Bromazepam": [
+    76
+  ],
+  "Budesonide": [
+    78,
+    79
+  ],
+  "Budesonide + Formoterol": [
+    78
+  ],
+  "Bupivacaine": [
+    8
+  ],
+  "Bupivacaine + Glucose": [
+    8
+  ],
+  "Buprenorphine": [
+    77
+  ],
+  "Buprenorphine + Naloxone": [
+    77
+  ],
+  "Bupropion": [
+    77
+  ],
+  "Cabazitaxel": [
+    37,
+    99
+  ],
+  "Cabergoline": [
+    65
+  ],
+  "Cabotegravir": [
+    29,
+    98,
+    126
+  ],
+  "Caffeine citrate": [
+    73,
+    107,
+    115
+  ],
+  "Combined amino acid, glucose and lipids with medium chain Triglycerides (MCT)/ Long chain Triglycerides (LCT) - Three Chamber Bag For Central Administration": [
+    87
+  ],
+  "Conjugated Oestrogens": [
+    62
+  ],
+  "Continuous ambulatory peritoneal dialysis solution (CAPD)": [
+    74
+  ],
+  "Copper-containing device": [
+    71
+  ],
+  "Co-trimoxazole (Sulfamethoxazole + Trimethoprim)": [
+    30
+  ],
+  "Cotrimoxazole (Sulfamethoxazole + Trimethoprim)": [
+    23,
+    34
+  ],
+  "Crotamiton": [
+    56
+  ],
+  "Cryoprecipitate": [
+    47,
+    101
+  ],
+  "Cyclopentolate": [
+    70,
+    107
+  ],
+  "Cyclophosphamide": [
+    35,
+    37,
+    44
+  ],
+  "Cycloserine (Cs)": [
+    26
+  ],
+  "Cyclosporin": [
+    35,
+    80,
+    109
+  ],
+  "Cytarabine": [
+    37
+  ],
+  "Dacarbazine": [
+    37
+  ],
+  "Dactinomycin (Actinomycin D)": [
+    38
+  ],
+  "Danazol": [
+    72
+  ],
+  "Dantrolene": [
+    9,
+    112
+  ],
+  "Dapivirine": [
+    28,
+    98
+  ],
+  "Dapsone": [
+    24,
+    30,
+    97
+  ],
+  "Darbepoetin alfa": [
+    45,
+    101
+  ],
+  "Darunavir + Ritonavir (DRV+r)": [
+    29
+  ],
+  "Darunavir (DRV)": [
+    29
+  ],
+  "Daunorubicin": [
+    38
+  ],
+  "Deferasirox": [
+    15,
+    46,
+    95
+  ],
+  "Deferoxamine": [
+    15,
+    46
+  ],
+  "Deferoxamine mesilate": [
+    46
+  ],
+  "Delamanid (DIm)": [
+    26
+  ],
+  "Desmopressin": [
+    66,
+    105
+  ],
+  "Dexamethasone": [
+    13,
+    14,
+    42,
+    43,
+    60,
+    68,
+    73,
+    79,
+    103,
+    105,
+    106
+  ],
+  "Dexamethasone + Polymixin B sulphate + Neomycin sulphate": [
+    68
+  ],
+  "Dexketoprofen": [
+    11,
+    95
+  ],
+  "Dexmedetomidine": [
+    8,
+    9
+  ],
+  "Dextran-70": [
+    48
+  ],
+  "Diazepam": [
+    13,
+    16
+  ],
+  "Diazoxide": [
+    65
+  ],
+  "Dienogest": [
+    72
+  ],
+  "Diethylcarbamazine (DEC)": [
+    19
+  ],
+  "Digoxin": [
+    49,
+    53,
+    101
+  ],
+  "Dihydroartemisinin + Piperaquine (DHA-PPQ)": [
+    33
+  ],
+  "Dihydrocodeine phosphate": [
+    12
+  ],
+  "Diloxanide": [
+    31
+  ],
+  "Diloxanide furoate + Metronidazole": [
+    31
+  ],
+  "Diphenhydramine": [
+    14,
+    95
+  ],
+  "Distilled water": [
+    82
+  ],
+  "Dithranol": [
+    56
+  ],
+  "Divalproex sodium": [
+    76
+  ],
+  "Dobutamine": [
+    53
+  ],
+  "Docetaxel": [
+    38,
+    99
+  ],
+  "Dolutegravir (DTG)": [
+    29,
+    98
+  ],
+  "Fortified Blended Food (FBF)": [
+    90
+  ],
+  "Fosaprepitant": [
+    60
+  ],
+  "Fosfomycin": [
+    23,
+    125
+  ],
+  "Furosemide": [
+    53,
+    59
+  ],
+  "Fusidic acid": [
+    55
+  ],
+  "Gabapentin": [
+    13,
+    17,
+    95
+  ],
+  "Gadobutrol": [
+    58
+  ],
+  "Gadodiamide": [
+    58
+  ],
+  "Gadopentate dimeglumine": [
+    59
+  ],
+  "Gallium-68 oxodotreotide (dotatate)": [
+    93
+  ],
+  "Gancyclovir": [
+    30
+  ],
+  "Gefitinib": [
+    41
+  ],
+  "Gelatin-based colloid": [
+    48
+  ],
+  "Gemcitabine": [
+    38
+  ],
+  "Gentamicin": [
+    20,
+    21,
+    22,
+    68,
+    125
+  ],
+  "Gentamicin + Dexamethasone": [
+    68
+  ],
+  "Germanium-68 - Gallium-68 radionuclide generator": [
+    93
+  ],
+  "Gliclazide": [
+    63,
+    104
+  ],
+  "Glucagon": [
+    65,
+    105
+  ],
+  "Glucose": [
+    8,
+    84
+  ],
+  "Glucose + Sodium chloride": [
+    84
+  ],
+  "Glutaral": [
+    59
+  ],
+  "Glyceryl trinitrate": [
+    48,
+    101
+  ],
+  "Glycopyrronium": [
+    11
+  ],
+  "Golimumab 80 gonadotropin (HCG)": [
+    72
+  ],
+  "Goserelin": [
+    43,
+    72
+  ],
+  "Griseofulvin": [
+    27
+  ],
+  "Haemodialysis solution": [
+    74
+  ],
+  "Haloperidol": [
+    13,
+    74
+  ],
+  "Halothane": [
+    8
+  ],
+  "Heparinsodium": [
+    46
+  ],
+  "Hepatic formula richin BCAA": [
+    90
+  ],
+  "Hepatitis A vaccine": [
+    67
+  ],
+  "Hepatitis B vaccine": [
+    66
+  ],
+  "Hexamethyl propylene amine oxime (HMPAO) (Technetium-99m exametazime)": [
+    91
+  ],
+  "High calorie, high protein formula": [
+    89
+  ],
+  "High energy protein fat-free hydrolyzed feed": [
+    88
+  ],
+  "HPV vaccine (quadrivalent)": [
+    66
+  ],
+  "Human albumin infusion": [
+    48
+  ],
+  "Human chorionic": [
+    72
+  ],
+  "Human Epidermal growth factor (recombinant)": [
+    82
+  ],
+  "Human menopausal gonadotropin (HMG)": [
+    72
+  ],
+  "Human Platelet derived growth factor (recombinant)": [
+    82
+  ],
+  "Hydralazine": [
+    51,
+    53
+  ],
+  "Hydrochlorothiazide (HCTZ)": [
+    51,
+    52,
+    59
+  ],
+  "Hydrocortisone": [
+    14,
+    43,
+    56,
+    62,
+    104
+  ],
+  "Hydrogen peroxide": [
+    79
+  ],
+  "Hydroxocobalamin (Vit B12)": [
+    45
+  ],
+  "Hydroxycarbamide (Hydroxyurea)": [
+    38,
+    46
+  ],
+  "Hydroxychloroquine": [
+    80
+  ],
+  "Hydroxyethyl starch": [
+    48
+  ],
+  "Hyoscine butylbromide": [
+    13
+  ],
+  "Levothyroxine": [
+    65
+  ],
+  "Lidocaine (Lignocaine)": [
+    80
+  ],
+  "Lignocaine": [
+    9,
+    49,
+    69,
+    80,
+    94,
+    101,
+    106,
+    112
+  ],
+  "Lignocaine + Epinephrine (Adrenaline)": [
+    9,
+    69,
+    106
+  ],
+  "Lignocaine (Preservative free)": [
+    49
+  ],
+  "Linagliptin": [
+    64,
+    105
+  ],
+  "Linezolid": [
+    24,
+    26,
+    125
+  ],
+  "Linezolid (Lzd)": [
+    26
+  ],
+  "Lipid emulsion": [
+    16
+  ],
+  "Liposomal Doxorubicin (Pegylated)": [
+    39,
+    99
+  ],
+  "Liquid paraffin": [
+    79
+  ],
+  "Lisinopril + Hydrochlorothiazide (HCTZ)": [
+    52
+  ],
+  "Lithium carbonate": [
+    76
+  ],
+  "Loperamide": [
+    13
+  ],
+  "Lopinavir + ritonavir (LPV+r)": [
+    29,
+    113
+  ],
+  "Loratadine": [
+    14,
+    95
+  ],
+  "Lorazepam": [
+    17
+  ],
+  "Losartan": [
+    50,
+    52,
+    54
+  ],
+  "Losartan + Hydrochlorothiazide (HCTZ)": [
+    52
+  ],
+  "Lugol\u2019s lodine solution": [
+    65
+  ],
+  "Lutetium-177 oxodotreotide (dotatate)": [
+    93
+  ],
+  "Magnesium chloride": [
+    83
+  ],
+  "Magnesium sulphate": [
+    17
+  ],
+  "Magnesium Sulphate": [
+    44,
+    100
+  ],
+  "Malaria vaccine": [
+    67
+  ],
+  "Mannitol": [
+    44,
+    59,
+    100
+  ],
+  "Measles + Rubella vaccine (MR)": [
+    66
+  ],
+  "Mebendazole": [
+    19
+  ],
+  "Medical air": [
+    10,
+    112
+  ],
+  "Medroxyprogesterone": [
+    62,
+    71
+  ],
+  "Medroxyprogesterone acetate (DMPA)": [
+    71
+  ],
+  "Mefloquine": [
+    33
+  ],
+  "Melarsoprol": [
+    34
+  ],
+  "Melatonin": [
+    78,
+    108
+  ],
+  "Melphalan": [
+    39,
+    42
+  ],
+  "Memantine": [
+    45
+  ],
+  "Meningococcal meningitis vaccine": [
+    67
+  ],
+  "Mercaptoacetyltriglycine (MAG3) (Technetium -99m mertiatide)": [
+    91
+  ],
+  "Mercaptopurine": [
+    39
+  ],
+  "Meropenem": [
+    24,
+    112,
+    125
+  ],
+  "Mesalazine": [
+    61,
+    104
+  ],
+  "Mesna": [
+    38,
+    44,
+    114
+  ],
+  "Metformin": [
+    64,
+    65,
+    104,
+    105
+  ],
+  "Methadone": [
+    12,
+    77,
+    95
+  ],
+  "Methotrexate": [
+    39,
+    81
+  ],
+  "Methotrexate (MTX)": [
+    81
+  ],
+  "Methyl cellulose": [
+    70
+  ],
+  "Methyldopa": [
+    51,
+    102
+  ],
+  "Methylene diphosphonate (MDP) (Technetium -99m medronate)": [
+    91
+  ],
+  "Methylphenidate": [
+    77,
+    108
+  ],
+  "Methylprednisolone": [
+    36,
+    43,
+    69,
+    81,
+    109
+  ],
+  "Metoclopramide": [
+    13,
+    60
+  ],
+  "Metolazone": [
+    54,
+    59,
+    103
+  ],
+  "Metoprolol": [
+    50,
+    102
+  ],
+  "Metronidazole": [
+    21,
+    31,
+    32,
+    82,
+    125
+  ],
+  "Miconazole": [
+    55
+  ],
+  "Midazolam": [
+    8,
+    9,
+    13,
+    17,
+    75,
+    94,
+    95
+  ],
+  "Nystatin": [
+    27
+  ],
+  "Octreotide": [
+    43,
+    100
+  ],
+  "Ofloxacin": [
+    68,
+    106
+  ],
+  "Ofloxacin + Dexamethasone": [
+    68,
+    106
+  ],
+  "Olanzapine": [
+    61,
+    75,
+    108
+  ],
+  "Olopatadine": [
+    70,
+    107
+  ],
+  "Omega 3 fatty acids": [
+    86
+  ],
+  "Omeprazole": [
+    60
+  ],
+  "Ondansetron": [
+    10,
+    14,
+    61,
+    94
+  ],
+  "Oral rehydration salts + Zinc sulphate": [
+    61,
+    83
+  ],
+  "Oral rehydration salts (ORS)": [
+    61,
+    83
+  ],
+  "Osimertinib": [
+    41,
+    100
+  ],
+  "Oxaliplatin": [
+    39
+  ],
+  "Oxcarbazepine": [
+    17,
+    96
+  ],
+  "Oxycodone": [
+    12,
+    95
+  ],
+  "Oxygen": [
+    10,
+    112
+  ],
+  "Oxytocin": [
+    73
+  ],
+  "Paclitaxel": [
+    40
+  ],
+  "Paediatric nutritionally complete isocaloric formula go Paediatric nutritionally complete peptide-based formula": [
+    90
+  ],
+  "Palbociclib": [
+    41,
+    100
+  ],
+  "Paliperidone palmitate": [
+    75
+  ],
+  "Palonosetron 61, 103 p-aminosalicylic acid (PAS)": [
+    26
+  ],
+  "Pantoprazole": [
+    60,
+    103
+  ],
+  "Papain + Urea (Papain-urea topical)": [
+    82
+  ],
+  "Paracetamol": [
+    12,
+    35,
+    99
+  ],
+  "Paromomycin": [
+    32
+  ],
+  "Paroxetine": [
+    76,
+    108
+  ],
+  "Pazopanib": [
+    41,
+    100
+  ],
+  "Pegaspargase": [
+    40,
+    99
+  ],
+  "Peg-Filgrastim": [
+    42,
+    100
+  ],
+  "Pembrolizumab": [
+    42
+  ],
+  "Pemetrexed": [
+    40,
+    99
+  ],
+  "Pentamidine isethionate": [
+    34
+  ],
+  "Perindopril + Amlodipine": [
+    52,
+    102
+  ],
+  "Perindopril + Amlodipine + Indapamide": [
+    52,
+    102
+  ],
+  "Phenobarbital (Phenobarbitone) sodium": [
+    18
+  ],
+  "Phenoxybenzamine": [
+    52
+  ],
+  "Phenoxymethylpenicillin (Penicillin V)": [
+    21,
+    125
+  ],
+  "Phenylephrine": [
+    10,
+    57,
+    94
+  ],
+  "Phenytoin sodium": [
+    18
+  ],
+  "Phytomenadione (Vit K1)": [
+    16,
+    45
+  ],
+  "Pilocarpine": [
+    69,
+    107
+  ],
+  "Pioglitazone": [
+    64,
+    104,
+    105
+  ],
+  "Pioglitazone + Metformin": [
+    64,
+    105
+  ],
+  "Piperacillin+ Tazobactam": [
+    23,
+    125
+  ],
+  "Pirfenidone": [
+    79,
+    108
+  ],
+  "Plasma, fresh-frozen": [
+    47
+  ],
+  "Platelets": [
+    47
+  ],
+  "Pneumococcal vaccine (10-valent ads. conjugate)": [
+    66
+  ],
+  "Risperidone": [
+    75
+  ],
+  "Ritonavir (RTV)": [
+    29,
+    113
+  ],
+  "Rituximab": [
+    36,
+    41,
+    81,
+    82,
+    109
+  ],
+  "Rivaroxaban": [
+    46
+  ],
+  "Rivastigmine": [
+    45,
+    101
+  ],
+  "Rocuronium": [
+    10,
+    94
+  ],
+  "Rotavirus vaccine": [
+    67
+  ],
+  "Sacubitril + Valsartan": [
+    54
+  ],
+  "Salbutamol": [
+    73,
+    78
+  ],
+  "Salbutamol + Beclomethasone": [
+    78
+  ],
+  "Salbutamol + Ipratropium": [
+    78
+  ],
+  "Salicylic acid": [
+    56
+  ],
+  "Senna": [
+    14,
+    95
+  ],
+  "Sesta methoxyisobutylisonitrile (sestamibi) (Technetium -99m Sestamibi)": [
+    92
+  ],
+  "Sevelamer": [
+    83
+  ],
+  "Sevoflurane 8& Sildenafil": [
+    52,
+    74
+  ],
+  "Silverion": [
+    82
+  ],
+  "Silver sulphadiazine": [
+    55,
+    82,
+    103
+  ],
+  "Sitagliptin": [
+    64,
+    65,
+    104,
+    105
+  ],
+  "Sitagliptin + Metformin": [
+    65,
+    105
+  ],
+  "Sodium chloride": [
+    79,
+    83,
+    84,
+    110
+  ],
+  "Sodium cromoglicate": [
+    70
+  ],
+  "Sodium Hyaluronate": [
+    71,
+    107
+  ],
+  "Sodium hydrogen carbonate (Sodium bicarbonate)": [
+    16,
+    44,
+    83,
+    84,
+    100
+  ],
+  "Sodium lactate compound (Hartmann\u2019s /Ringers lactate)": [
+    84
+  ],
+  "Sodium nitrite": [
+    16
+  ],
+  "Sodium polystyrene sulphonate": [
+    83
+  ],
+  "Sodium stibogluconate": [
+    32
+  ],
+  "Sodium thiosulphate": [
+    16
+  ],
+  "Sofosbuvir+Velpatasvir": [
+    31
+  ],
+  "Somatropin (recombinant human growth hormone)": [
+    66,
+    105
+  ],
+  "Sorafenib": [
+    42,
+    100
+  ],
+  "Specialized Renal formula": [
+    90
+  ],
+  "Specialized Semi-elemental peptide formula": [
+    90
+  ],
+  "Spironolactone": [
+    51,
+    54,
+    59,
+    62,
+    103,
+    104
+  ],
+  "Succimer [Dimercaptosuccinic acid (DMSA)]": [
+    16
+  ],
+  "Sulfadiazine": [
+    34
+  ],
+  "Sulfadoxine + Pyrimethamine": [
+    33
+  ],
+  "Sulfasalazine (SSZ)": [
+    81
+  ],
+  "Sumatriptan": [
+    35,
+    99
+  ],
+  "Sun screening agent(s)": [
+    57
+  ],
+  "Suramin sodium": [
+    34
+  ],
+  "Surfactant": [
+    74
+  ],
+  "Suxamethonium": [
+    10
+  ],
+  "Tacrolimus": [
+    36,
+    56
+  ],
+  "Tadalafil": [
+    52,
+    102
+  ],
+  "Tamoxifen": [
+    43
+  ],
+  "Tamsulosin": [
+    93
+  ],
+  "Technetium - 99m disofenin (DISIDA)": [
+    92,
+    110
+  ],
+  "Technetium - 99m leucocytes": [
+    92,
+    110
+  ],
+  "Tropicamide + phenylephrine": [
+    70
+  ],
+  "Tropicamide + Phenylephrine": [
+    57
+  ],
+  "Trypan blue": [
+    71,
+    107
+  ],
+  "Tuberculin, purified protein, derivative (PPD)": [
+    66
+  ],
+  "Typhoid vaccine": [
+    67
+  ],
+  "Vv Valgancyclovir": [
+    30,
+    98
+  ],
+  "Valproic acid (Sodium Valproate)": [
+    18,
+    96
+  ],
+  "Vancomycin": [
+    24,
+    125
+  ],
+  "Vasopressin": [
+    115
+  ],
+  "Vecuronium": [
+    10
+  ],
+  "Venlafaxine": [
+    76,
+    108
+  ],
+  "Verapamil": [
+    49,
+    102,
+    115
+  ],
+  "Vinblastine": [
+    40
+  ],
+  "Vincristine": [
+    40
+  ],
+  "Vinorelbine": [
+    40
+  ],
+  "Vitamin B12 (Cobalamin)": [
+    86
+  ],
+  "Vitamin B and C": [
+    77
+  ],
+  "Vitamins & Minerals Mix": [
+    86
+  ],
+  "Voriconazole": [
+    27,
+    68,
+    98,
+    106
+  ],
+  "Ww Warfarin": [
+    16,
+    46,
+    101
+  ],
+  "Water-soluble vitamins Containing Vitamin C and B-complex": [
+    88
+  ],
+  "White soft paraffin (Petroleum jelly)": [
+    57
+  ],
+  "Whole blood": [
+    47
+  ],
+  "Xylometazoline": [
+    79
+  ],
+  "Yellow fever vaccine (live, attenuated)": [
+    67
+  ],
+  "Zidovudine + Lamivudine (AZT+3TC)": [
+    30,
+    113
+  ],
+  "Zidovudine (AZT or ZDV)": [
+    28
+  ],
+  "Zinc Hyaluronate (zinc-hyaluronan)": [
+    83
+  ],
+  "Zinc sulphate": [
+    61,
+    83,
+    87
+  ],
+  "Zoledronic acid": [
+    44,
+    82
+  ],
+  "Zolpidem": [
+    78
+  ],
+  "Zuclopenthixol": [
+    75
+  ]
+}

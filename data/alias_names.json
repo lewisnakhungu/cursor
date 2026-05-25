@@ -1,0 +1,2786 @@
+[
+  {
+    "generic_name": "Abacavir (ABC)",
+    "aliases": ["Ziagen", "Abamune", "Abavir", "Abamap"]
+  },
+  {
+    "generic_name": "Abacavir + lamivudine (ABC+3TC)",
+    "aliases": ["Kivexa", "Abamune-L", "Abamap-L", "Duovir-A"]
+  },
+  {
+    "generic_name": "Abatacept",
+    "aliases": ["Orencia"]
+  },
+  {
+    "generic_name": "Abiraterone",
+    "aliases": ["Zytiga", "Abirapro", "Abirater-Cell", "Xbira"]
+  },
+  {
+    "generic_name": "Acamprosate",
+    "aliases": ["Campral"]
+  },
+  {
+    "generic_name": "Acetazolamide",
+    "aliases": ["Diamox", "Zolam", "Acetamide"]
+  },
+  {
+    "generic_name": "Acetylcysteine",
+    "aliases": ["Fluimucil", "Mucomyst", "Mucnac", "Nac-A"]
+  },
+  {
+    "generic_name": "Acetylsalicylic acid (Aspirin)",
+    "aliases": ["Ecotrin", "Micristin", "Asprin-Cosmos", "L-Aspirin"]
+  },
+  {
+    "generic_name": "Acetylsalicylic acid (Aspirin) + Clopidogrel",
+    "aliases": ["Plavix Plus", "Clopivas-AP", "Clopilet-A", "Deplatt-A"]
+  },
+  {
+    "generic_name": "Activated Charcoal",
+    "aliases": ["Charcocaps", "Ultracarbon", "Actidose"]
+  },
+  {
+    "generic_name": "Acyclovir",
+    "aliases": ["Zovirax", "Acivir", "Cyclovax", "Herpex"]
+  },
+  {
+    "generic_name": "Adalimumab",
+    "aliases": ["Humira", "Exemptia", "Amgevita"]
+  },
+  {
+    "generic_name": "Adenosine",
+    "aliases": ["Adenocard", "Adenocor"]
+  },
+  {
+    "generic_name": "Adult nutritionally complete elemental peptide formula",
+    "aliases": ["Peptamen Intense", "Survimed Op", "AlitraQ"]
+  },
+  {
+    "generic_name": "Adult nutritionally complete isocaloric formula",
+    "aliases": ["Ensure Original", "Nutren Optimum", "Fresubin Universal"]
+  },
+  {
+    "generic_name": "Aflibercept",
+    "aliases": ["Eylea", "Zaltrap"]
+  },
+  {
+    "generic_name": "Albendazole",
+    "aliases": ["Zentel", "Nematocid", "Alben-Med", "Bendex", "Alworm"]
+  },
+  {
+    "generic_name": "Alcohol-based hand rub",
+    "aliases": ["Sterillium", "Dettol Sanitizer", "Purell", "Saraya Saniscrub"]
+  },
+  {
+    "generic_name": "Alendronate",
+    "aliases": ["Fosamax", "Ostebon", "Alendros", "Restofos"]
+  },
+  {
+    "generic_name": "All-trans retinoid acid (ATRA)",
+    "aliases": ["Vesanoid", "Tretinoin-Cap"]
+  },
+  {
+    "generic_name": "Allopurinol",
+    "aliases": ["Zyloric", "Purinol", "Allo-Cosmos", "Luric"]
+  },
+  {
+    "generic_name": "Alprazolam",
+    "aliases": ["Xanax", "Alzolam", "Restyl", "Calmax"]
+  },
+  {
+    "generic_name": "Alteplase",
+    "aliases": ["Actilyse"]
+  },
+  {
+    "generic_name": "Amidotrizoate",
+    "aliases": ["Urografin", "Gastrografin"]
+  },
+  {
+    "generic_name": "Amikacin",
+    "aliases": ["Amikin", "Mikacin", "Amik-Lab", "Amika"]
+  },
+  {
+    "generic_name": "Amikacin (Am)",
+    "aliases": ["Amikin-TB", "MDR-Amikacin"]
+  },
+  {
+    "generic_name": "Amino acids",
+    "aliases": ["Aminoven", "Aminosyn", "Amiparen"]
+  },
+  {
+    "generic_name": "Amino acids and Vitamin granules",
+    "aliases": ["Astymin", "Aminofit", "Vitamino"]
+  },
+  {
+    "generic_name": "Amiodarone",
+    "aliases": ["Cordarone", "Amio-Card", "Miodaron"]
+  },
+  {
+    "generic_name": "Amitriptyline",
+    "aliases": ["Tryptizol", "Amitrip-L", "Amiline", "Saroten"]
+  },
+  {
+    "generic_name": "Amlodipine",
+    "aliases": ["Norvasc", "Amlogard", "Amcard", "Amlopin", "Camlodin"]
+  },
+  {
+    "generic_name": "Amlodipine + Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Exforge-HCT", "Amcard-H", "Amlopin-H", "Norvasc-HCT"]
+  },
+  {
+    "generic_name": "Amlodipine + Indapamide",
+    "aliases": ["Natrixam", "Amlesco", "Indatens-A"]
+  },
+  {
+    "generic_name": "Amoxicillin",
+    "aliases": ["Amoxil", "Almox", "Amoxicap", "Penamox", "Mox-Cosmos"]
+  },
+  {
+    "generic_name": "Amoxicillin + clavulanic acid",
+    "aliases": ["Augmentin", "Amoksiklav", "Fleming", "Co-Amoxiclav", "Clavam"]
+  },
+  {
+    "generic_name": "Amoxicillin + clavulanic acid (Amx+Clv)",
+    "aliases": ["Augmentin-RSC", "Fleming-Syrup", "Co-Amox-HPT"]
+  },
+  {
+    "generic_name": "Amphotericin B",
+    "aliases": ["Fungizone", "Amphotret", "Ambomegap"]
+  },
+  {
+    "generic_name": "Ampicillin",
+    "aliases": ["Penbritin", "Ampilin-Lab", "Ampi-Cosmos"]
+  },
+  {
+    "generic_name": "Anastrozole",
+    "aliases": ["Arimidex", "Anabrez", "Armotraz"]
+  },
+  {
+    "generic_name": "Ant-Tetanus immunoglobulin",
+    "aliases": ["Tetagam", "Tetanus-IG", "Tetuman", "Equitox"]
+  },
+  {
+    "generic_name": "Anti Snake venom immunoglobulin",
+    "aliases": ["ASV-Premium", "Inoserp African", "Polyvalent-ASV"]
+  },
+  {
+    "generic_name": "Anti-D immunoglobulin",
+    "aliases": ["Rhogam", "Resuman", "Anti-D-Alpha", "Immuno-RHO"]
+  },
+  {
+    "generic_name": "Anti-Hepatitis B immunoglobulin (HBIG)",
+    "aliases": ["Hepabig", "Hepaglob", "HyperHEP"]
+  },
+  {
+    "generic_name": "Anti-Rabies immunoglobulin",
+    "aliases": ["Rabigam", "Kamarab", "Berirab", "Equirab"]
+  },
+  {
+    "generic_name": "Antithymocyte globulin (ATG) (Equine)",
+    "aliases": ["Atgam", "Thymoglobuline"]
+  },
+  {
+    "generic_name": "Aripiprazole",
+    "aliases": ["Abilify", "Ariprax", "Arpizol", "Aristada"]
+  },
+  {
+    "generic_name": "Arsenic trioxide",
+    "aliases": ["Trisenox", "Arsenox"]
+  },
+  {
+    "generic_name": "Artemether",
+    "aliases": ["Paluther", "Artemed-Inj", "Malather"]
+  },
+  {
+    "generic_name": "Artesunate",
+    "aliases": ["Artesun", "Falcinil", "G-Artesunate", "Larinate"]
+  },
+  {
+    "generic_name": "Artesunate + Pyronaridine tetraphosphate",
+    "aliases": ["Pyramax"]
+  },
+  {
+    "generic_name": "Ascorbic acid (Vit C)",
+    "aliases": ["Redoxon", "Vit-C-Cosmos", "C-Vite", "Cecon"]
+  },
+  {
+    "generic_name": "Atazanavir + Ritonavir (ATV/r)",
+    "aliases": ["Reyataz-Co", "Atavir-R", "A规范-R", "Anavir-R"]
+  },
+  {
+    "generic_name": "Atomoxetine",
+    "aliases": ["Strattera", "Attentrol", "Axepta"]
+  },
+  {
+    "generic_name": "Atorvastatin",
+    "aliases": ["Lipitor", "Atorva", "Storvas", "Tonact", "Lipigen"]
+  },
+  {
+    "generic_name": "Atovaquone + Proguanil",
+    "aliases": ["Malarone", "Malnil", "Malarstop"]
+  },
+  {
+    "generic_name": "Atracurium",
+    "aliases": ["Tracrium", "Atra-Inj", "Artacura"]
+  },
+  {
+    "generic_name": "Atropine",
+    "aliases": ["Atropine-Universal", "Atrosul-Eye", "Tropin"]
+  },
+  {
+    "generic_name": "Azathioprine",
+    "aliases": ["Imuran", "Azoran", "Azaprine"]
+  },
+  {
+    "generic_name": "Azelastine",
+    "aliases": ["Astelin", "Azep", "Allergodil"]
+  },
+  {
+    "generic_name": "Azithromycin",
+    "aliases": ["Zithromax", "Azuma", "Azitrox", "Aziwok", "Trulimax"]
+  },
+  {
+    "generic_name": "B-Sitosterol",
+    "aliases": ["MEBO Ointment", "Sitosterol-Skin"]
+  },
+  {
+    "generic_name": "BCG vaccine (live attenuated)",
+    "aliases": ["BCG-Serum-Inst", "MOH-BCG"]
+  },
+  {
+    "generic_name": "Baricitinib",
+    "aliases": ["Olumiant", "Barisan", "Barinit"]
+  },
+  {
+    "generic_name": "Barium sulphate",
+    "aliases": ["Barosperse", "E-Z-Paque", "Bari-Meal"]
+  },
+  {
+    "generic_name": "Basiliximab",
+    "aliases": ["Simulect"]
+  },
+  {
+    "generic_name": "Bedaquiline (Bdq)",
+    "aliases": ["Sirturo"]
+  },
+  {
+    "generic_name": "Bendamustine",
+    "aliases": ["Treanda", "Bendamit", "Ribomustin"]
+  },
+  {
+    "generic_name": "Benzathine benzylpenicillin",
+    "aliases": ["Penadur", "L-Penicillin", "Benzathine-Universal", "Retarpen"]
+  },
+  {
+    "generic_name": "Benzhexol",
+    "aliases": ["Artane", "Parkin", "Hexol", "Benzhex-Cosmos"]
+  },
+  {
+    "generic_name": "Benzocaine + Chlorbutol + Paradichlorobenzene   + Turpentine oil",
+    "aliases": ["Waxolve Ear Drops", "Cerumol", "Clearwax", "Soluwax"]
+  },
+  {
+    "generic_name": "Benzoyl peroxide",
+    "aliases": ["Benzac AC", "PanOxyl", "Galderma-BPO"]
+  },
+  {
+    "generic_name": "Benzyl Benzoate",
+    "aliases": ["Ascabiol", "Scabene-Application", "BBL-Cosmos"]
+  },
+  {
+    "generic_name": "Benzylpenicillin",
+    "aliases": ["Penicillin-G", "Crystapen", "X-Pen-Inj"]
+  },
+  {
+    "generic_name": "Betahistine",
+    "aliases": ["Serc", "Betavert", "Vertin", "Betaserc"]
+  },
+  {
+    "generic_name": "Betamethasone",
+    "aliases": ["Betnovate", "Celestone", "Celestoderm", "Beta-Sone"]
+  },
+  {
+    "generic_name": "Bevacizumab",
+    "aliases": ["Avastin", "Bryxta", "Abeve", "Bevalis"]
+  },
+  {
+    "generic_name": "Bicalutamide",
+    "aliases": ["Casodex", "Bicalox", "Calutide"]
+  },
+  {
+    "generic_name": "Bimatoprost",
+    "aliases": ["Lumigan", "Bimat-Eye"]
+  },
+  {
+    "generic_name": "Bimatoprost + Timolol",
+    "aliases": ["Ganfort", "Bimat-T"]
+  },
+  {
+    "generic_name": "Biperiden",
+    "aliases": ["Akineton"]
+  },
+  {
+    "generic_name": "Bisacodyl",
+    "aliases": ["Dulcolax", "Laxidyl", "Bisaco-Cosmos", "Stilax"]
+  },
+  {
+    "generic_name": "Bisoprolol",
+    "aliases": ["Concor", "Bisocard", "Biselect", "Zebeta"]
+  },
+  {
+    "generic_name": "Bleomycin",
+    "aliases": ["Blenoxane", "Bleocin", "Bleocel"]
+  },
+  {
+    "generic_name": "Bortezomib",
+    "aliases": ["Velcade", "Bortecel", "Borizm"]
+  },
+  {
+    "generic_name": "Bosentan",
+    "aliases": ["Tracleer", "Bosentas"]
+  },
+  {
+    "generic_name": "Brimonidine + Timolol",
+    "aliases": ["Combigan", "Brimocom"]
+  },
+  {
+    "generic_name": "Bromazepam",
+    "aliases": ["Lexotan", "Bromaz-L", "Sensival"]
+  },
+  {
+    "generic_name": "Budesonide",
+    "aliases": ["Pulmicort", "Budecort", "Entocort", "Rhinocort"]
+  },
+  {
+    "generic_name": "Budesonide + Formoterol",
+    "aliases": ["Symbicort", "Foracort", "Budetrol"]
+  },
+  {
+    "generic_name": "Bupivacaine",
+    "aliases": ["Marcain", "Regivaca", "Bupicain"]
+  },
+  {
+    "generic_name": "Bupivacaine + Glucose",
+    "aliases": ["Marcain Heavy", "Bupivacaine Heavy-Inj", "Anawin Heavy"]
+  },
+  {
+    "generic_name": "Buprenorphine",
+    "aliases": ["Subutex", "Norspan", "Buprex"]
+  },
+  {
+    "generic_name": "Buprenorphine + Naloxone",
+    "aliases": ["Suboxone"]
+  },
+  {
+    "generic_name": "Bupropion",
+    "aliases": ["Zyban", "Wellbutrin", "Bupron"]
+  },
+  {
+    "generic_name": "Cabazitaxel",
+    "aliases": ["Jevtana", "Cabatax"]
+  },
+  {
+    "generic_name": "Cabergoline",
+    "aliases": ["Dostinex", "Cabgolin"]
+  },
+  {
+    "generic_name": "Cabotegravir",
+    "aliases": ["Vocabria", "Apretude"]
+  },
+  {
+    "generic_name": "Caffeine citrate",
+    "aliases": ["Cafcit", "Neonatal Caffeine Injection"]
+  },
+  {
+    "generic_name": "Calamine",
+    "aliases": ["Calamine-Lotion-Cosmos", "Calamed", "L-Calamine"]
+  },
+  {
+    "generic_name": "Calcitriol (Vit D3)",
+    "aliases": ["Rocaltrol", "Calcirol", "Kosteo"]
+  },
+  {
+    "generic_name": "Calcium Carbonate with Vitamin D",
+    "aliases": ["Calcichew-D3", "Caltrate-D", "Ossopan-D", "Shelcal-D"]
+  },
+  {
+    "generic_name": "Calcium carbonate",
+    "aliases": ["Calcichew", "Titralac", "Cal-Carb-Cosmos"]
+  },
+  {
+    "generic_name": "Calcium folinate",
+    "aliases": ["Leucovorin", "Recovorin", "Folinate-Cell"]
+  },
+  {
+    "generic_name": "Calcium gluconate",
+    "aliases": ["Calcium-Inj-Universal", "Gluco-Cal", "Cal-Glu-Lab"]
+  },
+  {
+    "generic_name": "Calcium polystyrene sulphonate",
+    "aliases": ["Calcium Resonium", "K-Bind", "Polycalson"]
+  },
+  {
+    "generic_name": "Capecitabine",
+    "aliases": ["Xeloda", "Capnat", "Capegard", "Xelocel"]
+  },
+  {
+    "generic_name": "Carbamazepin",
+    "aliases": ["Tegretol-M", "Mazetol-Drop"]
+  },
+  {
+    "generic_name": "Carbamazepine",
+    "aliases": ["Tegretol", "Mazetol", "Carbamez-Cosmos", "Zeptol"]
+  },
+  {
+    "generic_name": "Carbetocin",
+    "aliases": ["Pabal", "Duratocin"]
+  },
+  {
+    "generic_name": "Carbimazole",
+    "aliases": ["Neo-Mercazole", "Thyrocab", "Carbiazol"]
+  },
+  {
+    "generic_name": "Carboplatin",
+    "aliases": ["Paraplatin", "Carbocel", "Cytocarb"]
+  },
+  {
+    "generic_name": "Carboprost",
+    "aliases": ["Hemabate", "Carboprost-Neon"]
+  },
+  {
+    "generic_name": "Carvedilol",
+    "aliases": ["Dilatrend", "Carvedil-L", "Cardivas", "Carca"]
+  },
+  {
+    "generic_name": "Cefalexin",
+    "aliases": ["Keflex", "Sporidex", "Alexin-Lab", "Cefalex-Cosmos"]
+  },
+  {
+    "generic_name": "Cefazolin",
+    "aliases": ["Kefzol", "Cefazolin-Inj-Lab", "Cefameg"]
+  },
+  {
+    "generic_name": "Cefixime",
+    "aliases": ["Suprax", "Cefi", "Taxim-O", "Fixx-Lab", "Zifi"]
+  },
+  {
+    "generic_name": "Cefotaxime",
+    "aliases": ["Claforan", "Taxim", "Cefotax-Inj"]
+  },
+  {
+    "generic_name": "Ceftazidime",
+    "aliases": ["Fortum", "Tazicef", "Ceftaz-Lab", "Bestum"]
+  },
+  {
+    "generic_name": "Ceftazidime + avibactam",
+    "aliases": ["Zavicefta"]
+  },
+  {
+    "generic_name": "Ceftriaxone",
+    "aliases": ["Rocephin", "Oframax", "Ceftrex-Lab", "Triaxone", "Powercef"]
+  },
+  {
+    "generic_name": "Cefuroxime",
+    "aliases": ["Zinnat", "Ceftum", "Zocef", "Cefuro-Cosmos", "Altacef"]
+  },
+  {
+    "generic_name": "Celecoxib",
+    "aliases": ["Celebrex", "Celact", "Cobix", "Zycel"]
+  },
+  {
+    "generic_name": "Cetirizine",
+    "aliases": ["Zyrtec", "Histazin", "Alerid", "Cetriz", "Tiriz"]
+  },
+  {
+    "generic_name": "Chlorambucil",
+    "aliases": ["Leukeran"]
+  },
+  {
+    "generic_name": "Chlorhexidine",
+    "aliases": ["Savlon Concentrate", "HiBiSCRUB", "Chlorhex-Gargle", "Hexodent"]
+  },
+  {
+    "generic_name": "Chlorpheniramine",
+    "aliases": ["Piriton", "Cadistin", "Chlorcon-Cosmos", "Allercalm"]
+  },
+  {
+    "generic_name": "Chlorpromazine",
+    "aliases": ["Largactil", "Chlorprom-Cosmos", "Neuril"]
+  },
+  {
+    "generic_name": "Chlorthalidone",
+    "aliases": ["Hygroton", "Chlorthal-T", "Thalitone"]
+  },
+  {
+    "generic_name": "Cholecalciferol (Vit D3)",
+    "aliases": ["Calcirol Drops", "D3-Vite", "Arachitol", "D-Rise"]
+  },
+  {
+    "generic_name": "Cholera vaccine",
+    "aliases": ["Shanchol", "Dukoral", "Euvichol"]
+  },
+  {
+    "generic_name": "Cinacalcet",
+    "aliases": ["Sensipar", "Mimpara", "PTC-Calcet"]
+  },
+  {
+    "generic_name": "Cinnarizine",
+    "aliases": ["Stugeron", "Cinzan", "Vertigon", "Stugil"]
+  },
+  {
+    "generic_name": "Ciprofloxacin",
+    "aliases": ["Ciproxin", "Ciplox", "Quintor", "Cipro-Med", "Ciprosin"]
+  },
+  {
+    "generic_name": "Ciprofloxacin + Dexamethasone",
+    "aliases": ["Ciprodex Ear Drops", "Ciplox-D Eye Drops", "Zoxan-D"]
+  },
+  {
+    "generic_name": "Cisatracurium",
+    "aliases": ["Nimbex", "Cisatra-Inj"]
+  },
+  {
+    "generic_name": "Cisplatin",
+    "aliases": ["Platinol", "Cisplat-Cell", "Cytoplatin"]
+  },
+  {
+    "generic_name": "Clarithromycin",
+    "aliases": ["Klacid", "Claribid", "Crixan", "Klarim-Lab"]
+  },
+  {
+    "generic_name": "Clindamycin",
+    "aliases": ["Dalacin C", "Clindacin", "Clin-300", "Dalcap"]
+  },
+  {
+    "generic_name": "Clobazam",
+    "aliases": ["Frisium", "Cloba", "Clozam"]
+  },
+  {
+    "generic_name": "Clobetasone propionate",
+    "aliases": ["Eumovate", "Clobet-Cream"]
+  },
+  {
+    "generic_name": "Clofazamine",
+    "aliases": ["Lamprene-M", "Clofaz-Leprosy"]
+  },
+  {
+    "generic_name": "Clofazimine (Cfx)",
+    "aliases": ["LampreneTB", "MDR-Clofazimine"]
+  },
+  {
+    "generic_name": "Clomifene",
+    "aliases": ["Clomid", "Fertyl", "Clofert", "Ovulet"]
+  },
+  {
+    "generic_name": "Clomipramine",
+    "aliases": ["Anafranil", "Clofranil"]
+  },
+  {
+    "generic_name": "Clonazepam",
+    "aliases": ["Rivotril", "Zapiz", "Clonez-L", "Epitril"]
+  },
+  {
+    "generic_name": "Clopidogrel",
+    "aliases": ["Plavix", "Clopivas", "Deplatt", "Clopilet", "Ceruvin"]
+  },
+  {
+    "generic_name": "Clotrimazole",
+    "aliases": ["Canesten", "Candid", "Kandiz-Cream", "Clo-Vaginal", "Surfaz"]
+  },
+  {
+    "generic_name": "Clozapine",
+    "aliases": ["Clozaril", "Sizopin", "Skizoril", "Alemo"]
+  },
+  {
+    "generic_name": "Co-trimoxazole (Sulfamethoxazole + Trimethoprim)",
+    "aliases": ["Septrin", "Bactrim", "Cotrim-Cosmos", "Sulfatrim", "Suprim"]
+  },
+  {
+    "generic_name": "Coagulation factor IX",
+    "aliases": ["Mononine", "Benefix", "Factor-IX-Infusion"]
+  },
+  {
+    "generic_name": "Coagulation factor VIII",
+    "aliases": ["Hemofil M", "Factor-VIII-G", "Koate"]
+  },
+  {
+    "generic_name": "Colchicine",
+    "aliases": ["Colgout", "Colchic-L", "Goutnil"]
+  },
+  {
+    "generic_name": "Colistin",
+    "aliases": ["Coly-Mycin", "Colistimethate-Inj", "Zolin-Colistin"]
+  },
+  {
+    "generic_name": "Collagenase clostridiopeptidase A + Proteases",
+    "aliases": ["Iruxol Mono Ointment", "Collagenase-Wound"]
+  },
+  {
+    "generic_name": "Combined amino acid and glucose formulation for central administration-two chamber bag for central admnistration",
+    "aliases": ["Nutriflex Peri", "Kabiven Central Dual"]
+  },
+  {
+    "generic_name": "Combined amino acid, glucose and lipids with medium chain Triglycerides (MCT)/ Long chain Triglycerides (LCT) - Three Chamber Bag For Central Administration",
+    "aliases": ["SmofKabiven Central", "Olimel N9E"]
+  },
+  {
+    "generic_name": "Combined amino acid, glucose, and lipids with medium chain Triglycerides (MCT) + Long chain Triglycerides (LCT) - three chamber bag for peripherial administration",
+    "aliases": ["SmofKabiven Peripheral", "Olimel N4E", "Nutriflex Lipid Peri"]
+  },
+  {
+    "generic_name": "Conjugated Oestrogens",
+    "aliases": ["Premarin", "Estrogen-Vaginal"]
+  },
+  {
+    "generic_name": "Continuous ambulatory peritoneal dialysis solution (CAPD)",
+    "aliases": ["Dianeal PD Solution", "Fresenius CAPD-Stay\u2022Safe"]
+  },
+  {
+    "generic_name": "Copper-containing device",
+    "aliases": ["Cu-T 380A", "Nova-T Cu", "Pregna Copper-T"]
+  },
+  {
+    "generic_name": "Cotrimoxazole (Sulfamethoxazole + Trimethoprim)",
+    "aliases": ["Septrin-M", "Bactrim-DS", "Cotrim-Universal"]
+  },
+  {
+    "generic_name": "Crotamiton",
+    "aliases": ["Eurax Cream", "Scabicin-C"]
+  },
+  {
+    "generic_name": "Cryoprecipitate",
+    "aliases": ["KNBTS Cryo", "Regional Blood Bank Cryoprecipitate"]
+  },
+  {
+    "generic_name": "Cyclopentolate",
+    "aliases": ["Cyclogyl Eye Drops", "Pentol-Eye"]
+  },
+  {
+    "generic_name": "Cyclophosphamide",
+    "aliases": ["Endoxan", "Cycloxan", "Cytoxan", "Cyclocel"]
+  },
+  {
+    "generic_name": "Cycloserine (Cs)",
+    "aliases": ["Cyclorine TB", "MDR-Cycloserine"]
+  },
+  {
+    "generic_name": "Cyclosporin",
+    "aliases": ["Sandimmun Neoral", "Panimun Bioral", "Cyclomune"]
+  },
+  {
+    "generic_name": "Cytarabine",
+    "aliases": ["Cytosar", "Cytarabine-Cell", "Cytrosin"]
+  },
+  {
+    "generic_name": "DPT + HiB + Hep B vaccine (pentavalent)",
+    "aliases": ["Pentavac", "Quinvaxem", "Easyfive", "MOH-Pentavalent"]
+  },
+  {
+    "generic_name": "Dacarbazine",
+    "aliases": ["DTIC-Dome", "Dacacel", "Damed"]
+  },
+  {
+    "generic_name": "Dactinomycin (Actinomycin D)",
+    "aliases": ["Cosmegen", "Dactinel"]
+  },
+  {
+    "generic_name": "Danazol",
+    "aliases": ["Danocrine", "Ladogal", "Danogen"]
+  },
+  {
+    "generic_name": "Dantrolene",
+    "aliases": ["Dantrium Injection"]
+  },
+  {
+    "generic_name": "Dapivirine",
+    "aliases": ["Dapivirine Ring", "IPM Ring"]
+  },
+  {
+    "generic_name": "Dapsone",
+    "aliases": ["Dapsone-Cosmos", "Leprosy-Dapsone"]
+  },
+  {
+    "generic_name": "Darbepoetin alfa",
+    "aliases": ["Aranesp", "Cresp"]
+  },
+  {
+    "generic_name": "Darunavir (DRV)",
+    "aliases": ["Prezista", "Daruvir"]
+  },
+  {
+    "generic_name": "Darunavir + Ritonavir (DRV+r)",
+    "aliases": ["Prezcobix", "Daruvir-R"]
+  },
+  {
+    "generic_name": "Daunorubicin",
+    "aliases": ["Cerubidine", "Daunotec"]
+  },
+  {
+    "generic_name": "Deferasirox",
+    "aliases": ["Exjade", "Asunra", "Desirox"]
+  },
+  {
+    "generic_name": "Deferoxamine",
+    "aliases": ["Desferal", "Deferon"]
+  },
+  {
+    "generic_name": "Deferoxamine mesilate",
+    "aliases": ["Desferal-Mesylate", "Def-Mesilate"]
+  },
+  {
+    "generic_name": "Delamanid (DIm)",
+    "aliases": ["Deltyba"]
+  },
+  {
+    "generic_name": "Desmopressin",
+    "aliases": ["DDAVP", "Minirin", "Desmospray"]
+  },
+  {
+    "generic_name": "Dexamethasone",
+    "aliases": ["Decadron", "Dexona", "Dexa-Universal", "Dexamed"]
+  },
+  {
+    "generic_name": "Dexamethasone + Polymixin B sulphate + Neomycin sulphate",
+    "aliases": ["Maxitrol Eye Drops", "Dexona-Plus Drops", "Poly-Dex-Eye"]
+  },
+  {
+    "generic_name": "Dexketoprofen",
+    "aliases": ["Ketesse", "Keral", "Dexket"]
+  },
+  {
+    "generic_name": "Dexmedetomidine",
+    "aliases": ["Precedex", "Dexem", "Dextom"]
+  },
+  {
+    "generic_name": "Dextran-70",
+    "aliases": ["Gentran 70 Infusion", "Dextran-Plasma-Sub"]
+  },
+  {
+    "generic_name": "Diazepam",
+    "aliases": ["Valium", "Calmpose", "Diapan-Cosmos", "Placidox", "Betapam"]
+  },
+  {
+    "generic_name": "Diazoxide",
+    "aliases": ["Hyperstat", "Proglycem"]
+  },
+  {
+    "generic_name": "Dienogest",
+    "aliases": ["Visanne", "Dienopil", "Endovela"]
+  },
+  {
+    "generic_name": "Diethylcarbamazine (DEC)",
+    "aliases": ["Hetrazan", "DEC-Filariasis", "Diethylcarb-T"]
+  },
+  {
+    "generic_name": "Digoxin",
+    "aliases": ["Lanoxin", "Digon-L", "Cardioxin"]
+  },
+  {
+    "generic_name": "Dihydroartemisinin + Piperaquine (DHA-PPQ)",
+    "aliases": ["P-Alaxin", "D-Artepp", "Eurartesim", "Artequick"]
+  },
+  {
+    "generic_name": "Dihydrocodeine phosphate",
+    "aliases": ["DF-118", "DHC Continus"]
+  },
+  {
+    "generic_name": "Diloxanide",
+    "aliases": ["Furamide", "Dilox-Am"]
+  },
+  {
+    "generic_name": "Diloxanide furoate + Metronidazole",
+    "aliases": ["Entamizole", "Metrogyl-F", "Dilomed-M"]
+  },
+  {
+    "generic_name": "Diphenhydramine",
+    "aliases": ["Benadryl", "Histalix", "Diphen-Cough"]
+  },
+  {
+    "generic_name": "Distilled water",
+    "aliases": ["Water for Injection-Universal", "Sterile Water-Lab", "WFI-HPT"]
+  },
+  {
+    "generic_name": "Dithranol",
+    "aliases": ["Psororin Anthralin Ointment", "Dithrocream"]
+  },
+  {
+    "generic_name": "Divalproex sodium",
+    "aliases": ["Depakote", "Divalpro", "Epival"]
+  },
+  {
+    "generic_name": "Dobutamine",
+    "aliases": ["Dobutrex", "Dobutamin-Inj-Lab", "Cardiomin"]
+  },
+  {
+    "generic_name": "Docetaxel",
+    "aliases": ["Taxotere", "Docel", "Cytotere", "Docetere"]
+  },
+  {
+    "generic_name": "Dolutegravir (DTG)",
+    "aliases": ["Tivicay", "Doluteg-M", "Naatuvir"]
+  },
+  {
+    "generic_name": "Domperidone",
+    "aliases": ["Motilium", "Domstal", "Vomi-Stop", "Domper-Cosmos"]
+  },
+  {
+    "generic_name": "Donepezil",
+    "aliases": ["Aricept", "Donecept", "Donam"]
+  },
+  {
+    "generic_name": "Dopamine",
+    "aliases": ["Intropin", "Dopamed-Inj", "Dopamine-Lab"]
+  },
+  {
+    "generic_name": "Dorzolamide",
+    "aliases": ["Trusopt", "Dorzo-Eye"]
+  },
+  {
+    "generic_name": "Doxazosin",
+    "aliases": ["Cardura", "Doxacard", "Dura-Ace"]
+  },
+  {
+    "generic_name": "Doxorubicin",
+    "aliases": ["Adriamycin", "Doxocel", "Cytoadria"]
+  },
+  {
+    "generic_name": "Doxycycline",
+    "aliases": ["Vibramycin", "Doxylin-Lab", "Doxy-Cosmos", "Doxitop"]
+  },
+  {
+    "generic_name": "Eflornithine",
+    "aliases": ["Vaniqa Cream", "Ornidyl Sleeping Sickness Injection"]
+  },
+  {
+    "generic_name": "Empagliflozin",
+    "aliases": ["Jardiance", "Empa-Card"]
+  },
+  {
+    "generic_name": "Empagliflozin + Metformin",
+    "aliases": ["Synjardy", "Empa-Met-Co"]
+  },
+  {
+    "generic_name": "Enalapril",
+    "aliases": ["Innovace", "Vasotec", "Enalapril-Cosmos", "Cardril", "Enam"]
+  },
+  {
+    "generic_name": "Enoxaparin",
+    "aliases": ["Clexane", "Lovenox", "Lupenox", "G-Enoxaparin"]
+  },
+  {
+    "generic_name": "Entecavir",
+    "aliases": ["Baraclude", "Entavir", "X-Vir"]
+  },
+  {
+    "generic_name": "Ephedrine",
+    "aliases": ["Ephedrine-Inj-Universal", "Eph-Spinal"]
+  },
+  {
+    "generic_name": "Epinephrine (adrenaline)",
+    "aliases": ["Adrenaline-Universal", "EpiPen", "Adren-Lab"]
+  },
+  {
+    "generic_name": "Eplerenone",
+    "aliases": ["Inspra", "Eplecard"]
+  },
+  {
+    "generic_name": "Ergocalciferol (Vit D2)",
+    "aliases": ["Ostelin Liquid Vitamin D2", "Calciferol-E"]
+  },
+  {
+    "generic_name": "Ergometrine",
+    "aliases": ["Syntometrine-M", "Ergomet-Inj-Universal", "Ergometrin-Lab"]
+  },
+  {
+    "generic_name": "Erythromycin",
+    "aliases": ["Erythrocin", "Erythro-Cosmos", "Ery-Lab", "Eromycin"]
+  },
+  {
+    "generic_name": "Erythropoetin (alfa or beta) stimulating agents",
+    "aliases": ["Eprex Infusion", "Recormon", "Epofit Injection", "Erypro"]
+  },
+  {
+    "generic_name": "Escitalopram",
+    "aliases": ["Cipralex", "Lexapro", "Nexito", "Escital-L", "Celica"]
+  },
+  {
+    "generic_name": "Estradiol",
+    "aliases": ["Progynova", "Estrofem", "Estraderm"]
+  },
+  {
+    "generic_name": "Etanercept",
+    "aliases": ["Enbrel", "Intacept"]
+  },
+  {
+    "generic_name": "Ethambutol (E)",
+    "aliases": ["Sural TB", "Myambutol-Single"]
+  },
+  {
+    "generic_name": "Ethanol",
+    "aliases": ["Surgical Spirit-Lab", "Methylated Spirit-Cosmos"]
+  },
+  {
+    "generic_name": "Ethinylestradiol + Levonorgestrel",
+    "aliases": ["Microgynon", "Rigevidon", "Femiplan", "MOH-Combined-Oral"]
+  },
+  {
+    "generic_name": "Ethinylestradiol + Norethisterone",
+    "aliases": ["Norimin", "Noret-Co"]
+  },
+  {
+    "generic_name": "Etomidate",
+    "aliases": ["Amidate Injection", "Etomid-Inj"]
+  },
+  {
+    "generic_name": "Etonorgestrel-releasing implant",
+    "aliases": ["Nexplanon", "Implanon NXT"]
+  },
+  {
+    "generic_name": "Etoposide",
+    "aliases": ["Vepesid", "Etosid", "Etopocel"]
+  },
+  {
+    "generic_name": "Etravirine (ETV)",
+    "aliases": ["Intelence", "Etrav-M"]
+  },
+  {
+    "generic_name": "Everolimus",
+    "aliases": ["Afinitor", "Certican", "Erolimus"]
+  },
+  {
+    "generic_name": "Fat (lipid)",
+    "aliases": ["Intralipid Infusion", "Lipofundin MCT/LCT"]
+  },
+  {
+    "generic_name": "Fat-soluble vitamins",
+    "aliases": ["Vitalipid Adult", "Soluvit-Fat"]
+  },
+  {
+    "generic_name": "Febuxostat",
+    "aliases": ["Uloric", "Febutaz", "Feburic"]
+  },
+  {
+    "generic_name": "Fentanyl",
+    "aliases": ["Sublimaze Injection", "Durogesic Patch", "Fenta-Inj"]
+  },
+  {
+    "generic_name": "Ferrous Salt + Folic acid",
+    "aliases": ["Ifoic-Cosmos", "Fefol", "Ranferon", "Ferrous-F-Universal"]
+  },
+  {
+    "generic_name": "Ferrous salt",
+    "aliases": ["Ferrous Sulphate-Cosmos", "Fe-Tab-Universal"]
+  },
+  {
+    "generic_name": "Filgrastim",
+    "aliases": ["Neupogen", "Grafeel", "Filcad"]
+  },
+  {
+    "generic_name": "Finasteride",
+    "aliases": ["Proscar", "Finast", "Fincar", "Propecia"]
+  },
+  {
+    "generic_name": "Flucloxacillin",
+    "aliases": ["Floxapen", "Flupen-Lab", "Fluclox-Cosmos", "Culox"]
+  },
+  {
+    "generic_name": "Fluconazole",
+    "aliases": ["Diflucan", "Fluzon", "Forcan", "Syscan", "Flumed"]
+  },
+  {
+    "generic_name": "Flucytosine",
+    "aliases": ["Ancobon Infusion", "Alcolone"]
+  },
+  {
+    "generic_name": "Fludrocortisone",
+    "aliases": ["Florinef", "Fludro-Tab"]
+  },
+  {
+    "generic_name": "Flumazenil",
+    "aliases": ["Anexate Injection", "Flumaz-Inj"]
+  },
+  {
+    "generic_name": "Fluorescein",
+    "aliases": ["Fluorescite Strips", "Fluor-Eye Drop"]
+  },
+  {
+    "generic_name": "Fluorodeoxyglucose (FDG) (Fluorine -18)",
+    "aliases": [
+      "KUTRH Cyclotron FDG",
+      "PET-Scan Radioisotope",
+      "KUTRH Prostate Cancer Diagnostic Imaging Radiopharmaceutical"
+    ]
+  },
+  {
+    "generic_name": "Fluorometholone",
+    "aliases": ["FML Eye Drops", "Flarex"]
+  },
+  {
+    "generic_name": "Fluorouracil",
+    "aliases": ["5-FU Injection", "Fluracil", "Efudix Cream"]
+  },
+  {
+    "generic_name": "Fluoxetine",
+    "aliases": ["Prozac", "Flunil", "Fluox-Cosmos", "Deprezil"]
+  },
+  {
+    "generic_name": "Flupentixol",
+    "aliases": ["Depixol Depot Injection", "Fluanxol"]
+  },
+  {
+    "generic_name": "Fluphenazine",
+    "aliases": ["Modecate Depot", "Anatensol Injection", "Fluphen-Cosmos"]
+  },
+  {
+    "generic_name": "Fluticasone",
+    "aliases": ["Flixonase", "Flixotide", "Flomist", "Cutivate"]
+  },
+  {
+    "generic_name": "Folic acid",
+    "aliases": ["Folate-Cosmos", "Folic-Universal"]
+  },
+  {
+    "generic_name": "Fomepizole",
+    "aliases": ["Antizol Poisoning Reagent"]
+  },
+  {
+    "generic_name": "Fortified Blended Food (FBF)",
+    "aliases": ["CSB Plus (Corn Soya Blend)", "Unicef FBF Pack"]
+  },
+  {
+    "generic_name": "Fosaprepitant",
+    "aliases": ["Emend Injection", "Fosaprep"]
+  },
+  {
+    "generic_name": "Fosfomycin",
+    "aliases": ["Monurol Granules", "Fosfocin"]
+  },
+  {
+    "generic_name": "Furosemide",
+    "aliases": ["Lasix", "Frused-Cosmos", "Furo-Universal", "Diuril"]
+  },
+  {
+    "generic_name": "Fusidic acid",
+    "aliases": ["Fucidin Cream", "Fusiderm Ointment", "Fucithalmic"]
+  },
+  {
+    "generic_name": "Gabapentin",
+    "aliases": ["Neurontin", "Gabapin", "Gaba-L", "Pentafit"]
+  },
+  {
+    "generic_name": "Gadobutrol",
+    "aliases": ["Gadovist MRI Contrast"]
+  },
+  {
+    "generic_name": "Gadodiamide",
+    "aliases": ["Omniscan MRI Fluid"]
+  },
+  {
+    "generic_name": "Gadopentate dimeglumine",
+    "aliases": ["Magnevist Fluid"]
+  },
+  {
+    "generic_name": "Gallium-68 oxodotreotide (dotatate)",
+    "aliases": ["Neuroendocrine PET Tracer Fluid"]
+  },
+  {
+    "generic_name": "Gancyclovir",
+    "aliases": ["Cymevene Injection", "Gancivir"]
+  },
+  {
+    "generic_name": "Gefitinib",
+    "aliases": ["Iressa", "Gefitnat", "Gefticip"]
+  },
+  {
+    "generic_name": "Gelatin-based colloid",
+    "aliases": ["Gelofusine Fluid", "Haemaccel Infusion"]
+  },
+  {
+    "generic_name": "Gemcitabine",
+    "aliases": ["Gemzar", "Gemcite", "Gemtaz"]
+  },
+  {
+    "generic_name": "Gentamicin",
+    "aliases": ["Garamycin", "Genta-Universal", "Gentamed-Eye", "Genoptic"]
+  },
+  {
+    "generic_name": "Gentamicin + Dexamethasone",
+    "aliases": ["Garasone Drops", "Genta-Dex-Eye", "Decagent"]
+  },
+  {
+    "generic_name": "Germanium-68 - Gallium-68 radionuclide generator",
+    "aliases": ["Oncology Nuclear Generator Kit"]
+  },
+  {
+    "generic_name": "Gliclazide",
+    "aliases": ["Diamicron", "Glic-L", "Glizid", "Glyloc"]
+  },
+  {
+    "generic_name": "Glucagon",
+    "aliases": ["GlucaGen HypoKit"]
+  },
+  {
+    "generic_name": "Glucose",
+    "aliases": ["Dextrose 50% Injection", "D5-Infusion-Lab", "Glucose-Universal"]
+  },
+  {
+    "generic_name": "Glucose + Sodium chloride",
+    "aliases": ["Dextrose Normal Saline DNS", "D5-saline-Infusion"]
+  },
+  {
+    "generic_name": "Glutaral",
+    "aliases": ["Cidex Sterilization Fluid", "Glutaraldehyde 2%"]
+  },
+  {
+    "generic_name": "Glyceryl trinitrate",
+    "aliases": ["Nitromint Spray", "GTN-Sublingual", "Angised"]
+  },
+  {
+    "generic_name": "Glycopyrronium",
+    "aliases": ["Robinul Injection", "Glyco-Inj"]
+  },
+  {
+    "generic_name": "Golimumab",
+    "aliases": ["Simponi Rheuma Injection"]
+  },
+  {
+    "generic_name": "Goserelin",
+    "aliases": ["Zoladex Depot Implant"]
+  },
+  {
+    "generic_name": "Griseofulvin",
+    "aliases": ["Grisovin", "Gris-Cosmos", "Fulcin", "Grivin"]
+  },
+  {
+    "generic_name": "HPV vaccine (quadrivalent)",
+    "aliases": ["Gardasil 4", "MOH-HPV-Campaign"]
+  },
+  {
+    "generic_name": "Haemodialysis solution",
+    "aliases": ["Renalyte Dialysis Fluid", "Fresenius Hemodialysate Concentrate"]
+  },
+  {
+    "generic_name": "Haloperidol",
+    "aliases": ["Haldol", "Serenace", "Halop-Cosmos", "Govil Depot"]
+  },
+  {
+    "generic_name": "Halothane",
+    "aliases": ["Fluothane Anesthetic", "Halothane-M&B"]
+  },
+  {
+    "generic_name": "Heparinsodium",
+    "aliases": ["Heparin-Inj-Universal", "B-Heparin"]
+  },
+  {
+    "generic_name": "Hepatic formula richin BCAA",
+    "aliases": ["Hepatic-Aminoleban Infusion", "Falk Hepatic Feed"]
+  },
+  {
+    "generic_name": "Hepatitis A vaccine",
+    "aliases": ["Havrix", "Avaxim"]
+  },
+  {
+    "generic_name": "Hepatitis B vaccine",
+    "aliases": ["Engerix-B", "Genevac-B", "MOH-HepB"]
+  },
+  {
+    "generic_name": "Hexamethyl propylene amine oxime (HMPAO) (Technetium-99m exametazime)",
+    "aliases": ["Ceretec SPECT Brain Tracer"]
+  },
+  {
+    "generic_name": "High calorie, high protein formula",
+    "aliases": ["Fortisip Liquid", "Fresubin Energy", "Ensure Plus"]
+  },
+  {
+    "generic_name": "High energy protein fat-free hydrolyzed feed",
+    "aliases": ["Vital Peptide Feed Pack", "Elemental 028 Extra"]
+  },
+  {
+    "generic_name": "Human Epidermal growth factor (recombinant)",
+    "aliases": ["Heberprot-P Diabetes Healing Cream"]
+  },
+  {
+    "generic_name": "Human Platelet derived growth factor (recombinant)",
+    "aliases": ["Regranex Gel"]
+  },
+  {
+    "generic_name": "Human albumin infusion",
+    "aliases": ["Alburex 20%", "Human Albumin Grifols", "Zenalb"]
+  },
+  {
+    "generic_name": "Human chorionic",
+    "aliases": ["Pregnyl Injection", "Profasi HCG"]
+  },
+  {
+    "generic_name": "Human menopausal gonadotropin (HMG)",
+    "aliases": ["Menopur Injection", "Persinal"]
+  },
+  {
+    "generic_name": "Hydralazine",
+    "aliases": ["Apresoline", "Hydral-Inj-Universal", "Nepresol"]
+  },
+  {
+    "generic_name": "Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Esidrex", "Hydrochlor-Cosmos", "Aquazide"]
+  },
+  {
+    "generic_name": "Hydrocortisone",
+    "aliases": ["Solu-Cortef Injection", "Efcortelan Cream", "Hydrocort-Universal"]
+  },
+  {
+    "generic_name": "Hydrogen peroxide",
+    "aliases": ["Peroxide Solution-Lab", "Hydrogen Peroxide 6%"]
+  },
+  {
+    "generic_name": "Hydroxocobalamin (Vit B12)",
+    "aliases": ["Neo-Cytamen", "B12-Inj-Universal"]
+  },
+  {
+    "generic_name": "Hydroxycarbamide (Hydroxyurea)",
+    "aliases": ["Hydrea", "Cytodrox", "Ondrea", "Ribocrea"]
+  },
+  {
+    "generic_name": "Hydroxychloroquine",
+    "aliases": ["Plaquenil", "Zy Q", "HCQS"]
+  },
+  {
+    "generic_name": "Hydroxyethyl starch",
+    "aliases": ["Voluven Infusion", "Haes-Steril Volume Explander"]
+  },
+  {
+    "generic_name": "Hyoscine butylbromide",
+    "aliases": ["Buscopan", "Hyospan", "Busco-Cosmos", "Spasmonil"]
+  },
+  {
+    "generic_name": "Hypertonic saline",
+    "aliases": ["Sodium Chloride 3% Infusion", "Hyper-Saline-Lab"]
+  },
+  {
+    "generic_name": "Ibrutinib",
+    "aliases": ["Imbruvica", "Ibrunat"]
+  },
+  {
+    "generic_name": "Ibuprofen",
+    "aliases": ["Brufen", "Flufen", "Ibugesic", "Ibu-Cosmos", "Bugesic"]
+  },
+  {
+    "generic_name": "Ifosfamide + Mesna",
+    "aliases": ["Holoxan Combo pack", "Ifocell-M"]
+  },
+  {
+    "generic_name": "Imatinib",
+    "aliases": ["Gleevec", "Imatib", "Veenat", "Celonib"]
+  },
+  {
+    "generic_name": "Imipenem + Cilastatin",
+    "aliases": ["Primaxin Injection", "Cilaspen", "Iminem"]
+  },
+  {
+    "generic_name": "Indapamide",
+    "aliases": ["Natrilix SR", "Indap-L", "Natrilix", "Indamid"]
+  },
+  {
+    "generic_name": "Artemether + lumefantrine (AL)",
+    "aliases": ["Coartem-HPT", "Lumartem-MOH", "Artefan-Index"]
+  },
+  {
+    "generic_name": "Infliximab",
+    "aliases": ["Remicade", "Remisima"]
+  },
+  {
+    "generic_name": "Influenza vaccine (inactivated)",
+    "aliases": ["Vaxigrip", "Influvac Flu Shot"]
+  },
+  {
+    "generic_name": "Insulin, Long-acting (basal), Glargine",
+    "aliases": ["Lantus SoloStar", "Glaritus", "Basaglar"]
+  },
+  {
+    "generic_name": "Insulin, Premixed (Short acting + Intermediate acting) (Human)",
+    "aliases": ["Mixtard 30/70", "Humulin 30/70", "Insuman Comb"]
+  },
+  {
+    "generic_name": "Insulin, Premixed (Ultra short acting + Intermediate acting)",
+    "aliases": ["NovoMix 30 FlexPen", "Humalog Mix 25/50"]
+  },
+  {
+    "generic_name": "Insulin, Short acting (Soluble / regular)",
+    "aliases": ["Actrapid Vial", "Humulin R", "Insuman Rapid"]
+  },
+  {
+    "generic_name": "Insulin, Ultra short-acting (Rapid) (Insulin Lispro and Aspart)",
+    "aliases": ["NovoRapid FlexPen", "Humalog KwikPen"]
+  },
+  {
+    "generic_name": "Insulin, intermediate-acting (NPH)",
+    "aliases": ["Insulatard", "Humulin N", "Insuman Basal"]
+  },
+  {
+    "generic_name": "Insulin, long-acting, Detemir",
+    "aliases": ["Levemir FlexPen"]
+  },
+  {
+    "generic_name": "Ipratropium bromide",
+    "aliases": ["Atrovent Inhaler / Respules", "Ipra-Vent"]
+  },
+  {
+    "generic_name": "Irinotecan",
+    "aliases": ["Camptosar", "Irinocel", "Irnotec"]
+  },
+  {
+    "generic_name": "Iron sucrose",
+    "aliases": ["Venofer Injection", "Encifer", "Orofer Injection"]
+  },
+  {
+    "generic_name": "Isoflurane",
+    "aliases": ["Forane Inhalation Vapor", "Isoflurane-M&B"]
+  },
+  {
+    "generic_name": "Isoniazid (H)",
+    "aliases": ["Isoniazid-TB-Single"]
+  },
+  {
+    "generic_name": "Isosorbide dinitrate",
+    "aliases": ["Isordil", "Sorbitrate", "Isodril"]
+  },
+  {
+    "generic_name": "Itraconazole",
+    "aliases": ["Sporanox", "Itaspor", "Canditral", "Itral-Lab"]
+  },
+  {
+    "generic_name": "Ivabradine",
+    "aliases": ["Procoralan", "Ivabrad", "Ivadine"]
+  },
+  {
+    "generic_name": "Ivermectin",
+    "aliases": ["Stromectol Scabies Tablet", "Ivermect-Cream", "Scaball"]
+  },
+  {
+    "generic_name": "Ketamine",
+    "aliases": ["Ketalar Injection", "Ketamin-Universal", "Anesket"]
+  },
+  {
+    "generic_name": "Ketorolac",
+    "aliases": ["Toradol Injection", "Ketorol Eye Drop", "Keto-Inj"]
+  },
+  {
+    "generic_name": "L-Asparaginase",
+    "aliases": ["Elspar Cancer Injection", "Leunase", "Aspercel"]
+  },
+  {
+    "generic_name": "Labetalol",
+    "aliases": ["Trandate", "Labetatol-Inj-Universal", "Gravidol"]
+  },
+  {
+    "generic_name": "Lactulose",
+    "aliases": ["Duphalac Syrup", "Lactul-Syrup-Cosmos", "Laxoluse"]
+  },
+  {
+    "generic_name": "Lamivudine (3TC)",
+    "aliases": ["Epivir", "Heptavir", "Lamivir", "Lamiv-Cosmos"]
+  },
+  {
+    "generic_name": "Lamotrigine",
+    "aliases": ["Lamictal", "Lametec", "Lamez"]
+  },
+  {
+    "generic_name": "Lansoprazole",
+    "aliases": ["Zoton", "Lanzol", "Lan-20", "Lansocid"]
+  },
+  {
+    "generic_name": "Latanoprost",
+    "aliases": ["Xalatan Eye Drops", "Latoprost"]
+  },
+  {
+    "generic_name": "Ledipasvir+ Sofosbuvir",
+    "aliases": ["Harvoni Hepatitis C Cure", "Ledifos", "Hepcinat LP"]
+  },
+  {
+    "generic_name": "Leflunomide",
+    "aliases": ["Arava Rheuma", "Lefra", "Lefno"]
+  },
+  {
+    "generic_name": "Lenalidomide",
+    "aliases": ["Revlimid", "Lenangio", "Lenid"]
+  },
+  {
+    "generic_name": "Letrozole",
+    "aliases": ["Femara", "Letoval", "Fempro", "Letroz"]
+  },
+  {
+    "generic_name": "Leuprorelin (Leuprolide)",
+    "aliases": ["Lucrin Depot Injection", "Lupron Prostate Depot"]
+  },
+  {
+    "generic_name": "Levetiracetam",
+    "aliases": ["Keppra", "Levipil", "Levroca", "Torleva"]
+  },
+  {
+    "generic_name": "Levodopa+ Carbidopa",
+    "aliases": ["Sinemet", "Sindonax", "Tidomet", "Levocarb"]
+  },
+  {
+    "generic_name": "Levofloxacin (Lfx)",
+    "aliases": ["Tavanic TB", "Loxof-MDR"]
+  },
+  {
+    "generic_name": "Levonorgestrel",
+    "aliases": ["Postinor-2", "Escapelle", "P2-Contraceptive"]
+  },
+  {
+    "generic_name": "Levonorgestrel (LNG)",
+    "aliases": ["Mirena IUD Intrauterine", "LNG-Emergency"]
+  },
+  {
+    "generic_name": "Levonorgestrel-releasing implant",
+    "aliases": ["Jadelle 2-Rod System", "Levoplant MOH"]
+  },
+  {
+    "generic_name": "Levothyroxine",
+    "aliases": ["Euthyrox Thyroxin", "Eltroxin Thyroid", "Thyronorm"]
+  },
+  {
+    "generic_name": "Lidocaine (Lignocaine)",
+    "aliases": ["Lignocaine Gel-Universal", "Xylocaine 2% Topical"]
+  },
+  {
+    "generic_name": "Lignocaine",
+    "aliases": ["Xylocaine Injection", "Lignocaine-Inj-Universal", "Ligno-Lab"]
+  },
+  {
+    "generic_name": "Lignocaine (Preservative free)",
+    "aliases": ["Xylocaine Cardiac Injection", "Ligno-Pure-Inj"]
+  },
+  {
+    "generic_name": "Lignocaine + Epinephrine (Adrenaline)",
+    "aliases": ["Xylocaine with Adrenaline", "Ligno-Adren-Universal"]
+  },
+  {
+    "generic_name": "Linagliptin",
+    "aliases": ["Trajenta Diabetes", "Linazid"]
+  },
+  {
+    "generic_name": "Linezolid",
+    "aliases": ["Zyvox Infusion", "Linox", "Lizomed"]
+  },
+  {
+    "generic_name": "Linezolid (Lzd)",
+    "aliases": ["ZyvoxTB-Single", "MDR-Linezolid"]
+  },
+  {
+    "generic_name": "Lipid emulsion",
+    "aliases": ["Smoflipid Intravenous Infusion"]
+  },
+  {
+    "generic_name": "Liposomal Doxorubicin (Pegylated)",
+    "aliases": ["Caelyx Injection", "Lipodox Kaposi"]
+  },
+  {
+    "generic_name": "Liquid paraffin",
+    "aliases": ["Paraffin Laxative Liquid-Cosmos", "Mineral Oil Liquid"]
+  },
+  {
+    "generic_name": "Lisinopril + Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Zestoretic", "Lisinopril-HCT-Cosmos", "Lipril-H"]
+  },
+  {
+    "generic_name": "Lithium carbonate",
+    "aliases": ["Camcolit Mania", "Lithosun"]
+  },
+  {
+    "generic_name": "Loperamide",
+    "aliases": ["Imodium Diarrhea", "Lopamide-Cosmos", "Diastop"]
+  },
+  {
+    "generic_name": "Lopinavir + ritonavir (LPV+r)",
+    "aliases": ["Kaletra HIV", "Aluvia MOH", "Lopimune"]
+  },
+  {
+    "generic_name": "Loratadine",
+    "aliases": ["Claritine Allergy", "Lorfast", "Loradin-Cosmos", "Tirlor"]
+  },
+  {
+    "generic_name": "Lorazepam",
+    "aliases": ["Ativan Injection", "Larpose Bipolar", "Ativan-Tab"]
+  },
+  {
+    "generic_name": "Losartan",
+    "aliases": ["Cozaar BP", "Covance", "Losar-Cosmos", "Angizaar"]
+  },
+  {
+    "generic_name": "Losartan + Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Hyzaar BP", "Covance-D", "Losar-H-Cosmos", "Angizaar-H"]
+  },
+  {
+    "generic_name": "Lugol\u2019s lodine solution",
+    "aliases": ["Lugols Aqueous Iodine thyroid", "Iodine Antiseptic-Lab"]
+  },
+  {
+    "generic_name": "Lutetium-177 oxodotreotide (dotatate)",
+    "aliases": ["Lutathera Neuroendocrine Cancer Infusion"]
+  },
+  {
+    "generic_name": "Magnesium Sulphate",
+    "aliases": ["Epsom Salt Eclampsia-Inj", "Mag-Sulphate-Universal"]
+  },
+  {
+    "generic_name": "Magnesium chloride",
+    "aliases": ["Magnesium Chloride Lab Crystals"]
+  },
+  {
+    "generic_name": "Magnesium sulphate",
+    "aliases": ["Epsom Salts Powder-Cosmos"]
+  },
+  {
+    "generic_name": "Malaria vaccine",
+    "aliases": ["Mosquirix RTS,S Malaria Campaign", "R21 Matrix-M MOH"]
+  },
+  {
+    "generic_name": "Mannitol",
+    "aliases": ["Mannitol 20% Infusion-Lab", "Manni-Fluid"]
+  },
+  {
+    "generic_name": "Measles + Rubella vaccine (MR)",
+    "aliases": ["MOH-MR-Campaign-Shot", "Serum Inst MR Vaccine"]
+  },
+  {
+    "generic_name": "Mebendazole",
+    "aliases": ["Vermox Worms", "Mebex Dewormer", "Mebez-Cosmos"]
+  },
+  {
+    "generic_name": "Medical air",
+    "aliases": ["Medical Air BOC Cylinder", "Afrox Compressed Medical Air"]
+  },
+  {
+    "generic_name": "Medroxyprogesterone",
+    "aliases": ["Provera Endometriosis", "Medrone Thyroid"]
+  },
+  {
+    "generic_name": "Medroxyprogesterone acetate (DMPA)",
+    "aliases": ["Depo-Provera Contraceptive Shot", "Depo-MOH-Clinic"]
+  },
+  {
+    "generic_name": "Mefloquine",
+    "aliases": ["Lariam Malaria", "Meflotas", "Mefloc-T"]
+  },
+  {
+    "generic_name": "Melarsoprol",
+    "aliases": ["Arsobal Sleeping Sickness Toxicity Ampoules"]
+  },
+  {
+    "generic_name": "Melatonin",
+    "aliases": ["Circadin Sleep", "Meloset Jetlag"]
+  },
+  {
+    "generic_name": "Melphalan",
+    "aliases": ["Alkeran Myeloma", "Alphalan"]
+  },
+  {
+    "generic_name": "Memantine",
+    "aliases": ["Ebixa Dementia", "Almement", "Mentane"]
+  },
+  {
+    "generic_name": "Meningococcal meningitis vaccine",
+    "aliases": ["Menactra Meningitis", "Mencevax ACWY"]
+  },
+  {
+    "generic_name": "Mercaptoacetyltriglycine (MAG3) (Technetium -99m mertiatide)",
+    "aliases": ["SPECT Kidney Diagnostic Kit Fluid"]
+  },
+  {
+    "generic_name": "Mercaptopurine",
+    "aliases": ["Puri-Nethol Leukemia", "Mercapto-Cell"]
+  },
+  {
+    "generic_name": "Meropenem",
+    "aliases": ["Meronem", "Mero-Inj-Lab", "Ronem", "Meromac"]
+  },
+  {
+    "generic_name": "Mesalazine",
+    "aliases": ["Asacol Colitis", "Pentasa", "Mesacol Crohn"]
+  },
+  {
+    "generic_name": "Mesna",
+    "aliases": ["Uromitexan Toxicity Protection", "Mesnacel Infusion"]
+  },
+  {
+    "generic_name": "Metformin",
+    "aliases": ["Glucophage Diabetes", "Metfor-Cosmos", "Formin", "Diaformin"]
+  },
+  {
+    "generic_name": "Methadone",
+    "aliases": ["Physeptone Addiction", "Methadone MOH MAT Liquid"]
+  },
+  {
+    "generic_name": "Methotrexate",
+    "aliases": ["Methoblastin Rheumatoid", "Folitrax Autoimmune", "Mext"]
+  },
+  {
+    "generic_name": "Methotrexate (MTX)",
+    "aliases": ["Methoblastin Oncology", "Cytotrexate Injection"]
+  },
+  {
+    "generic_name": "Methyl cellulose",
+    "aliases": ["Tears Naturale Eye Lubricant", "Methocel Drops"]
+  },
+  {
+    "generic_name": "Methyldopa",
+    "aliases": ["Aldomet Maternity BP", "Alphadopa", "Dopamet BP"]
+  },
+  {
+    "generic_name": "Methylene diphosphonate (MDP) (Technetium -99m medronate)",
+    "aliases": ["SPECT Bone Scan Diagnostic Kit Fluid"]
+  },
+  {
+    "generic_name": "Methylphenidate",
+    "aliases": ["Ritalin ADHD Focus", "Concerta Prolonged Release"]
+  },
+  {
+    "generic_name": "Methylprednisolone",
+    "aliases": ["Solu-Medrol Severe Allergy Pulse", "Depo-Medrol Joint Inj"]
+  },
+  {
+    "generic_name": "Metoclopramide",
+    "aliases": ["Maxolon Nausea", "Metoclop-Cosmos", "Reglan Nausea"]
+  },
+  {
+    "generic_name": "Metolazone",
+    "aliases": ["Zaroxolyn Diuretic", "Metoz Diuretic"]
+  },
+  {
+    "generic_name": "Metoprolol",
+    "aliases": ["Betaloc Heart", "Lopressor BP", "Metolar Core"]
+  },
+  {
+    "generic_name": "Metronidazole",
+    "aliases": ["Flagyl Amoeba", "Metrogyl Infusion", "Elyzol Vaginal", "Metrin Syrup"]
+  },
+  {
+    "generic_name": "Miconazole",
+    "aliases": ["Daktarin Oral Gel", "Daktacort Antifungal", "Mico-Cream-Cosmos"]
+  },
+  {
+    "generic_name": "Midazolam",
+    "aliases": ["Dormicum Sedative-Inj", "Midaz-Inj-Lab", "Mezolam"]
+  },
+  {
+    "generic_name": "Mifepristone + Misoprostol",
+    "aliases": ["Mariprist Maternal Kit", "Medabon Gynecology Pack"]
+  },
+  {
+    "generic_name": "Milrinone",
+    "aliases": ["Primacor Heart Failure Injection"]
+  },
+  {
+    "generic_name": "Mirtazapine",
+    "aliases": ["Remeron Sleep Depression", "Mirnite Night", "Mirtaz"]
+  },
+  {
+    "generic_name": "Misoprostol",
+    "aliases": ["Cytotec Postpartum Hemorrhage", "Misoclear MOH", "Miso-K"]
+  },
+  {
+    "generic_name": "Mitomycin C",
+    "aliases": ["Mutamycin Bladder Oncology Injection", "Mitocin"]
+  },
+  {
+    "generic_name": "Molybdenum-gg / Technetium-99m radionuclide generator",
+    "aliases": ["KUTRH Nuclear Medicine Isotope Generator Core"]
+  },
+  {
+    "generic_name": "Mometasone",
+    "aliases": ["Nasonex Nasal Spray", "Elocon Skin Eczema Ointment"]
+  },
+  {
+    "generic_name": "Montelukast",
+    "aliases": ["Singulair Asthma", "Montair Allergen", "Montek Pediatric"]
+  },
+  {
+    "generic_name": "Morphine",
+    "aliases": ["MST Continus Chronic Pain", "Morphine-Inj-Universal", "Oramorph"]
+  },
+  {
+    "generic_name": "Moxifloxacin",
+    "aliases": ["Avelox Severe Infection", "Moxicip Eye Drops"]
+  },
+  {
+    "generic_name": "Moxifloxacin (Mfx)",
+    "aliases": ["AveloxTB-Single", "MDR-Moxifloxacin"]
+  },
+  {
+    "generic_name": "Mupirocin",
+    "aliases": ["Bactroban Antibacterial Ointment", "Mupimet Skin"]
+  },
+  {
+    "generic_name": "Mycophenolate mofetil",
+    "aliases": ["CellCept Kidney Transplant", "Mycept Renal"]
+  },
+  {
+    "generic_name": "Mycophenolic acid",
+    "aliases": ["Myfortic Transplant Tablet"]
+  },
+  {
+    "generic_name": "Naloxone",
+    "aliases": ["Narcan Opioid Overdose Reversal Injection"]
+  },
+  {
+    "generic_name": "Naltrexone",
+    "aliases": ["ReVia Alcohol Opioid Dependence Tablet"]
+  },
+  {
+    "generic_name": "Natamycin",
+    "aliases": ["Natacyn Antifungal Ophthalmic Drops"]
+  },
+  {
+    "generic_name": "Nebivolol",
+    "aliases": ["Nebilet Hypertension Heart", "Nebicard BP"]
+  },
+  {
+    "generic_name": "Neomycin + Betamethasone",
+    "aliases": ["Betnesol-N Eye Ear Drops", "Betnovate-N Cream"]
+  },
+  {
+    "generic_name": "Neostigmine",
+    "aliases": ["Prostigmin Muscle Reversal Injection", "Neostig-Lab"]
+  },
+  {
+    "generic_name": "Nevirapine (NVP)",
+    "aliases": ["Viramune HIV PMTCT", "Nevimune Tablet", "Nevir-Cosmos"]
+  },
+  {
+    "generic_name": "Niacinamide",
+    "aliases": ["Nicotinamide Vitamin B3 Pellagra Single"]
+  },
+  {
+    "generic_name": "Nicotine (NRT)",
+    "aliases": ["Nicorette Smoking Quit Gum", "Nicotinell Patch"]
+  },
+  {
+    "generic_name": "Nifedipine",
+    "aliases": ["Adalat Retard BP", "Nifecard Angina", "Nifed-Cosmos"]
+  },
+  {
+    "generic_name": "Nifurtimox",
+    "aliases": ["Lampit Chagas Trypanosomiasis Control Tablets"]
+  },
+  {
+    "generic_name": "Nilotinib",
+    "aliases": ["Tasigna Leukemia Targeted Therapy"]
+  },
+  {
+    "generic_name": "Nintedanib",
+    "aliases": ["Ofev Pulmonary Fibrosis Lung Cap"]
+  },
+  {
+    "generic_name": "Nitrofurantoin",
+    "aliases": ["Macrodantin UTI", "Furadantin Liquid", "Nifran-Cosmos"]
+  },
+  {
+    "generic_name": "Nitroglycerin (NTG)",
+    "aliases": ["Nitronal Cardiovascular Infusion Solution"]
+  },
+  {
+    "generic_name": "Nitrous oxide",
+    "aliases": ["Nitrous Oxide BOC Blue Cylinder Gas", "Laughing Gas"]
+  },
+  {
+    "generic_name": "Non-ionic low osmolar water-soluble iodinated contrast media",
+    "aliases": ["Omnipaque Radiology Contrast", "Ultravist Imaging Fluid", "Visipaque Contrast"]
+  },
+  {
+    "generic_name": "Norepinephrine (Noradrenaline)",
+    "aliases": ["Levophed Shock ICU Pressor", "Norad-Inj-Lab"]
+  },
+  {
+    "generic_name": "Norethisterone",
+    "aliases": ["Primolut N Period Delay", "Norestab Contraceptive Mini"]
+  },
+  {
+    "generic_name": "Normalimmunoglobulin",
+    "aliases": ["Pentaglobin IVIG Infusion", "Gammagard Human IVIG"]
+  },
+  {
+    "generic_name": "Nutritionally complete High energy, high protein oral/tube feed",
+    "aliases": ["Fortisip Bottle Feed", "Fresubin 2kcal Tube Diet"]
+  },
+  {
+    "generic_name": "Nutritionally complete Iso-caloric paediatric liquid diet for oral / tube feeding",
+    "aliases": ["Nutrini Paediatric Pack", "Pediasure Liquid Diet"]
+  },
+  {
+    "generic_name": "Nutritionally complete elemental hepatic formula with MCT for oral/ tube feeding",
+    "aliases": ["Aminoleban Oral Hepatic Encephalopathy Feed Powder"]
+  },
+  {
+    "generic_name": "Nutritionally complete glutamine-enriched liquid formula",
+    "aliases": ["Intestamin Gut ICU Shield", "Glutamine Plus Pack"]
+  },
+  {
+    "generic_name": "Nutritionally complete hydrolysed feeds with MCT fibre-free",
+    "aliases": ["Peptamen Liquid Malabsorption Feed"]
+  },
+  {
+    "generic_name": "Nutritionally complete hypercaloric liquid formula feed",
+    "aliases": ["Ensure Plus Hypercaloric Bottle"]
+  },
+  {
+    "generic_name": "Nutritionally complete isocaloric liquid diet fibre- free for oral / tube feeding",
+    "aliases": ["Isosource Standard Fibre Free Bag"]
+  },
+  {
+    "generic_name": "Nutritionally complete isocaloric liquid diet with fibre for oral/ tube feeding",
+    "aliases": ["Jevity Standard Tube Diet with Fibre"]
+  },
+  {
+    "generic_name": "Nutritionally complete liquid low sodium formula",
+    "aliases": ["Nepro Renal Dialysis High Energy Low Sodium Nutrition"]
+  },
+  {
+    "generic_name": "Nutritionally complete, hypocaloric oral / tube feed liquid diet with fibre",
+    "aliases": ["Fresubin Balanced Low Energy Diet Pack"]
+  },
+  {
+    "generic_name": "Nystatin",
+    "aliases": ["Mycostatin Oral Thrush Drop", "Nystamene-Cosmos", "Nysol Drop"]
+  },
+  {
+    "generic_name": "Octreotide",
+    "aliases": ["Sandostatin Variceal Bleed Injection", "Octride"]
+  },
+  {
+    "generic_name": "Ofloxacin",
+    "aliases": ["Tarivid Severe Infection", "Oflox Eye Drops"]
+  },
+  {
+    "generic_name": "Ofloxacin + Dexamethasone",
+    "aliases": ["Zenflox-D Ear Drops", "Oflox-D Eye Drops"]
+  },
+  {
+    "generic_name": "Olanzapine",
+    "aliases": ["Zyprexa Schizophrenia", "Olan Psych", "Oleanz Mouth Dissolving"]
+  },
+  {
+    "generic_name": "Olopatadine",
+    "aliases": ["Patanol Allergic Conjunctivitis Eye Drops", "Olopat"]
+  },
+  {
+    "generic_name": "Omega 3 fatty acids",
+    "aliases": ["Omegaven Cardiovascular IV Lipid Infusion Fluid"]
+  },
+  {
+    "generic_name": "Omeprazole",
+    "aliases": ["Losec Ulcer Gas", "Omez Capsule", "Omepra-Caps-Universal", "Zolt"]
+  },
+  {
+    "generic_name": "Ondansetron",
+    "aliases": ["Zofran Chemo Emesis Injection", "Ondem Tablet", "Emigo Syrup"]
+  },
+  {
+    "generic_name": "Oral rehydration salts (ORS)",
+    "aliases": ["ORS Pack-Universal", "Hydralyte Sachet", "Cosmos-ORS"]
+  },
+  {
+    "generic_name": "Oral rehydration salts + Zinc sulphate",
+    "aliases": ["Zinc-ORS Diarrhea Co-pack Unicef", "Zinco-ORS-MOH"]
+  },
+  {
+    "generic_name": "Osimertinib",
+    "aliases": ["Tagrisso Lung Cancer Targeted Therapy"]
+  },
+  {
+    "generic_name": "Oxaliplatin",
+    "aliases": ["Eloxatin Colorectal Chemo Injection", "Oxali-Cell"]
+  },
+  {
+    "generic_name": "Oxcarbazepine",
+    "aliases": ["Trileptal Epilepsy", "Oxetol Seizure Control"]
+  },
+  {
+    "generic_name": "Oxycodone",
+    "aliases": ["OxyContin Severe Pain Capsule", "OxyNorm Quick Release"]
+  },
+  {
+    "generic_name": "Oxygen",
+    "aliases": ["Medical Oxygen BOC Cylinder Gas", "MOH-Oxygen-Plant-Concentrator"]
+  },
+  {
+    "generic_name": "Oxytocin",
+    "aliases": ["Syntocinon Labor Injection", "Oxytocin-Universal", "Pitocin"]
+  },
+  {
+    "generic_name": "Paclitaxel",
+    "aliases": ["Taxol Chemo Oncology Infusion", "Paclicel Cancer"]
+  },
+  {
+    "generic_name": "Paediatric nutritionally complete isocaloric formula",
+    "aliases": []
+  },
+  {
+    "generic_name": "Paediatric nutritionally complete peptide-based formula",
+    "aliases": ["Infant Peptamen Junior Paediatric Powder Formula"]
+  },
+  {
+    "generic_name": "Palbociclib",
+    "aliases": ["Ibrance Advanced Breast Cancer Capsule"]
+  },
+  {
+    "generic_name": "Paliperidone palmitate",
+    "aliases": ["Invega Sustenna Monthly Psych Depot Injection"]
+  },
+  {
+    "generic_name": "Palonosetron",
+    "aliases": ["Aloxi Chemo Nausea Injection"]
+  },
+  {
+    "generic_name": "Pantoprazole",
+    "aliases": ["Protium GERD Gastric Injection", "Pantocid Tablet", "Pan-40"]
+  },
+  {
+    "generic_name": "Papain + Urea (Papain-urea topical)",
+    "aliases": ["Accuzyme Eschar Wound Debridement Ointment"]
+  },
+  {
+    "generic_name": "Paracetamol",
+    "aliases": ["Panadol Pain", "Mara Moja Headache", "Calpol Baby", "Crocin", "Fevex Syrup"]
+  },
+  {
+    "generic_name": "Paromomycin",
+    "aliases": ["Humatin Leishmaniasis Antibiotic Parasitic Solution"]
+  },
+  {
+    "generic_name": "Paroxetine",
+    "aliases": ["Seroxat Anxiety", "Paxil Depression Control", "Pari"]
+  },
+  {
+    "generic_name": "Pazopanib",
+    "aliases": ["Votrient Renal Cell Carcinoma Targeted Therapy"]
+  },
+  {
+    "generic_name": "Peg-Filgrastim",
+    "aliases": ["Neulastim Neutropenia Prolonged Injection", "Peggrafeel"]
+  },
+  {
+    "generic_name": "Pegaspargase",
+    "aliases": ["Oncaspar Acute Lymphoblastic Leukemia Infusion"]
+  },
+  {
+    "generic_name": "Pembrolizumab",
+    "aliases": ["Keytruda Immunotherapy Immunooncology Solution"]
+  },
+  {
+    "generic_name": "Pemetrexed",
+    "aliases": ["Alimta Mesothelioma Non Small Lung Oncology Injection"]
+  },
+  {
+    "generic_name": "Pentamidine isethionate",
+    "aliases": ["Pentam Pneumocystis Carinii Injection Ampoules"]
+  },
+  {
+    "generic_name": "Perindopril + Amlodipine",
+    "aliases": ["Coveram Hypertension Cardiovascular Duo Tablet"]
+  },
+  {
+    "generic_name": "Perindopril + Amlodipine + Indapamide",
+    "aliases": ["Triplixam Triple Agent Refractory Hypertension Tablet"]
+  },
+  {
+    "generic_name": "Phenobarbital (Phenobarbitone) sodium",
+    "aliases": ["Luminal Seizures-Inj", "Phenobarbitone-Cosmos-Epilepsy"]
+  },
+  {
+    "generic_name": "Phenoxybenzamine",
+    "aliases": ["Dibenzyline Pheochromocytoma Crisis Capsule"]
+  },
+  {
+    "generic_name": "Phenoxymethylpenicillin (Penicillin V)",
+    "aliases": ["Pen-V-Cosmos", "Phenoxymethyl-Pen-Universal Syrup"]
+  },
+  {
+    "generic_name": "Phenylephrine",
+    "aliases": ["Isopto Frin Mydriasis Pupil Dilation Drops"]
+  },
+  {
+    "generic_name": "Phenytoin sodium",
+    "aliases": ["Epanutin Epilepsy", "Dilantin Seizure", "Phenyt-Cosmos"]
+  },
+  {
+    "generic_name": "Phytomenadione (Vit K1)",
+    "aliases": ["Neonatal Vitamin K1 Injection-Universal", "Kanavit"]
+  },
+  {
+    "generic_name": "Pilocarpine",
+    "aliases": ["Isopto Carpine Glaucoma Pressure Constriction Drops"]
+  },
+  {
+    "generic_name": "Pioglitazone",
+    "aliases": ["Actos Type 2 Diabetes Insulin Sensitizer Tablet"]
+  },
+  {
+    "generic_name": "Pioglitazone + Metformin",
+    "aliases": ["Actoplus Met Double Action Diabetes Tablet"]
+  },
+  {
+    "generic_name": "Piperacillin+ Tazobactam",
+    "aliases": ["Tazocin Intensive Sepsis Injection", "Piptaz-Lab"]
+  },
+  {
+    "generic_name": "Pirfenidone",
+    "aliases": ["Esbriet Idiopathic Pulmonary Lung Fibrosis Capsule"]
+  },
+  {
+    "generic_name": "Plasma, fresh-frozen",
+    "aliases": ["KNBTS FFP Coagulation Unit", "Blood Bank Frozen Plasma"]
+  },
+  {
+    "generic_name": "Platelets",
+    "aliases": ["KNBTS Platelet Concentrate Bag Transfusion Unit"]
+  },
+  {
+    "generic_name": "Pneumococcal vaccine (10-valent ads. conjugate)",
+    "aliases": ["Synflorix PCV10 Baby Infant MOH Campaign"]
+  },
+  {
+    "generic_name": "Pneumococcal vaccine (13 valent or higher adsorbed conjugate)",
+    "aliases": ["Prevenar 13 Private Channel Pediatric Vaccine"]
+  },
+  {
+    "generic_name": "Podophyllin resin",
+    "aliases": ["Podowart Genital Warts Corrosive Skin Topical Solution"]
+  },
+  {
+    "generic_name": "Polio vaccine (IPV)",
+    "aliases": ["MOH-IPV Injection Polio Eradication Campaign"]
+  },
+  {
+    "generic_name": "Polio vaccine, oral (OPV) (live attenuated)",
+    "aliases": ["MOH-OPV Oral Drops Campaign Sweet Vaccine Vaccine"]
+  },
+  {
+    "generic_name": "Polyacrylic acid",
+    "aliases": ["Viscotears Dry Eye Lubricant Artificial Liquid Gel"]
+  },
+  {
+    "generic_name": "Polygeline",
+    "aliases": ["Haemaccel Plasma Volume Expander Shock Infusion"]
+  },
+  {
+    "generic_name": "Polymyxin B",
+    "aliases": ["Polymyxin B Resistant Organism Sepsis ICU Injection"]
+  },
+  {
+    "generic_name": "Posaconazole",
+    "aliases": ["Noxafil Advanced Fungal Prophylaxis Suspension"]
+  },
+  {
+    "generic_name": "Potassium acid phosphate",
+    "aliases": ["Potassium Phosphate Intravenous Electrolyte Fluid Concentrate"]
+  },
+  {
+    "generic_name": "Potassium chloride",
+    "aliases": ["Potassium Chloride 15% Electrolyte Dilution Ampoules"]
+  },
+  {
+    "generic_name": "Povidone iodine",
+    "aliases": ["Betadine Antiseptic Surgical Scrub", "Poviderm Wounds"]
+  },
+  {
+    "generic_name": "Pralidoxime",
+    "aliases": ["PAM-2-PAM Organophosphate Poisoning Antidote Injection"]
+  },
+  {
+    "generic_name": "Pramipexole",
+    "aliases": ["Sifrol Parkinsons Motor Relief Tremor Tablets"]
+  },
+  {
+    "generic_name": "Praziquantel",
+    "aliases": ["Biltricide Schistosomiasis Bilharzia Cosmos Tablets"]
+  },
+  {
+    "generic_name": "Prazosin",
+    "aliases": ["Minipress Raynauds BPH Alpha Blocker Hypertension Tablet"]
+  },
+  {
+    "generic_name": "Prednisolone",
+    "aliases": ["Wysolone Corticosteroid", "Pred-Eye Drop", "Predni-Syrup-Cosmos"]
+  },
+  {
+    "generic_name": "Pregabalin",
+    "aliases": ["Lyrica Diabetic Neuropathy Neuropathic Pain Capsule"]
+  },
+  {
+    "generic_name": "Pretomanid",
+    "aliases": ["Pretomanid BPaL MDR-TB Ministry of Health Sealed Box"]
+  },
+  {
+    "generic_name": "Primaquine",
+    "aliases": ["Primaquine Radical Malarial Liver Stage Eradication Tabs"]
+  },
+  {
+    "generic_name": "Probenecid",
+    "aliases": ["Probalan Chronic Gout Uricosuric Excretion Adjoint Tabs"]
+  },
+  {
+    "generic_name": "Procarbazine",
+    "aliases": ["Matulane Hodgkins Disease Combination Chemotherapy Capsule"]
+  },
+  {
+    "generic_name": "Proguanil",
+    "aliases": ["Paludrine Malarial Chemoprophylaxis Proguanil Tablets"]
+  },
+  {
+    "generic_name": "Proparacaine",
+    "aliases": ["Alcaine Local Anesthetic Ophthalmic Numbing Drops"]
+  },
+  {
+    "generic_name": "Propofol",
+    "aliases": ["Diprivan General Anesthetic Milky Injection", "Propofol-Lab"]
+  },
+  {
+    "generic_name": "Propranolol",
+    "aliases": ["Inderal Migraine Tremor Performance Anxiety Beta Blocker"]
+  },
+  {
+    "generic_name": "Propylthiouracil",
+    "aliases": ["PTU Hyperthyroidism First Trimester Thyrotoxicosis Tabs"]
+  },
+  {
+    "generic_name": "Prostaglandin E2",
+    "aliases": ["Prostin E2 Vaginal Suppository Cervical Ripening Gel"]
+  },
+  {
+    "generic_name": "Protamine",
+    "aliases": ["Protamine Sulphate Heparin Overdose Antidote Reversal Injection"]
+  },
+  {
+    "generic_name": "Prothionamide (Pto)",
+    "aliases": ["Prothionamide TB Alternative Drug Secondary Line Tablet"]
+  },
+  {
+    "generic_name": "Pyrazinamide (Z)",
+    "aliases": ["Pyrazinamide Tubercular Intensive Phase Single Component"]
+  },
+  {
+    "generic_name": "Pyridostigmine",
+    "aliases": ["Mestinon Myasthenia Gravis Neuro Muscle Recovery Tablets"]
+  },
+  {
+    "generic_name": "Pyridoxine (Vit B6)",
+    "aliases": ["Pyridoxine Isoniazid Neuropathy Preventive Cosmos Tabs"]
+  },
+  {
+    "generic_name": "Pyrimethamine",
+    "aliases": ["Daraprim Toxoplasmosis Opportunistic Infection Antiprotozoal"]
+  },
+  {
+    "generic_name": "Quetiapine",
+    "aliases": ["Seroquel Schizophrenia Sleep Modulation Antipsyche Tabs"]
+  },
+  {
+    "generic_name": "Quinine",
+    "aliases": ["Quinine-Inj-Universal", "Quinine-Cosmos-Malaria", "Q-Tabs"]
+  },
+  {
+    "generic_name": "Rabies vaccine (cell culture)",
+    "aliases": ["Verorub Rabies Exposure Emergency Campaign Injection"]
+  },
+  {
+    "generic_name": "Ranibizumab",
+    "aliases": ["Lucentis Macular Degeneration Intraocular Injection Eye"]
+  },
+  {
+    "generic_name": "Rasburicase",
+    "aliases": ["Elitek Tumor Lysis Syndrome Hyperuricemia Oncology Fluid"]
+  },
+  {
+    "generic_name": "Ready to use supplemental food (RUSF)",
+    "aliases": ["PlumpySup Moderate Malnutrition Unicef Sachet Paste"]
+  },
+  {
+    "generic_name": "Ready to use therapeutic food (RUTF)",
+    "aliases": ["PlumpyNut Severe Acute Malnutrition Emergency Peanut Paste"]
+  },
+  {
+    "generic_name": "Red blood cells",
+    "aliases": ["KNBTS Packed Red Cells PRBC Anemia Transfusion Unit"]
+  },
+  {
+    "generic_name": "Rehydration solution for malnutrition (ReSoMal)",
+    "aliases": ["Nutriset ReSoMal Sachet Malnutrition Fluid Setup"]
+  },
+  {
+    "generic_name": "Remifentanyl",
+    "aliases": ["Ultiva Short Action Intensive Care ICU Narcotic Injection"]
+  },
+  {
+    "generic_name": "Reteplase",
+    "aliases": ["Retavase Thrombolytic Myocardial Infarction Clot Dissolver"]
+  },
+  {
+    "generic_name": "Retinol (Vit A)",
+    "aliases": ["Vitamin A Baby Blue Capsule MOH Child Health Campaign"]
+  },
+  {
+    "generic_name": "Ribavirin",
+    "aliases": ["Copegus Hepatitis Viral Antiviral Broad Spectrum Capsule"]
+  },
+  {
+    "generic_name": "Riboflavin",
+    "aliases": ["Vitamin B2 Micronutrient Yellow Vitamin Component Tabs"]
+  },
+  {
+    "generic_name": "Rifampicin (R)",
+    "aliases": ["Rifampicin Tubercular Bactericidal Single Antibiotic Cap"]
+  },
+  {
+    "generic_name": "Rifampicin + Isoniazid (RH)",
+    "aliases": ["MOH RH Maintenance Phase Anti TB Fixed Dose Combination"]
+  },
+  {
+    "generic_name": "Rifampicin + Isoniazid + Pyrazinamide (RHZ)",
+    "aliases": ["MOH RHZ Alternative Pediatric Tubercular Sachet Combination"]
+  },
+  {
+    "generic_name": "Rifampicin + Isoniazid + Pyrazinamide + Ethambutol (RHZE)",
+    "aliases": ["MOH RHZE Intensive Phase Initial Adult TB Multi Pack Box"]
+  },
+  {
+    "generic_name": "Rifapentine + Isoniazid (3HP)",
+    "aliases": ["3HP Short Latent TB Preventive Course Blister Strips Box"]
+  },
+  {
+    "generic_name": "Risperidone",
+    "aliases": ["Risperdal Psych", "Sizodon Mania Control", "Risnia Tabs"]
+  },
+  {
+    "generic_name": "Ritonavir (RTV)",
+    "aliases": ["Norvir HIV Booster Protease Enabler Single Component"]
+  },
+  {
+    "generic_name": "Rituximab",
+    "aliases": ["MabThera Lymphoma Lymphocytic Leukemia Bio Oncology Fluid"]
+  },
+  {
+    "generic_name": "Rivaroxaban",
+    "aliases": ["Xarelto DVT Anticoagulant Blood Thinner Tablet", "Visarox"]
+  },
+  {
+    "generic_name": "Rivastigmine",
+    "aliases": ["Exelon Alzheimer Dementia Memory Transdermal Patch / Caps"]
+  },
+  {
+    "generic_name": "Rocuronium",
+    "aliases": ["Esmeron Muscle Paralysis Intubation ICU Anaesthesia Fluid"]
+  },
+  {
+    "generic_name": "Rotavirus vaccine",
+    "aliases": ["Rotarix Oral Diarrhea Infant Eradication MOH Campaign Drops"]
+  },
+  {
+    "generic_name": "Sacubitril + Valsartan",
+    "aliases": ["Entresto Congestive Heart Failure Advanced Double Tablet"]
+  },
+  {
+    "generic_name": "Salbutamol",
+    "aliases": ["Ventolin Asthma Inhaler", "Asthalin Respules", "Salbu-Cosmos"]
+  },
+  {
+    "generic_name": "Salbutamol + Beclomethasone",
+    "aliases": ["Aerocort Dual Inhaler", "Salbair-B Spacer Canister"]
+  },
+  {
+    "generic_name": "Salbutamol + Ipratropium",
+    "aliases": ["Duolin Asthma Respules Combo", "Combivent Inhaler"]
+  },
+  {
+    "generic_name": "Salicylic acid",
+    "aliases": ["Salicylic Hyperkeratotic Wart Corrosive Ointment Cosmos"]
+  },
+  {
+    "generic_name": "Senna",
+    "aliases": ["Senokot Constipation Laxative Herbal Extract Tablets"]
+  },
+  {
+    "generic_name": "Sesta methoxyisobutylisonitrile (sestamibi) (Technetium -99m Sestamibi)",
+    "aliases": ["SPECT Cardiac Myocardial Perfusion Viability Imaging Tracer"]
+  },
+  {
+    "generic_name": "Sevelamer",
+    "aliases": ["Renagel Dialysis Hyperphosphatemia Phosphate Binder Tablet"]
+  },
+  {
+    "generic_name": "Sevoflurane",
+    "aliases": ["Sevorane Vaporizer Fluid"]
+  },
+  {
+    "generic_name": "Sildenafil",
+    "aliases": ["Viagra Erectile Pulmonary Hyper"]
+  },
+  {
+    "generic_name": "Silver sulphadiazine",
+    "aliases": ["Flamazine Severe Burn Wound Protective Cream", "Silveder"]
+  },
+  {
+    "generic_name": "Silverion",
+    "aliases": ["Silverlon Burn Dressings Advanced Chronic Antimicrobial Cloth"]
+  },
+  {
+    "generic_name": "Sitagliptin",
+    "aliases": ["Januvia Type 2 Diabetes DPP4 Inhibitor Tablet"]
+  },
+  {
+    "generic_name": "Sitagliptin + Metformin",
+    "aliases": ["Janumet Dual Action Diabetes Metformin Combination Tablet"]
+  },
+  {
+    "generic_name": "Sodium Hyaluronate",
+    "aliases": ["Ony结构 Joint Lubricant Intraarticular Knee Injection Fluid"]
+  },
+  {
+    "generic_name": "Sodium chloride",
+    "aliases": ["Normal Saline 0.9% Fluid Infusion-Lab", "N-Saline-Universal"]
+  },
+  {
+    "generic_name": "Sodium cromoglicate",
+    "aliases": ["Vividrin Allergic Mast Cell Eye drops Drop Allergy"]
+  },
+  {
+    "generic_name": "Sodium hydrogen carbonate (Sodium bicarbonate)",
+    "aliases": ["Sodium Bicarbonate 8.4% Acidosis Reversal ICU Ampoules"]
+  },
+  {
+    "generic_name": "Sodium lactate compound (Hartmann\u2019s /Ringers lactate)",
+    "aliases": ["Hartmanns Solution Infusion-Lab", "Ringers Lactate Fluid"]
+  },
+  {
+    "generic_name": "Sodium nitrite",
+    "aliases": ["Sodium Nitrite Cyanide Poisoning Initial Phase Antidote Injection"]
+  },
+  {
+    "generic_name": "Sodium polystyrene sulphonate",
+    "aliases": ["Kalimate Hyperkalemia Potassium Trapping Sachet Powder"]
+  },
+  {
+    "generic_name": "Sodium stibogluconate",
+    "aliases": ["SSG Kala Azar Leishmaniasis National Health Program Ampoules"]
+  },
+  {
+    "generic_name": "Sodium thiosulphate",
+    "aliases": ["Sodium Thiosulfate Cyanide Sequential Phase Antidote Injection"]
+  },
+  {
+    "generic_name": "Sofosbuvir+Velpatasvir",
+    "aliases": ["Epclusa Chronic Pan Genotypic Hepatitis C Cure Tablets"]
+  },
+  {
+    "generic_name": "Somatropin (recombinant human growth hormone)",
+    "aliases": ["Genotropin Growth Hormone Subcutaneous Injection Pen"]
+  },
+  {
+    "generic_name": "Sorafenib",
+    "aliases": ["Nexavar Advanced Renal Hepatocellular Oncology Carcinoma Tabs"]
+  },
+  {
+    "generic_name": "Specialized Renal formula",
+    "aliases": ["Nepro HP Tube Feeding Renal Chronic Failure Solution"]
+  },
+  {
+    "generic_name": "Specialized Semi-elemental peptide formula",
+    "aliases": ["Peptamen Gastrointestinal Compromised Mucosal Healing Powder"]
+  },
+  {
+    "generic_name": "Spironolactone",
+    "aliases": ["Aldactone Ascites Heart Failure Diuretic", "Spiro-Cosmos"]
+  },
+  {
+    "generic_name": "Succimer [Dimercaptosuccinic acid (DMSA)]",
+    "aliases": ["Chemet Pediatric Heavy Metal Lead Chelation Oral Capsules"]
+  },
+  {
+    "generic_name": "Sulfadiazine",
+    "aliases": ["Sulfadiazine Cerebral Toxoplasmosis HIV Neuro Blister Tabs"]
+  },
+  {
+    "generic_name": "Sulfadoxine + Pyrimethamine",
+    "aliases": ["Fansidar Malaria IPTp Pregnancy Intermittent Course", "Orodar"]
+  },
+  {
+    "generic_name": "Sulfasalazine (SSZ)",
+    "aliases": ["Salazopyrin Ulcerative Colitis Rheumatoid Arthritic Tablets"]
+  },
+  {
+    "generic_name": "Sumatriptan",
+    "aliases": ["Imigran Acute Migraine Serotonin Vasoconstriction Tablet"]
+  },
+  {
+    "generic_name": "Sun screening agent(s)",
+    "aliases": ["Uveblock Albinism Protection High SPF Cream National Program"]
+  },
+  {
+    "generic_name": "Suramin sodium",
+    "aliases": ["Suramin African Trypanosomiasis Early Stage Blood Vector Injection"]
+  },
+  {
+    "generic_name": "Surfactant",
+    "aliases": ["Survanta Neonatal Infant Respiratory Distress Endotracheal Fluid"]
+  },
+  {
+    "generic_name": "Suxamethonium",
+    "aliases": ["Scoline Electroconvulsive Quick Paralysis Anaesthesia Ampoules"]
+  },
+  {
+    "generic_name": "Tacrolimus",
+    "aliases": ["Prograf Organ Rejection Prophylaxis", "Tacroz Derm Cream"]
+  },
+  {
+    "generic_name": "Tadalafil",
+    "aliases": ["Cialis Erectile Pulmonary Hypertension Prolonged Duration Tabs"]
+  },
+  {
+    "generic_name": "Tamoxifen",
+    "aliases": ["Nolvadex Estrogen Receptor Breast Cancer Core Tablet"]
+  },
+  {
+    "generic_name": "Tamsulosin",
+    "aliases": ["Flomax Prostate Flow Improvement Alpha Blocker Capsule", "Urimax"]
+  },
+  {
+    "generic_name": "Technetium - 99m disofenin (DISIDA)",
+    "aliases": ["Oncology Nuclear Hepatobiliary Gallbladder Diagnostic Liquid"]
+  },
+  {
+    "generic_name": "Technetium - 99m leucocytes",
+    "aliases": ["SPECT Labeled White Cell Infection Tracking Nuclear Agent"]
+  },
+  {
+    "generic_name": "Technetium - 99m mebrofenin (BRIDA)",
+    "aliases": ["SPECT Cholescintigraphy Biliary Function Nuclear Agent"]
+  },
+  {
+    "generic_name": "Technetium Tc- 99m (99m Tc) Succimer (Technetium Tc-99m Dimercaptosuccinic Acid (DMSA)",
+    "aliases": ["SPECT Renal Cortical Structure Morphology Scan Tracer"]
+  },
+  {
+    "generic_name": "Technetium-99m pentetate (DTPA)",
+    "aliases": ["SPECT Kidney Glomerular Filtration Rate GFR Scan Fluid"]
+  },
+  {
+    "generic_name": "Technetium-99m sodium pertechnetate",
+    "aliases": ["SPECT Primary Basal Thyroid Imaging Fluid Scan Reagent"]
+  },
+  {
+    "generic_name": "Teicoplanin",
+    "aliases": ["Targocid Glycopeptide Gram Positive Resistant Infection Inj"]
+  },
+  {
+    "generic_name": "Telmisartan",
+    "aliases": ["Micardis ARB Hypertension Angiotensin Blocker", "Telma Tabs"]
+  },
+  {
+    "generic_name": "Telmisartan + Amlodipine",
+    "aliases": ["Twynsta Combined Cardiovascular Refractory Hypertension Tablet"]
+  },
+  {
+    "generic_name": "Telmisartan + Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Micardis Plus Diuretic Angiotensin Blocker Combined Tablet"]
+  },
+  {
+    "generic_name": "Telmisartan+ Amlodipine+ Hydrochlorothiazide (HCTZ)",
+    "aliases": ["Triotec Severe Multi Factor Blood Pressure Regulation Tablet"]
+  },
+  {
+    "generic_name": "Temozolomide",
+    "aliases": ["Temodal Glioblastoma Brain Cancer Targeted Chemo Capsule"]
+  },
+  {
+    "generic_name": "Tenecteplase",
+    "aliases": ["Metalyse Ischemic Stroke Fibrin Specific Thrombolytic Injection"]
+  },
+  {
+    "generic_name": "Tenofovir Alafenamide (TAF)",
+    "aliases": ["Vemlidy Hepatitis B High Target Renal Safe Antiviral"]
+  },
+  {
+    "generic_name": "Tenofovir Alafenamide + Lamivudine + Dolutegravir (TAF+3TC+DTG)",
+    "aliases": ["MOH Modernized Triple Fixed Dose Combination HIV Box"]
+  },
+  {
+    "generic_name": "Tenofovir disoproxil fumarate (TDF)",
+    "aliases": ["Viread HIV Prophylaxis Chronic Hepatitis B Monotherapy"]
+  },
+  {
+    "generic_name": "Tenofovir disoproxil fumarate + Emtricitabine (TDF+FTC)",
+    "aliases": ["Truvada Prep HIV Exposure Prophylaxis Double Combo Blue Tabs"]
+  },
+  {
+    "generic_name": "Tenofovir disoproxil fumarate + Lamivudine (TDF+3TC)",
+    "aliases": ["MOH Basic HIV Treatment Double Backbone Fixed Tablet"]
+  },
+  {
+    "generic_name": "Tenofovir disoproxil fumarate + Lamivudine + Dolutegravir (TDF+3TC+DTG)",
+    "aliases": ["TLD MOH Standard First Line Universal Program Blue Boxed Core"]
+  },
+  {
+    "generic_name": "Tenofovir disoproxil fumarate + Lamivudine + Efavirenz (TDF+3TC+EFV)",
+    "aliases": ["TLE Historical Antiretroviral Alternative Combo Program Tablet"]
+  },
+  {
+    "generic_name": "Terbinafine",
+    "aliases": ["Lamisil Tinea Capitis Ringworm Fungus", "Terbina Cream-Cosmos"]
+  },
+  {
+    "generic_name": "Terbutaline",
+    "aliases": ["Bricanyl Tocolysis Bronchodilation Uterine Relaxation Injection"]
+  },
+  {
+    "generic_name": "Terizidone (Trd)",
+    "aliases": ["Terizidone MDR-TB Cycloserine Structural Variant Ministry Unit"]
+  },
+  {
+    "generic_name": "Terlipressin",
+    "aliases": ["Glypressin Hepatorenal Syndrome Esophageal Variceal Bleed Injection"]
+  },
+  {
+    "generic_name": "Testosterone",
+    "aliases": ["Sustanon Androgen Hormone Replacement Intra Muscular Oil Injection"]
+  },
+  {
+    "generic_name": "Tetanus + Diphtheria (Td) vaccine",
+    "aliases": ["MOH Maternal Td Campaign Antenatal Shield Clinic Lock Shot"]
+  },
+  {
+    "generic_name": "Tetanus + Diphtheria + Pertussis (Tdap) vaccine",
+    "aliases": ["Boostrix Private Channel Pediatric School Booster Setup Shot"]
+  },
+  {
+    "generic_name": "Tetracaine",
+    "aliases": ["Amethocaine Topical Regional Spinal Local Surface Numbing"]
+  },
+  {
+    "generic_name": "Tetracycline",
+    "aliases": ["Tetracycline Eye Ointment Ophthalmic Neonatal Trachoma Cosmos"]
+  },
+  {
+    "generic_name": "Thalidomide",
+    "aliases": ["Thalomid Erythema Nodosum Leprosum Myeloma Immunomodulator"]
+  },
+  {
+    "generic_name": "Therapeutic diet feed (F-100)",
+    "aliases": ["Unicef F-100 Severe Malnutrition Stabilization Phase Milk"]
+  },
+  {
+    "generic_name": "Therapeutic diet feed (F-75)",
+    "aliases": ["Unicef F-75 Severe Malnutrition Initial Phase Intervention Milk"]
+  },
+  {
+    "generic_name": "Thiamine (Vit B1)",
+    "aliases": ["Betaxin Wernicke Korsakoff Alcoholic Encephalopathy Cosmos Tabs"]
+  },
+  {
+    "generic_name": "Thiopental sodium",
+    "aliases": ["Pentothal General Rapid Sequence Intubation Anesthetic Barbiturate"]
+  },
+  {
+    "generic_name": "Tigecycline",
+    "aliases": ["Tygacil Complicated Skin Intraabdominal Sepsis Superbug Injection"]
+  },
+  {
+    "generic_name": "Timolol",
+    "aliases": ["Timoptol Glaucoma Pressure Lowering Drop", "Nyolol Eye Drop"]
+  },
+  {
+    "generic_name": "Tinidazole",
+    "aliases": ["Fasigyn Trichomoniasis Amoebiasis High Dose Cosmos Blister Tabs"]
+  },
+  {
+    "generic_name": "Tioguanine",
+    "aliases": ["Lanvis Acute Myeloid Leukemia Oncology Nucleic Agent Tablet"]
+  },
+  {
+    "generic_name": "Tiotropium",
+    "aliases": ["Spiriva HandiHaler COPD Maintenance Muscarinic Inhalation Cap"]
+  },
+  {
+    "generic_name": "Tobramycin",
+    "aliases": ["Tobrex Severe Bacterial Ophthalmic Corneal Drop Eye"]
+  },
+  {
+    "generic_name": "Tobramycin + Dexamethasone",
+    "aliases": ["Tobradex Combined Anti Infective Corticosteroid Eye Drops"]
+  },
+  {
+    "generic_name": "Tocilizumab",
+    "aliases": ["Actemra Severe Rheumatoid Cytokine Storm ARDS COVID Infusion"]
+  },
+  {
+    "generic_name": "Tolvaptan",
+    "aliases": ["Samsca Hyponatremia Autosomal Dominant Polycystic Kidney Tabs"]
+  },
+  {
+    "generic_name": "Topiramate",
+    "aliases": ["Topamax Epilepsy Seizure Prophylaxis Migraine Prevention Tablet"]
+  },
+  {
+    "generic_name": "Topotecan",
+    "aliases": ["Hycamtin Refractory Ovarian Small Cell Lung Oncology Injection"]
+  },
+  {
+    "generic_name": "Torsemide",
+    "aliases": ["Demadex High Potency Renal Failure Edema Loops Diuretic Tablet"]
+  },
+  {
+    "generic_name": "Trace elements",
+    "aliases": ["Addaven Total Parenteral Nutrition TPN Intravenous Minerals"]
+  },
+  {
+    "generic_name": "Tramadol",
+    "aliases": ["Tramal Central Pain", "Oltram", "Tramadex-Inj", "Tracid Syrup"]
+  },
+  {
+    "generic_name": "Tranexamic acid",
+    "aliases": ["Cyclokapron Hemorrhage Trauma Fibrinolysis Stop Bleed Inj", "Texakind"]
+  },
+  {
+    "generic_name": "Trastuzumab",
+    "aliases": ["Herceptin HER2 Positive Advanced Breast Cancer Targeted Bio Infusion"]
+  },
+  {
+    "generic_name": "Tretinoin",
+    "aliases": ["Retin-A Severe Acne Vulgaris Turnover Skin Cream Topical"]
+  },
+  {
+    "generic_name": "Triamcinolone",
+    "aliases": ["Kenacort Keloid Alopecia Intraarticular Steroid Injection"]
+  },
+  {
+    "generic_name": "Trimetazidine",
+    "aliases": ["Vastarel MR Refractory Angina Pectoris Myocardial Ischemia Tab"]
+  },
+  {
+    "generic_name": "Tropicamide + Phenylephrine",
+    "aliases": ["Mydriacyl-Plus Complete Retinal Fundoscopy Examination Drops"]
+  },
+  {
+    "generic_name": "Tropicamide + phenylephrine",
+    "aliases": ["Appasamy Mydriatic Diagnostics Diagnostic Dilator Eye Drop"]
+  },
+  {
+    "generic_name": "Trypan blue",
+    "aliases": ["Auroblue Cataract Surgery Anterior Capsule Ophthalmic Dye Fluid"]
+  },
+  {
+    "generic_name": "Tuberculin, purified protein, derivative (PPD)",
+    "aliases": ["PPD Mantoux Tuberculosis Diagnostic Intradermal Reagent Screen"]
+  },
+  {
+    "generic_name": "Typhoid vaccine",
+    "aliases": ["Typhim Vi Typhoid Injection Polysaccharide Food Handler Shield"]
+  },
+  {
+    "generic_name": "Valproic acid (Sodium Valproate)",
+    "aliases": ["Epilim Epilepsy Bipolar Mood Stabilizer", "Valparin Syrup"]
+  },
+  {
+    "generic_name": "Vancomycin",
+    "aliases": ["Vancocin MRSA Glycopeptide Superbug Injection Fluid", "Vancomed"]
+  },
+  {
+    "generic_name": "Vasopressin",
+    "aliases": ["Pitressin Refractory Shock Variceal Bleed Antidiuretic Injection"]
+  },
+  {
+    "generic_name": "Vecuronium",
+    "aliases": ["Norcuron ICU Paralytic Muscle Relaxant Intubation Ampoules"]
+  },
+  {
+    "generic_name": "Venlafaxine",
+    "aliases": ["Efexor XR Depression Anxiety Dual SNRI Uptake Cap", "Venlor"]
+  },
+  {
+    "generic_name": "Verapamil",
+    "aliases": ["Isoptin Supraventricular Tachycardia Calcium Antagonist Card Tabs"]
+  },
+  {
+    "generic_name": "Vinblastine",
+    "aliases": ["Velbe Hodgkins Lymphoma Vinca Alkaloid Cancer Injection"]
+  },
+  {
+    "generic_name": "Vincristine",
+    "aliases": ["Oncovin Acute Lymphoblastic Leukemia Vinca Oncology Injection"]
+  },
+  {
+    "generic_name": "Vinorelbine",
+    "aliases": ["Navelbine Advanced Non Small Lung Breast Oncology Injection"]
+  },
+  {
+    "generic_name": "Vitamin B and C",
+    "aliases": ["Oralovit Combined Vitamin B-Complex Plus Vitamin C Restorative"]
+  },
+  {
+    "generic_name": "Vitamin B12 (Cobalamin)",
+    "aliases": ["Cyanocobalamin Pernicious Macrocytic Anemia General Tablets"]
+  },
+  {
+    "generic_name": "Vitamins & Minerals Mix",
+    "aliases": ["Unicef MNPs Micronutrient Powder Sachets For Infant Food Enrichment"]
+  },
+  {
+    "generic_name": "Voriconazole",
+    "aliases": ["Vfend Advanced Invasive Aspergillosis Antifungal High Tier Injection"]
+  },
+  {
+    "generic_name": "Vv Valgancyclovir",
+    "aliases": ["Valcyte CMV Retinitis Transplants Immunocompromised Antiviral Tabs"]
+  },
+  {
+    "generic_name": "Water-soluble vitamins Containing Vitamin C and B-complex",
+    "aliases": ["Soluvit N Total Parenteral TPN Intravenous Infusion Multi Pack"]
+  },
+  {
+    "generic_name": "White soft paraffin (Petroleum jelly)",
+    "aliases": ["Vaseline Sterile Lubricating Base Protection Ointment Cosmos"]
+  },
+  {
+    "generic_name": "Whole blood",
+    "aliases": ["KNBTS Citrated Whole Human Blood Emergency Transfusion Vol Bag"]
+  },
+  {
+    "generic_name": "Ww Warfarin",
+    "aliases": ["Marevan Blood Thinner Anticoagulation Clot Protection Cosmos"]
+  },
+  {
+    "generic_name": "Xylometazoline",
+    "aliases": ["Otrivin Nasal Decongestant Sinus Relief Drop", "Xylo-Spray-Cosmos"]
+  },
+  {
+    "generic_name": "Yellow fever vaccine (live, attenuated)",
+    "aliases": ["Stamaril Yellow Fever International Yellow Card Travel Injection"]
+  },
+  {
+    "generic_name": "Zidovudine (AZT or ZDV)",
+    "aliases": ["Retrovir HIV Neonatal Vertical PMTCT Prevention Single Syrup"]
+  },
+  {
+    "generic_name": "Zidovudine + Lamivudine (AZT+3TC)",
+    "aliases": ["Combivir Basic Double HIV NRTI Backbone Fixed Dose Tablet"]
+  },
+  {
+    "generic_name": "Zinc Hyaluronate (zinc-hyaluronan)",
+    "aliases": ["Curiosin Advanced Chronic Diabetic Ulcer Wound Healing Gel"]
+  },
+  {
+    "generic_name": "Zinc sulphate",
+    "aliases": ["Zinc-Tab-Cosmos", "Zincon Baby Diarrhea Rehydration Recovery Tabs"]
+  },
+  {
+    "generic_name": "Zoledronic acid",
+    "aliases": ["Zometa Bone Met Hypercalcemia Reclast Osteoporosis Infusion"]
+  },
+  {
+    "generic_name": "Zolpidem",
+    "aliases": ["Stilnox Insomnia Short Term Sleep Induction Sedative Hypnotic"]
+  },
+  {
+    "generic_name": "Zuclopenthixol",
+    "aliases": ["Clopixol Acuphase Acute Psychosis Schizophrenia Violent Emergency Depot"]
+  }
+]

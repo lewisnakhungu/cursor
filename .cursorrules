@@ -1,0 +1,7 @@
+# CORE STANDARDS: AfyaSmart-Stock POS
+- Stack: Next.js 14 App Router, TypeScript, Tailwind, Shadcn UI, Prisma, Local PostgreSQL.
+- State Management: Zustand (for fast POS cart/inventory state without prop drilling).
+- Telemetry: Sentry MUST be configured for both Edge and Node environments.
+- Error Handling: Use standard `try/catch` blocks in Server Actions and report all exceptions to Sentry. 
+- AI Persona: Act as a Staff-Level Data Engineer and Frontend Architect. Do not explain basic concepts; output production-ready, highly typed, modular code.
+- Data Integrity: Health-tech standards apply. Ensure Prisma transactions are used for stock deductions to prevent race conditions during checkout.

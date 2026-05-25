@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 99%;
+    --foreground: 160 10% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 160 10% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 10% 12%;
+    --primary: 158 64% 32%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 150 15% 95%;
+    --secondary-foreground: 160 10% 20%;
+    --muted: 150 12% 94%;
+    --muted-foreground: 160 8% 42%;
+    --accent: 150 20% 93%;
+    --accent-foreground: 160 10% 18%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 150 12% 88%;
+    --input: 150 12% 88%;
+    --ring: 158 64% 32%;
+    --radius: 0.625rem;
+    --shell-bg: 150 25% 97%;
+    --sidebar-bg: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .pharmacy-panel {
+    @apply rounded-xl border border-border/80 bg-card p-4 shadow-sm md:p-5;
+  }
+
+  .pharmacy-panel-title {
+    @apply text-sm font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+
+  .touch-target {
+    @apply min-h-11 min-w-11;
+  }
+}
+
+/* 80mm thermal receipt — screen preview */
+.thermal-receipt {
+  width: 80mm;
+  max-width: 80mm;
+  font-family: ui-monospace, monospace;
+  line-height: 1.35;
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .thermal-receipt-print,
+  .thermal-receipt-print * {
+    visibility: visible !important;
+  }
+
+  .thermal-receipt-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    padding: 2mm;
+    color: #000 !important;
+    background: #fff !important;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+  }
+}
