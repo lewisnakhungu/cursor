@@ -1,6 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { resolveTenantDb } from "@/lib/tenant-db";
+import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import { decimalToNumber } from "@/lib/money";
 import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
@@ -65,8 +66,11 @@ function mapSaleLine(
   };
 }
 
-async function getTodayMetrics(from: Date): Promise<TodaySalesMetrics> {
-  const sales = await prisma.sale.findMany({
+async function getTodayMetrics(
+  db: TenantPrismaClient,
+  from: Date,
+): Promise<TodaySalesMetrics> {
+  const sales = await db.sale.findMany({
     where: { createdAt: { gte: from } },
     include: { lines: true },
   });
@@ -98,10 +102,11 @@ async function getTodayMetrics(from: Date): Promise<TodaySalesMetrics> {
 }
 
 async function getTopDrugs(
+  db: TenantPrismaClient,
   from: Date,
   limit: number,
 ): Promise<TopSellingDrug[]> {
-  const lines = await prisma.saleLine.findMany({
+  const lines = await db.saleLine.findMany({
     where: {
       status: "ACTIVE",
       createdAt: { gte: from },
@@ -174,11 +179,14 @@ async function getTopDrugs(
 export async function getSalesDashboard(): Promise<
   ActionResult<SalesDashboardData>
 > {
-  return runAction("getSalesDashboard", async () => {
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "getSalesDashboard",
+    async () => {
     const todayStart = startOfToday();
     const weekStart = daysAgo(7);
 
-    const salesToday = await prisma.sale.findMany({
+    const salesToday = await db.sale.findMany({
       where: { createdAt: { gte: todayStart } },
       include: {
         lines: {
@@ -202,10 +210,12 @@ export async function getSalesDashboard(): Promise<
     });
 
     return {
-      today: await getTodayMetrics(todayStart),
+      today: await getTodayMetrics(db, todayStart),
       todaySales,
-      topDrugsToday: await getTopDrugs(todayStart, 10),
-      topDrugs7Days: await getTopDrugs(weekStart, 15),
+      topDrugsToday: await getTopDrugs(db, todayStart, 10),
+      topDrugs7Days: await getTopDrugs(db, weekStart, 15),
     };
-  });
+  },
+    { tenantId },
+  );
 }

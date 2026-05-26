@@ -2,6 +2,7 @@
 
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { resolveTenantDb } from "@/lib/tenant-db";
 import { AppError } from "@/lib/errors";
 import {
   isStockUnitCode,
@@ -73,6 +74,7 @@ function mapBatchRow(
 export async function receiveInventory(
   batchData: ReceiveInventoryInput,
 ): Promise<ActionResult<{ batchId: string }>> {
+  const { tenantId, db } = await resolveTenantDb();
   return runAction("receiveInventory", async () => {
     if (batchData.quantityOnHand <= 0) {
       throw new AppError("Quantity must be greater than zero", "VALIDATION");
@@ -126,7 +128,7 @@ export async function receiveInventory(
       throw new AppError("Medicine not found in catalog", "NOT_FOUND");
     }
 
-    const batch = await prisma.stockBatch.create({
+    const batch = await db.stockBatch.create({
       data: {
         medicineId: batchData.medicineId,
         batchNumber: batchData.batchNumber?.trim() || null,
@@ -149,16 +151,17 @@ export async function receiveInventory(
     });
 
     return { batchId: batch.id };
-  });
+  }, { tenantId });
 }
 
 export async function getExpiringStock(): Promise<
   ActionResult<ExpiringStockReport>
 > {
+  const { tenantId, db } = await resolveTenantDb();
   return runAction("getExpiringStock", async () => {
     const today = startOfToday();
 
-    const batches = await prisma.stockBatch.findMany({
+    const batches = await db.stockBatch.findMany({
       where: {
         quantityOnHand: { gt: 0 },
         expiryDate: { gte: today },
@@ -186,5 +189,5 @@ export async function getExpiringStock(): Promise<
       activeBatches,
       lowStockCount: activeBatches.filter((row) => row.isLowStock).length,
     };
-  });
+  }, { tenantId });
 }

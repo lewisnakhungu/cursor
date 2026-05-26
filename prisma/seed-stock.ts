@@ -10,6 +10,8 @@ import { Pool } from "pg";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
+const DEFAULT_TENANT_ID = process.env.TENANT_ID?.trim() || "default";
+
 /** Curated generics aligned to Kenya essential / high-turnover medicines (KEML names). */
 const COMMON_KENYA_GENERICS: readonly string[] = [
   "Paracetamol",
@@ -177,6 +179,16 @@ async function main(): Promise<void> {
   const missing: string[] = [];
 
   try {
+    await prisma.tenant.upsert({
+      where: { id: DEFAULT_TENANT_ID },
+      create: {
+        id: DEFAULT_TENANT_ID,
+        name: "Default Facility",
+        slug: "default",
+      },
+      update: {},
+    });
+
     for (let i = 0; i < COMMON_KENYA_GENERICS.length; i++) {
       const genericName = COMMON_KENYA_GENERICS[i];
 
@@ -259,6 +271,7 @@ async function createBatchesForMedicine(
   for (const template of templates) {
     const existing = await prisma.stockBatch.findFirst({
       where: {
+        tenantId: DEFAULT_TENANT_ID,
         medicineId: medicine.id,
         batchNumber: `KE-${year}-${String(index + 1).padStart(3, "0")}-${template.batchSuffix}`,
       },
@@ -268,6 +281,7 @@ async function createBatchesForMedicine(
 
     await prisma.stockBatch.create({
       data: {
+        tenantId: DEFAULT_TENANT_ID,
         stockUnit: "TABLET",
         medicineId: medicine.id,
         batchNumber: `KE-${year}-${String(index + 1).padStart(3, "0")}-${template.batchSuffix}`,

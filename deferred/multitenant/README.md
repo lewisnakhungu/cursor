@@ -1,11 +1,8 @@
-# Multi-tenant work (deferred)
+# Multi-tenant work
 
-Held until after stock-unit / reporting release.
+**Shipped in the active app** (`src/lib/prisma-tenant.ts`, `src/lib/tenant-context.ts`, schema).
 
-Files here were removed from the active app so `npm run build` stays single-tenant:
+This folder kept only as a historical reference; scripts live under `prisma/`:
 
-- `migrate-to-multitenant.ts` — data backfill script
-- `prisma-tenant.ts` — Prisma client extension
-- `tenant-context.ts` — session tenant resolver stub
-
-Restore and wire when ready to ship tenant isolation.
+- `prisma/migrate-to-multitenant.ts`
+- `prisma/seed-tenants.ts`

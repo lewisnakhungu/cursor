@@ -5,12 +5,18 @@ import type { ActionResult } from "@/lib/types";
 export async function runAction<T>(
   actionName: string,
   fn: () => Promise<T>,
+  context?: { tenantId?: string },
 ): Promise<ActionResult<T>> {
   try {
     const data = await fn();
     return { success: true, data };
   } catch (error: unknown) {
-    Sentry.captureException(error, { tags: { action: actionName } });
+    Sentry.captureException(error, {
+      tags: {
+        action: actionName,
+        ...(context?.tenantId ? { tenantId: context.tenantId } : {}),
+      },
+    });
 
     if (error instanceof AppError) {
       return { success: false, error: error.message, code: error.code };

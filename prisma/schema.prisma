@@ -14,6 +14,53 @@ enum SaleLineStatus {
   VOIDED
 }
 
+enum TenantRole {
+  OWNER
+  PHARMACIST
+  CASHIER
+  AUDITOR
+}
+
+/// Health facility / pharmacy — operational data is scoped by tenantId.
+model Tenant {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  createdAt   DateTime     @default(now())
+  batches     StockBatch[]
+  sales       Sale[]
+  saleLines   SaleLine[]
+  memberships Membership[]
+
+  @@map("tenants")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String?
+  name         String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  memberships  Membership[]
+
+  @@map("users")
+}
+
+model Membership {
+  id        String     @id @default(cuid())
+  tenantId  String
+  userId    String
+  role      TenantRole @default(PHARMACIST)
+  createdAt DateTime   @default(now())
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
 /// How staff count stock for a batch (qty 5 + BOX = five boxes, not five tablets).
 enum StockUnit {
   TABLET
@@ -65,6 +112,7 @@ model MedicineAlias {
 
 model StockBatch {
   id               String    @id @default(cuid())
+  tenantId         String    @default("default")
   medicineId       String
   batchNumber      String?
   supplierName     String?
@@ -79,9 +127,11 @@ model StockBatch {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   medicine  Medicine   @relation(fields: [medicineId], references: [id], onDelete: Restrict)
   saleLines SaleLine[]
 
+  @@index([tenantId, medicineId, expiryDate])
   @@index([medicineId, expiryDate])
   @@index([expiryDate])
   @@index([receivedAt])
@@ -90,16 +140,20 @@ model StockBatch {
 
 model Sale {
   id          String     @id @default(cuid())
+  tenantId    String     @default("default")
   createdAt   DateTime   @default(now())
   totalAmount Decimal    @default(0) @db.Decimal(14, 2)
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   lines       SaleLine[]
 
+  @@index([tenantId, createdAt])
   @@index([createdAt])
   @@map("sales")
 }
 
 model SaleLine {
   id             String         @id @default(cuid())
+  tenantId       String         @default("default")
   saleId         String
   medicineId     String
   stockBatchId   String
@@ -116,10 +170,12 @@ model SaleLine {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @default(now()) @updatedAt
 
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   sale       Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
   medicine   Medicine   @relation(fields: [medicineId], references: [id], onDelete: Restrict)
   stockBatch StockBatch @relation(fields: [stockBatchId], references: [id], onDelete: Restrict)
 
+  @@index([tenantId, createdAt])
   @@index([saleId])
   @@index([medicineId])
   @@index([status])

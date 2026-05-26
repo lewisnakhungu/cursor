@@ -1,6 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { resolveTenantDb } from "@/lib/tenant-db";
+import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import { decimalToNumber } from "@/lib/money";
 import { getStockingInsights } from "@/lib/actions/insights";
 import type { StockUnitCode } from "@/lib/stock-unit";
@@ -48,10 +49,11 @@ function topDrugKey(medicineId: string, stockUnit: StockUnitCode): string {
 }
 
 async function getTopDrugs(
+  db: TenantPrismaClient,
   from: Date,
   limit: number,
 ): Promise<TopSellingDrug[]> {
-  const lines = await prisma.saleLine.findMany({
+  const lines = await db.saleLine.findMany({
     where: { status: "ACTIVE", createdAt: { gte: from } },
     include: {
       medicine: {
@@ -129,8 +131,11 @@ function buildSalesByDay(
   );
 }
 
-async function buildLineDetails(from: Date): Promise<SalesReportLineDetail[]> {
-  const sales = await prisma.sale.findMany({
+async function buildLineDetails(
+  db: TenantPrismaClient,
+  from: Date,
+): Promise<SalesReportLineDetail[]> {
+  const sales = await db.sale.findMany({
     where: { createdAt: { gte: from } },
     include: {
       lines: {
@@ -169,12 +174,15 @@ async function buildLineDetails(from: Date): Promise<SalesReportLineDetail[]> {
 export async function getSalesReport(
   periodDays: ReportPeriodDays,
 ): Promise<ActionResult<SalesReportData>> {
-  return runAction("getSalesReport", async () => {
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "getSalesReport",
+    async () => {
       const since = daysAgo(periodDays);
       const periodEnd = startOfToday();
       const periodStart = since;
 
-      const sales = await prisma.sale.findMany({
+      const sales = await db.sale.findMany({
         where: { createdAt: { gte: since } },
         include: { lines: true },
       });
@@ -223,20 +231,25 @@ export async function getSalesReport(
           averageSaleValue,
         },
         salesByDay: buildSalesByDay(sales),
-        topDrugs: await getTopDrugs(since, 20),
-        lineDetails: await buildLineDetails(since),
+        topDrugs: await getTopDrugs(db, since, 20),
+        lineDetails: await buildLineDetails(db, since),
         stocking: insights?.summary ?? null,
         weeklyRestockTrend: insights?.weeklyTrend ?? [],
         topRestocked: insights?.topRestocked ?? [],
       };
-  });
+  },
+    { tenantId },
+  );
 }
 
 export async function getStockReport(): Promise<ActionResult<StockReportData>> {
-  return runAction("getStockReport", async () => {
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "getStockReport",
+    async () => {
       const today = startOfToday();
 
-      const batches = await prisma.stockBatch.findMany({
+      const batches = await db.stockBatch.findMany({
         where: {
           quantityOnHand: { gt: 0 },
           expiryDate: { gte: today },
@@ -308,5 +321,7 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
         lowStockCount,
         rows,
       };
-  });
+  },
+    { tenantId },
+  );
 }

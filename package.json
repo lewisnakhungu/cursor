@@ -12,6 +12,9 @@
     "db:push:local": "tsx prisma/push-local.ts",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-stock": "tsx prisma/seed-stock.ts",
+    "db:seed-tenants": "tsx prisma/seed-tenants.ts",
+    "db:migrate-multitenant": "tsx prisma/migrate-to-multitenant.ts",
+    "db:neon:multitenant": "tsx prisma/neon-multitenant-setup.ts",
     "db:seed-aliases": "tsx prisma/seed-aliases.ts",
     "db:neon:setup": "tsx prisma/neon-setup.ts",
     "postinstall": "prisma generate"

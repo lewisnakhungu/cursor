@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { resolveTenantDb } from "@/lib/tenant-db";
 import { decimalToNumber } from "@/lib/money";
 import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
@@ -138,10 +138,13 @@ function buildReceiveRow(
 export async function getStockingInsights(
   periodDays: InsightsPeriodDays = 30,
 ): Promise<ActionResult<StockingInsightsData>> {
-  return runAction("getStockingInsights", async () => {
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "getStockingInsights",
+    async () => {
       const since = daysAgo(periodDays);
 
-      const batches = await prisma.stockBatch.findMany({
+      const batches = await db.stockBatch.findMany({
         where: { receivedAt: { gte: since } },
         include: {
           medicine: {
@@ -155,7 +158,7 @@ export async function getStockingInsights(
 
       const salesAgg =
         batchIds.length > 0
-          ? await prisma.saleLine.groupBy({
+          ? await db.saleLine.groupBy({
               by: ["stockBatchId"],
               where: {
                 stockBatchId: { in: batchIds },
@@ -294,5 +297,7 @@ export async function getStockingInsights(
         topRestocked,
         slowMovers,
       };
-  });
+  },
+    { tenantId },
+  );
 }

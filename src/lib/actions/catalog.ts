@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { resolveTenantDb } from "@/lib/tenant-db";
 import type {
   ActionResult,
   CatalogMedicine,
@@ -55,12 +56,13 @@ function startOfToday(): Date {
 
 async function loadStockByMedicineId(
   medicineIds: string[],
+  db: Awaited<ReturnType<typeof resolveTenantDb>>["db"],
 ): Promise<Map<string, CatalogStockAvailability>> {
   const map = new Map<string, CatalogStockAvailability>();
   if (medicineIds.length === 0) return map;
 
   const today = startOfToday();
-  const batches = await prisma.stockBatch.findMany({
+  const batches = await db.stockBatch.findMany({
     where: {
       medicineId: { in: medicineIds },
       quantityOnHand: { gt: 0 },
@@ -105,105 +107,122 @@ export async function searchCatalog(
   query: string,
   options?: SearchCatalogOptions,
 ): Promise<ActionResult<CatalogMedicine[]>> {
-  return runAction("searchCatalog", async () => {
-    const normalized = normalizeQuery(query);
-    const withStock = options?.withStock === true;
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "searchCatalog",
+    async () => {
+      const normalized = normalizeQuery(query);
+      const withStock = options?.withStock === true;
 
-    if (normalized.length < 2) {
-      return [];
-    }
-
-    const medicines = await prisma.medicine.findMany({
-      where: {
-        isStub: false,
-        OR: [
-          { searchKey: { contains: normalized } },
-          { genericName: { contains: query, mode: "insensitive" } },
-          {
-            aliases: {
-              some: { name: { contains: query, mode: "insensitive" } },
-            },
-          },
-        ],
-      },
-      include: {
-        aliases: {
-          select: { name: true },
-          orderBy: { name: "asc" },
-        },
-      },
-      orderBy: [{ genericName: "asc" }, { dosageForm: "asc" }, { strength: "asc" }],
-      take: withStock ? 30 : 20,
-    });
-
-    const stockByMedicine = withStock
-      ? await loadStockByMedicineId(medicines.map((m) => m.id))
-      : null;
-
-    const rows = medicines.map((medicine) => {
-      const aliasNames = medicine.aliases.map((a) => a.name);
-      return {
-        id: medicine.id,
-        genericName: medicine.genericName,
-        dosageForm: medicine.dosageForm,
-        strength: medicine.strength,
-        levelOfUse: medicine.levelOfUse,
-        aliases: aliasNames,
-        matchedBrand: resolveMatchedBrand(
-          query,
-          medicine.genericName,
-          aliasNames,
-        ),
-        stock: stockByMedicine?.get(medicine.id),
-      };
-    });
-
-    if (!withStock) {
-      return rows;
-    }
-
-    return rows.sort((a, b) => {
-      const aStock = a.stock?.hasStock ? 1 : 0;
-      const bStock = b.stock?.hasStock ? 1 : 0;
-      if (bStock !== aStock) return bStock - aStock;
-      if (a.genericName !== b.genericName) {
-        return a.genericName.localeCompare(b.genericName);
+      if (normalized.length < 2) {
+        return [];
       }
-      return `${a.dosageForm} ${a.strength}`.localeCompare(
-        `${b.dosageForm} ${b.strength}`,
-      );
-    });
-  });
+
+      const medicines = await prisma.medicine.findMany({
+        where: {
+          isStub: false,
+          OR: [
+            { searchKey: { contains: normalized } },
+            { genericName: { contains: query, mode: "insensitive" } },
+            {
+              aliases: {
+                some: { name: { contains: query, mode: "insensitive" } },
+              },
+            },
+          ],
+        },
+        include: {
+          aliases: {
+            select: { name: true },
+            orderBy: { name: "asc" },
+          },
+        },
+        orderBy: [
+          { genericName: "asc" },
+          { dosageForm: "asc" },
+          { strength: "asc" },
+        ],
+        take: withStock ? 30 : 20,
+      });
+
+      const stockByMedicine = withStock
+        ? await loadStockByMedicineId(
+            medicines.map((m) => m.id),
+            db,
+          )
+        : null;
+
+      const rows = medicines.map((medicine) => {
+        const aliasNames = medicine.aliases.map((a) => a.name);
+        return {
+          id: medicine.id,
+          genericName: medicine.genericName,
+          dosageForm: medicine.dosageForm,
+          strength: medicine.strength,
+          levelOfUse: medicine.levelOfUse,
+          aliases: aliasNames,
+          matchedBrand: resolveMatchedBrand(
+            query,
+            medicine.genericName,
+            aliasNames,
+          ),
+          stock: stockByMedicine?.get(medicine.id),
+        };
+      });
+
+      if (!withStock) {
+        return rows;
+      }
+
+      return rows.sort((a, b) => {
+        const aStock = a.stock?.hasStock ? 1 : 0;
+        const bStock = b.stock?.hasStock ? 1 : 0;
+        if (bStock !== aStock) return bStock - aStock;
+        if (a.genericName !== b.genericName) {
+          return a.genericName.localeCompare(b.genericName);
+        }
+        return `${a.dosageForm} ${a.strength}`.localeCompare(
+          `${b.dosageForm} ${b.strength}`,
+        );
+      });
+    },
+    { tenantId },
+  );
 }
 
 export async function getBatchesForMedicine(
   medicineId: string,
 ): Promise<ActionResult<StockBatchView[]>> {
-  return runAction("getBatchesForMedicine", async () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const { tenantId, db } = await resolveTenantDb();
+  return runAction(
+    "getBatchesForMedicine",
+    async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const batches = await prisma.stockBatch.findMany({
-      where: {
-        medicineId,
-        quantityOnHand: { gt: 0 },
-        expiryDate: { gte: today },
-      },
-      orderBy: [{ expiryDate: "asc" }, { receivedAt: "asc" }],
-    });
+      const batches = await db.stockBatch.findMany({
+        where: {
+          medicineId,
+          quantityOnHand: { gt: 0 },
+          expiryDate: { gte: today },
+        },
+        orderBy: [{ expiryDate: "asc" }, { receivedAt: "asc" }],
+      });
 
-    return batches.map((batch) => ({
-      id: batch.id,
-      medicineId: batch.medicineId,
-      batchNumber: batch.batchNumber,
-      quantityOnHand: batch.quantityOnHand,
-      expiryDate: batch.expiryDate.toISOString().slice(0, 10),
-      receivedAt: batch.receivedAt.toISOString(),
-      supplierCost: batch.supplierCost?.toString() ?? null,
-      retailSalePrice: batch.retailSalePrice?.toString() ?? null,
-      supplierName: batch.supplierName,
-      stockUnit: batch.stockUnit as StockUnitCode,
-      unitsPerPack: batch.unitsPerPack,
-    }));
-  });
+      return batches.map((batch) => ({
+        id: batch.id,
+        medicineId: batch.medicineId,
+        batchNumber: batch.batchNumber,
+        quantityOnHand: batch.quantityOnHand,
+        expiryDate: batch.expiryDate.toISOString().slice(0, 10),
+        receivedAt: batch.receivedAt.toISOString(),
+        supplierCost: batch.supplierCost?.toString() ?? null,
+        retailSalePrice: batch.retailSalePrice?.toString() ?? null,
+        supplierName: batch.supplierName,
+        stockUnit: batch.stockUnit as StockUnitCode,
+        unitsPerPack: batch.unitsPerPack,
+      }));
+    },
+    { tenantId },
+  );
 }
