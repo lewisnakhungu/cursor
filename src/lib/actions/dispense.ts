@@ -29,9 +29,13 @@ export async function dispenseMedicine(
 
       const today = startOfToday();
 
-      const saleId = await db.$transaction(
+      // Use base prisma.$transaction (not tenant-extended db.$transaction).
+      // Prisma query extensions can run outside the interactive tx and write wrong tenantId.
+      const saleId = await prisma.$transaction(
         async (tx) => {
-          const sale = await tx.sale.create({ data: { totalAmount: 0 } });
+          const sale = await tx.sale.create({
+            data: { tenantId, totalAmount: 0 },
+          });
           let saleTotal = new Prisma.Decimal(0);
 
           for (const item of cartItems) {
@@ -96,6 +100,7 @@ export async function dispenseMedicine(
               const updated = await tx.stockBatch.updateMany({
                 where: {
                   id: batch.id,
+                  tenantId,
                   quantityOnHand: { gte: take },
                 },
                 data: {
@@ -115,6 +120,7 @@ export async function dispenseMedicine(
 
               await tx.saleLine.create({
                 data: {
+                  tenantId,
                   saleId: sale.id,
                   medicineId: medicine.id,
                   stockBatchId: batch.id,
@@ -149,7 +155,8 @@ export async function dispenseMedicine(
           return sale.id;
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          // ReadCommitted + FOR UPDATE row locks; Serializable often fails on Neon/serverless.
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
           maxWait: 10_000,
           timeout: 30_000,
         },
@@ -204,7 +211,6 @@ export async function correctSaleLine(
   return runAction(
     "correctSaleLine",
     async () => {
-      const { db } = ctx;
       const reason = input.reason.trim();
       if (reason.length < 3) {
         throw new AppError(
@@ -217,10 +223,11 @@ export async function correctSaleLine(
         throw new AppError("Quantity cannot be negative", "VALIDATION");
       }
 
-      const saleId = await db.$transaction(
+      const { tenantId } = ctx;
+      const saleId = await prisma.$transaction(
         async (tx) => {
-          const line = await tx.saleLine.findUnique({
-            where: { id: input.saleLineId },
+          const line = await tx.saleLine.findFirst({
+            where: { id: input.saleLineId, tenantId },
             include: { sale: true },
           });
 
@@ -234,28 +241,28 @@ export async function correctSaleLine(
           const delta = input.newQuantity - line.quantity;
 
           if (delta > 0) {
-            const batch = await tx.stockBatch.findUnique({
-              where: { id: line.stockBatchId },
+            const batch = await tx.stockBatch.findFirst({
+              where: { id: line.stockBatchId, tenantId },
             });
             if (!batch || batch.quantityOnHand < delta) {
               throw new InsufficientStockError(
                 "Not enough stock to increase dispensed quantity",
               );
             }
-            await tx.stockBatch.update({
-              where: { id: line.stockBatchId },
+            await tx.stockBatch.updateMany({
+              where: { id: line.stockBatchId, tenantId },
               data: { quantityOnHand: { decrement: delta } },
             });
           } else if (delta < 0) {
-            await tx.stockBatch.update({
-              where: { id: line.stockBatchId },
+            await tx.stockBatch.updateMany({
+              where: { id: line.stockBatchId, tenantId },
               data: { quantityOnHand: { increment: Math.abs(delta) } },
             });
           }
 
           if (input.newQuantity === 0) {
-            await tx.saleLine.update({
-              where: { id: line.id },
+            await tx.saleLine.updateMany({
+              where: { id: line.id, tenantId },
               data: {
                 status: "VOIDED",
                 quantity: 0,
@@ -265,8 +272,8 @@ export async function correctSaleLine(
             });
           } else {
             const lineTotal = line.unitPrice.mul(input.newQuantity);
-            await tx.saleLine.update({
-              where: { id: line.id },
+            await tx.saleLine.updateMany({
+              where: { id: line.id, tenantId },
               data: {
                 quantity: input.newQuantity,
                 lineTotal,
@@ -276,7 +283,7 @@ export async function correctSaleLine(
           }
 
           const activeLines = await tx.saleLine.findMany({
-            where: { saleId: line.saleId, status: "ACTIVE" },
+            where: { saleId: line.saleId, tenantId, status: "ACTIVE" },
           });
 
           const newTotal = activeLines.reduce(
@@ -284,15 +291,15 @@ export async function correctSaleLine(
             new Prisma.Decimal(0),
           );
 
-          await tx.sale.update({
-            where: { id: line.saleId },
+          await tx.sale.updateMany({
+            where: { id: line.saleId, tenantId },
             data: { totalAmount: newTotal },
           });
 
           return line.saleId;
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
           maxWait: 10_000,
           timeout: 30_000,
         },
