@@ -98,6 +98,7 @@ export async function receiveInventory(
         batchNumber: batchData.batchNumber?.trim() || null,
         supplierName: batchData.supplierName?.trim() || null,
         quantityOnHand: batchData.quantityOnHand,
+        quantityReceived: batchData.quantityOnHand,
         expiryDate,
         supplierCost:
           batchData.supplierCost !== undefined

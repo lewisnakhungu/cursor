@@ -6,6 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
   Activity,
   BarChart3,
+  ClipboardList,
+  FileText,
   LayoutDashboard,
   Menu,
   PackagePlus,
@@ -45,6 +47,18 @@ const NAV = [
     label: "Sales",
     icon: BarChart3,
     description: "Today & top drugs",
+  },
+  {
+    href: "/insights",
+    label: "Insights",
+    icon: ClipboardList,
+    description: "Restock & sell-through",
+  },
+  {
+    href: "/reports",
+    label: "Reports",
+    icon: FileText,
+    description: "Print weekly / monthly",
   },
 ] as const;
 

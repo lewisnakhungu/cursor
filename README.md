@@ -53,7 +53,8 @@ npm run dev
 |---------|---------|
 | `npm run dev` | Development server |
 | `npm run build` | Production build |
-| `npm run db:push` | Apply Prisma schema |
+| `npm run db:push` | Apply Prisma schema (uses active `DATABASE_URL`) |
+| `npm run db:push:local` | Apply schema to **local** Postgres (`.env.local`) |
 | `npm run db:seed` | Import KEML from `data/final_keml_2023.json` |
 | `npm run db:seed-stock` | Sample stock (~95 common Kenya drugs) |
 | `npm run db:seed-aliases` | Brands from `data/alias_names.json` |

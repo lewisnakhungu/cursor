@@ -60,21 +60,17 @@
 }
 
 @media print {
-  @page {
-    size: 80mm auto;
-    margin: 4mm;
-  }
-
-  body * {
+  /* Thermal POS receipt */
+  body:has(.thermal-receipt-print) * {
     visibility: hidden !important;
   }
 
-  .thermal-receipt-print,
-  .thermal-receipt-print * {
+  body:has(.thermal-receipt-print) .thermal-receipt-print,
+  body:has(.thermal-receipt-print) .thermal-receipt-print * {
     visibility: visible !important;
   }
 
-  .thermal-receipt-print {
+  body:has(.thermal-receipt-print) .thermal-receipt-print {
     position: absolute;
     left: 0;
     top: 0;
@@ -86,5 +82,51 @@
     font-size: 11px;
     line-height: 1.35;
     letter-spacing: 0.02em;
+  }
+
+  body:has(.thermal-receipt-print) {
+    @page {
+      size: 80mm auto;
+      margin: 4mm;
+    }
+  }
+
+  /* A4 facility reports (sales, stock) */
+  body:has(.facility-report-print-root) * {
+    visibility: hidden !important;
+  }
+
+  body:has(.facility-report-print-root) .facility-report-print-root,
+  body:has(.facility-report-print-root) .facility-report-print-root * {
+    visibility: visible !important;
+  }
+
+  body:has(.facility-report-print-root) .facility-report-print-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body:has(.facility-report-print-root) {
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
+  }
+
+  .facility-report-print .report-table {
+    page-break-inside: auto;
+  }
+
+  .facility-report-print .report-table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .facility-report-print .report-section {
+    page-break-inside: avoid;
   }
 }

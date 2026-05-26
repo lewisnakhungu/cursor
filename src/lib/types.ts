@@ -131,6 +131,121 @@ export type CorrectSaleLineInput = {
   reason: string;
 };
 
+export type InsightsPeriodDays = 7 | 30 | 90 | 365;
+
+export type ReceiveHistoryRow = {
+  batchId: string;
+  receivedAt: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  batchNumber: string | null;
+  supplierName: string | null;
+  quantityReceived: number;
+  quantityOnHand: number;
+  quantitySold: number;
+  sellThroughPercent: number;
+  supplierCost: number | null;
+  retailSalePrice: number | null;
+  receiveCostTotal: number | null;
+  revenueFromBatch: number;
+};
+
+export type WeeklyStockingBucket = {
+  weekStart: string;
+  label: string;
+  receiveCount: number;
+  unitsReceived: number;
+  receiveCost: number;
+  unitsSold: number;
+  revenue: number;
+};
+
+export type StockingInsightsSummary = {
+  receiveEvents: number;
+  unitsReceived: number;
+  receiveCostValue: number;
+  unitsSold: number;
+  revenue: number;
+  sellThroughPercent: number;
+  distinctMedicines: number;
+};
+
+export type TopRestockedItem = {
+  genericName: string;
+  receiveCount: number;
+  unitsReceived: number;
+  unitsSold: number;
+};
+
+export type StockingInsightsData = {
+  periodDays: InsightsPeriodDays;
+  periodLabel: string;
+  summary: StockingInsightsSummary;
+  weeklyTrend: WeeklyStockingBucket[];
+  receiveHistory: ReceiveHistoryRow[];
+  topRestocked: TopRestockedItem[];
+  slowMovers: ReceiveHistoryRow[];
+};
+
+export type ReportPeriodDays = 7 | 30;
+
+export type SalesByDayRow = {
+  date: string;
+  label: string;
+  saleCount: number;
+  unitsSold: number;
+  revenue: number;
+};
+
+export type SalesReportData = {
+  reportTitle: string;
+  periodDays: ReportPeriodDays;
+  periodLabel: string;
+  periodStart: string;
+  periodEnd: string;
+  generatedAt: string;
+  facilityName: string;
+  sales: {
+    saleCount: number;
+    unitsSold: number;
+    grossRevenue: number;
+    voidedLines: number;
+    averageSaleValue: number;
+  };
+  salesByDay: SalesByDayRow[];
+  topDrugs: TopSellingDrug[];
+  stocking: StockingInsightsSummary | null;
+  weeklyRestockTrend: WeeklyStockingBucket[];
+  topRestocked: TopRestockedItem[];
+};
+
+export type StockReportRow = {
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  batchNumber: string | null;
+  supplierName: string | null;
+  quantityOnHand: number;
+  expiryDate: string;
+  daysUntilExpiry: number;
+  retailSalePrice: number | null;
+  stockValue: number | null;
+  flags: string[];
+};
+
+export type StockReportData = {
+  reportTitle: string;
+  generatedAt: string;
+  facilityName: string;
+  totalBatches: number;
+  totalUnits: number;
+  estimatedRetailValue: number;
+  expiringWithin90Count: number;
+  lowStockCount: number;
+  rows: StockReportRow[];
+};
+
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string; code?: string };
