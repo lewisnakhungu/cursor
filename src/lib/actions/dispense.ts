@@ -2,7 +2,7 @@
 
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
 import { decimalToNumber } from "@/lib/money";
 import { InsufficientStockError, AppError } from "@/lib/errors";
 import type { StockUnitCode } from "@/lib/stock-unit";
@@ -18,10 +18,11 @@ function startOfToday(): Date {
 export async function dispenseMedicine(
   cartItems: CartDispenseItem[],
 ): Promise<ActionResult<DispenseResult>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("dispense.sale");
   return runAction(
     "dispenseMedicine",
     async () => {
+      const { tenantId, db } = ctx;
       if (cartItems.length === 0) {
         throw new InsufficientStockError("Cart is empty");
       }
@@ -192,17 +193,18 @@ export async function dispenseMedicine(
         })),
       };
     },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }
 
 export async function correctSaleLine(
   input: import("@/lib/types").CorrectSaleLineInput,
 ): Promise<ActionResult<{ saleId: string }>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("dispense.sale");
   return runAction(
     "correctSaleLine",
     async () => {
+      const { db } = ctx;
       const reason = input.reason.trim();
       if (reason.length < 3) {
         throw new AppError(
@@ -298,6 +300,6 @@ export async function correctSaleLine(
 
       return { saleId };
     },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }

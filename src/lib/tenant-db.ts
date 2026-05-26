@@ -1,3 +1,4 @@
+import type { SessionPayload } from "@/lib/auth/session-types";
 import { getTenantPrisma, type TenantPrismaClient } from "@/lib/prisma-tenant";
 import { getActiveTenantId } from "@/lib/tenant-context";
 
@@ -6,7 +7,9 @@ export type TenantDb = {
   db: TenantPrismaClient;
 };
 
-export async function resolveTenantDb(): Promise<TenantDb> {
-  const tenantId = await getActiveTenantId();
+export async function resolveTenantDb(
+  session?: SessionPayload,
+): Promise<TenantDb> {
+  const tenantId = session?.tenantId ?? (await getActiveTenantId());
   return { tenantId, db: getTenantPrisma(tenantId) };
 }

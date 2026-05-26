@@ -3,7 +3,6 @@
 import { useCallback, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { FileText, Package, Printer } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { getSalesReport, getStockReport } from "@/lib/actions/reports";
 import { SalesReportDocument } from "@/components/reports/sales-report-document";
 import { StockReportDocument } from "@/components/reports/stock-report-document";
@@ -56,23 +55,17 @@ export function ReportsHub() {
   return (
     <>
       <div className="print:hidden">
-        <AppShell
-          title="Reports"
-          subtitle="Printable weekly, monthly, and stock reports for your records"
-          actions={
-            active ? (
-              <>
-                <Button variant="outline" onClick={clearReport} disabled={loading}>
-                  Clear
-                </Button>
-                <Button onClick={handlePrint} disabled={loading} className="min-h-11">
-                  <Printer className="mr-2 size-4" />
-                  Print
-                </Button>
-              </>
-            ) : null
-          }
-        >
+        {active ? (
+          <div className="mb-4 flex flex-wrap justify-end gap-2">
+            <Button variant="outline" onClick={clearReport} disabled={loading}>
+              Clear
+            </Button>
+            <Button onClick={handlePrint} disabled={loading} className="min-h-11">
+              <Printer className="mr-2 size-4" />
+              Print
+            </Button>
+          </div>
+        ) : null}
           <div className="grid gap-6 md:grid-cols-2">
             <section className="pharmacy-panel">
               <h2 className="pharmacy-panel-title mb-2 flex items-center gap-2">
@@ -156,7 +149,6 @@ export function ReportsHub() {
               Building report…
             </p>
           )}
-        </AppShell>
       </div>
 
       {/* Print-only duplicate — visible only when printing */}

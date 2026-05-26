@@ -13,6 +13,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-stock": "tsx prisma/seed-stock.ts",
     "db:seed-tenants": "tsx prisma/seed-tenants.ts",
+    "db:seed-auth": "tsx prisma/seed-auth.ts",
     "db:migrate-multitenant": "tsx prisma/migrate-to-multitenant.ts",
     "db:neon:multitenant": "tsx prisma/neon-multitenant-setup.ts",
     "db:seed-aliases": "tsx prisma/seed-aliases.ts",
@@ -29,10 +30,12 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "@sentry/nextjs": "^10.53.1",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "dotenv": "^17.4.2",
+    "jose": "^6.2.3",
     "lucide-react": "^1.16.0",
     "next": "14.2.35",
     "next-themes": "^0.4.6",
@@ -46,6 +49,7 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^18",

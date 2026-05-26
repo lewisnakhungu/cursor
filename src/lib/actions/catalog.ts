@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
+import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import type {
   ActionResult,
   CatalogMedicine,
@@ -56,7 +57,7 @@ function startOfToday(): Date {
 
 async function loadStockByMedicineId(
   medicineIds: string[],
-  db: Awaited<ReturnType<typeof resolveTenantDb>>["db"],
+  db: TenantPrismaClient,
 ): Promise<Map<string, CatalogStockAvailability>> {
   const map = new Map<string, CatalogStockAvailability>();
   if (medicineIds.length === 0) return map;
@@ -107,12 +108,15 @@ export async function searchCatalog(
   query: string,
   options?: SearchCatalogOptions,
 ): Promise<ActionResult<CatalogMedicine[]>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const withStock = options?.withStock === true;
+  const ctx = await requireTenantContext(
+    withStock ? "dispense.sale" : "receive.stock",
+  );
   return runAction(
     "searchCatalog",
     async () => {
+      const { db } = ctx;
       const normalized = normalizeQuery(query);
-      const withStock = options?.withStock === true;
 
       if (normalized.length < 2) {
         return [];
@@ -186,17 +190,18 @@ export async function searchCatalog(
         );
       });
     },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }
 
 export async function getBatchesForMedicine(
   medicineId: string,
 ): Promise<ActionResult<StockBatchView[]>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("dispense.sale");
   return runAction(
     "getBatchesForMedicine",
     async () => {
+      const { db } = ctx;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -223,6 +228,6 @@ export async function getBatchesForMedicine(
         unitsPerPack: batch.unitsPerPack,
       }));
     },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }

@@ -9,7 +9,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import { AppShell } from "@/components/layout/app-shell";
 import { getStockingInsights } from "@/lib/actions/insights";
 import { StatCard } from "@/components/ui/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -72,31 +71,20 @@ export function InsightsDashboardClient() {
   }, [period, load]);
 
   if (!data && loading) {
-    return (
-      <AppShell title="Stock insights" subtitle="Loading receive & sales analysis…">
-        <p className="text-muted-foreground">Loading…</p>
-      </AppShell>
-    );
+    return <p className="text-muted-foreground">Loading…</p>;
   }
 
   if (!data) {
-    return (
-      <AppShell title="Stock insights" subtitle="Unable to load">
-        <Button onClick={() => load(period)}>Retry</Button>
-      </AppShell>
-    );
+    return <Button onClick={() => load(period)}>Retry</Button>;
   }
 
   return (
-    <AppShell
-      title="Stock insights"
-      subtitle="Receive history and sales performance per restock"
-      actions={
+    <>
+      <div className="mb-4 flex justify-end">
         <Button variant="outline" onClick={() => load(period)} disabled={loading}>
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
-      }
-    >
+      </div>
       <div className="mb-6 flex flex-wrap gap-2">
         {PERIODS.map((p) => (
           <Button
@@ -402,6 +390,6 @@ export function InsightsDashboardClient() {
           </div>
         )}
       </section>
-    </AppShell>
+    </>
   );
 }

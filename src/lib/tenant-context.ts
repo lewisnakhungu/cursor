@@ -1,13 +1,19 @@
-/**
- * Resolves the active facility (tenant) for the current request.
- * Production: replace with session/JWT → Membership lookup.
- */
+import { getSession } from "@/lib/auth/session";
+import { AppError } from "@/lib/errors";
+
 export const DEFAULT_TENANT_ID = "default";
 
+/**
+ * Active facility for the signed-in user (from session).
+ * Platform admins must use admin routes — no facility tenant on session.
+ */
 export async function getActiveTenantId(): Promise<string> {
-  const fromEnv = process.env.TENANT_ID?.trim();
-  if (fromEnv) {
-    return fromEnv;
+  const session = await getSession();
+  if (!session) {
+    throw new AppError("Sign in required", "UNAUTHORIZED");
   }
-  return DEFAULT_TENANT_ID;
+  if (session.isPlatformAdmin || !session.tenantId) {
+    throw new AppError("No facility context for this account", "FORBIDDEN");
+  }
+  return session.tenantId;
 }

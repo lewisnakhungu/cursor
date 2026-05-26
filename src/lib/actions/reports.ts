@@ -1,6 +1,6 @@
 "use server";
 
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
 import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import { decimalToNumber } from "@/lib/money";
 import { getStockingInsights } from "@/lib/actions/insights";
@@ -174,10 +174,11 @@ async function buildLineDetails(
 export async function getSalesReport(
   periodDays: ReportPeriodDays,
 ): Promise<ActionResult<SalesReportData>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("reports.view");
   return runAction(
     "getSalesReport",
     async () => {
+      const { db } = ctx;
       const since = daysAgo(periodDays);
       const periodEnd = startOfToday();
       const periodStart = since;
@@ -238,15 +239,16 @@ export async function getSalesReport(
         topRestocked: insights?.topRestocked ?? [],
       };
   },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }
 
 export async function getStockReport(): Promise<ActionResult<StockReportData>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("reports.view");
   return runAction(
     "getStockReport",
     async () => {
+      const { db } = ctx;
       const today = startOfToday();
 
       const batches = await db.stockBatch.findMany({
@@ -322,6 +324,6 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
         rows,
       };
   },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }

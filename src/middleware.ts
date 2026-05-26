@@ -1,0 +1,47 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { canAccessPath } from "@/lib/auth/permissions";
+import { verifySessionToken } from "@/lib/auth/jwt";
+import { SESSION_COOKIE } from "@/lib/auth/session-types";
+
+const PUBLIC_PATHS = ["/login"];
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/auth") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  const session = token ? await verifySessionToken(token) : null;
+
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+    if (session) {
+      const dest = session.isPlatformAdmin ? "/admin" : "/";
+      return NextResponse.redirect(new URL(dest, request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (!session) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("from", pathname);
+    return NextResponse.redirect(login);
+  }
+
+  if (!canAccessPath(session, pathname)) {
+    const fallback = session.isPlatformAdmin ? "/admin" : "/pos";
+    return NextResponse.redirect(new URL(fallback, request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};

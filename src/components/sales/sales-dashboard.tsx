@@ -8,7 +8,6 @@ import {
   Receipt,
   TrendingUp,
 } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { getSalesDashboard } from "@/lib/actions/sales";
 import { correctSaleLine } from "@/lib/actions/dispense";
 import { StatCard } from "@/components/ui/stat-card";
@@ -95,31 +94,20 @@ export function SalesDashboardClient() {
   };
 
   if (!data && loading) {
-    return (
-      <AppShell title="Sales" subtitle="Loading today's metrics…">
-        <p className="text-muted-foreground">Loading…</p>
-      </AppShell>
-    );
+    return <p className="text-muted-foreground">Loading…</p>;
   }
 
   if (!data) {
-    return (
-      <AppShell title="Sales" subtitle="Unable to load">
-        <Button onClick={load}>Retry</Button>
-      </AppShell>
-    );
+    return <Button onClick={load}>Retry</Button>;
   }
 
   return (
-    <AppShell
-      title="Sales & audit"
-      subtitle="Today's revenue, top movers, and dispense corrections"
-      actions={
+    <>
+      <div className="mb-4 flex justify-end">
         <Button variant="outline" onClick={load} disabled={loading}>
           {loading ? "Refreshing…" : "Refresh"}
         </Button>
-      }
-    >
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Today's sales"
@@ -398,6 +386,6 @@ export function SalesDashboardClient() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AppShell>
+    </>
   );
 }

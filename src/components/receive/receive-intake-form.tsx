@@ -3,7 +3,6 @@
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, ClipboardList, Package } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { StockUnitSelect } from "@/components/ui/stock-unit-select";
 import { Button } from "@/components/ui/button";
@@ -120,10 +119,7 @@ export function ReceiveIntakeForm() {
   };
 
   return (
-    <AppShell
-      title="Receive inventory"
-      subtitle="Define how you count stock (tablets, boxes, etc.) — qty and prices use the same unit"
-    >
+    <>
       <div className="mb-6 flex flex-wrap gap-2">
         <Badge
           variant={selected ? "success" : "outline"}
@@ -336,6 +332,6 @@ export function ReceiveIntakeForm() {
           </form>
         </section>
       </div>
-    </AppShell>
+    </>
   );
 }

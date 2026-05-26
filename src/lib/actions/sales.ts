@@ -1,6 +1,6 @@
 "use server";
 
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
 import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import { decimalToNumber } from "@/lib/money";
 import type { StockUnitCode } from "@/lib/stock-unit";
@@ -179,10 +179,11 @@ async function getTopDrugs(
 export async function getSalesDashboard(): Promise<
   ActionResult<SalesDashboardData>
 > {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("sales.view");
   return runAction(
     "getSalesDashboard",
     async () => {
+    const { db } = ctx;
     const todayStart = startOfToday();
     const weekStart = daysAgo(7);
 
@@ -216,6 +217,6 @@ export async function getSalesDashboard(): Promise<
       topDrugs7Days: await getTopDrugs(db, weekStart, 15),
     };
   },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }

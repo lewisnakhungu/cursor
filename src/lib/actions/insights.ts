@@ -1,6 +1,6 @@
 "use server";
 
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
 import { decimalToNumber } from "@/lib/money";
 import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
@@ -138,10 +138,11 @@ function buildReceiveRow(
 export async function getStockingInsights(
   periodDays: InsightsPeriodDays = 30,
 ): Promise<ActionResult<StockingInsightsData>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("insights.view");
   return runAction(
     "getStockingInsights",
     async () => {
+      const { db } = ctx;
       const since = daysAgo(periodDays);
 
       const batches = await db.stockBatch.findMany({
@@ -298,6 +299,6 @@ export async function getStockingInsights(
         slowMovers,
       };
   },
-    { tenantId },
+    { tenantId: ctx.tenantId },
   );
 }

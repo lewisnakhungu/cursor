@@ -16,9 +16,8 @@ enum SaleLineStatus {
 
 enum TenantRole {
   OWNER
-  PHARMACIST
-  CASHIER
-  AUDITOR
+  DEPUTY
+  DISPENSER
 }
 
 /// Health facility / pharmacy — operational data is scoped by tenantId.
@@ -36,13 +35,14 @@ model Tenant {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  passwordHash String?
-  name         String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  memberships  Membership[]
+  id              String       @id @default(cuid())
+  email           String       @unique
+  passwordHash    String?
+  name            String?
+  isPlatformAdmin Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  memberships     Membership[]
 
   @@map("users")
 }
@@ -51,7 +51,7 @@ model Membership {
   id        String     @id @default(cuid())
   tenantId  String
   userId    String
-  role      TenantRole @default(PHARMACIST)
+  role      TenantRole @default(DISPENSER)
   createdAt DateTime   @default(now())
   tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)

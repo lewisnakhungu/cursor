@@ -2,7 +2,7 @@
 
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { resolveTenantDb } from "@/lib/tenant-db";
+import { requireTenantContext } from "@/lib/auth/guards";
 import { AppError } from "@/lib/errors";
 import {
   isStockUnitCode,
@@ -74,8 +74,9 @@ function mapBatchRow(
 export async function receiveInventory(
   batchData: ReceiveInventoryInput,
 ): Promise<ActionResult<{ batchId: string }>> {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("receive.stock");
   return runAction("receiveInventory", async () => {
+    const { db } = ctx;
     if (batchData.quantityOnHand <= 0) {
       throw new AppError("Quantity must be greater than zero", "VALIDATION");
     }
@@ -151,14 +152,15 @@ export async function receiveInventory(
     });
 
     return { batchId: batch.id };
-  }, { tenantId });
+  }, { tenantId: ctx.tenantId });
 }
 
 export async function getExpiringStock(): Promise<
   ActionResult<ExpiringStockReport>
 > {
-  const { tenantId, db } = await resolveTenantDb();
+  const ctx = await requireTenantContext("dashboard.view");
   return runAction("getExpiringStock", async () => {
+    const { db } = ctx;
     const today = startOfToday();
 
     const batches = await db.stockBatch.findMany({
@@ -189,5 +191,5 @@ export async function getExpiringStock(): Promise<
       activeBatches,
       lowStockCount: activeBatches.filter((row) => row.isLowStock).length,
     };
-  }, { tenantId });
+  }, { tenantId: ctx.tenantId });
 }

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Keyboard, ShoppingCart, Trash2 } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { BatchPicker } from "@/components/pos/batch-picker";
 import { DispenseReceipt } from "@/components/pos/dispense-receipt";
@@ -134,29 +133,23 @@ export function PosTerminal() {
   };
 
   return (
-    <AppShell
-      wide
-      title="Dispense (POS)"
-      subtitle="Quantities use each batch's counting unit (tablets, boxes, etc.)"
-      actions={
-        <>
-          <Badge
-            variant="secondary"
-            className="w-full justify-center sm:w-auto sm:inline-flex"
-          >
-            {lines.length} line(s) · {cartSummary} · {formatKes(cartTotal)}
-          </Badge>
-          <Button
-            size="lg"
-            className="min-h-11 w-full px-6 text-base sm:w-auto"
-            onClick={handleDispense}
-            disabled={isDispensing || lines.length === 0}
-          >
-            {isDispensing ? "Dispensing…" : "Complete dispense"}
-          </Button>
-        </>
-      }
-    >
+    <>
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <Badge
+          variant="secondary"
+          className="w-full justify-center sm:w-auto sm:inline-flex"
+        >
+          {lines.length} line(s) · {cartSummary} · {formatKes(cartTotal)}
+        </Badge>
+        <Button
+          size="lg"
+          className="min-h-11 w-full px-6 text-base sm:w-auto"
+          onClick={handleDispense}
+          disabled={isDispensing || lines.length === 0}
+        >
+          {isDispensing ? "Dispensing…" : "Complete dispense"}
+        </Button>
+      </div>
       <div className="grid gap-6 lg:grid-cols-5">
         <section className="pharmacy-panel lg:col-span-2">
           <p className="pharmacy-panel-title mb-3">1 · Find medicine</p>
@@ -327,6 +320,6 @@ export function PosTerminal() {
         onOpenChange={setReceiptOpen}
         receipt={receipt}
       />
-    </AppShell>
+    </>
   );
 }
