@@ -4,12 +4,15 @@ import { prisma } from "@/lib/prisma";
 import {
   buildSessionForUser,
   clearSessionCookie,
+  getSession,
   setSessionCookie,
 } from "@/lib/auth/session";
 import { verifyPassword } from "@/lib/auth/password";
 import { AppError } from "@/lib/errors";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { requireSession } from "@/lib/auth/session";
+import { getActiveFacilityName } from "@/lib/auth/session-types";
 
 export async function login(
   email: string,
@@ -51,25 +54,79 @@ export async function logout(): Promise<ActionResult<{ ok: true }>> {
   });
 }
 
+export async function switchActiveFacility(
+  targetFacilityId: string,
+): Promise<ActionResult<{ redirectTo: string }>> {
+  const session = await requireSession();
+  return runAction(
+    "switchActiveFacility",
+    async () => {
+      if (session.isPlatformAdmin) {
+        throw new AppError(
+          "Platform admins use the admin console only",
+          "FORBIDDEN",
+        );
+      }
+
+      const match = session.availableFacilities.find(
+        (f) => f.facilityId === targetFacilityId,
+      );
+
+      if (!match) {
+        throw new AppError(
+          "You do not have access to that facility",
+          "FORBIDDEN",
+        );
+      }
+
+      if (match.facilityId === session.activeFacilityId) {
+        return { redirectTo: "/" };
+      }
+
+      const updated = {
+        ...session,
+        activeFacilityId: match.facilityId,
+        activeRole: match.role,
+      };
+
+      await setSessionCookie(updated);
+
+      return { redirectTo: "/" };
+    },
+    { tenantId: targetFacilityId },
+  );
+}
+
 export async function getCurrentUser(): Promise<
   ActionResult<{
     email: string;
     name: string | null;
     isPlatformAdmin: boolean;
-    tenantName: string | null;
-    role: string | null;
+    activeFacilityId: string | null;
+    activeFacilityName: string | null;
+    activeRole: string | null;
+    availableFacilities: Array<{
+      facilityId: string;
+      facilityName: string;
+      role: string;
+    }>;
   } | null>
 > {
   return runAction("getCurrentUser", async () => {
-    const { getSession } = await import("@/lib/auth/session");
     const session = await getSession();
     if (!session) return null;
     return {
       email: session.email,
       name: session.name,
       isPlatformAdmin: session.isPlatformAdmin,
-      tenantName: session.tenantName,
-      role: session.role,
+      activeFacilityId: session.activeFacilityId,
+      activeFacilityName: getActiveFacilityName(session),
+      activeRole: session.activeRole,
+      availableFacilities: session.availableFacilities.map((f) => ({
+        facilityId: f.facilityId,
+        facilityName: f.facilityName,
+        role: f.role,
+      })),
     };
   });
 }

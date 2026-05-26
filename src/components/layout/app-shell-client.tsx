@@ -25,6 +25,8 @@ import {
   type NavItemId,
 } from "@/lib/auth/permissions";
 import { logout } from "@/lib/actions/auth";
+import { getActiveFacilityName } from "@/lib/auth/session-types";
+import { FacilitySwitcher } from "@/components/layout/facility-switcher";
 
 const MOBILE_HEADER =
   "calc(3.5rem + env(safe-area-inset-top, 0px))" as const;
@@ -105,7 +107,7 @@ function SidebarBrand({
 }) {
   const subtitle = session.isPlatformAdmin
     ? "Platform admin"
-    : (session.tenantName ?? "Facility");
+    : (getActiveFacilityName(session) ?? "Facility");
 
   return (
     <div
@@ -201,7 +203,7 @@ function SessionFooter({
 }) {
   const roleLabel = session.isPlatformAdmin
     ? "Super user"
-    : (session.role ?? "Staff");
+    : (session.activeRole ?? "Staff");
 
   return (
     <div className="border-t border-border/60 p-3">
@@ -249,7 +251,8 @@ export function AppShellClient({
     [session],
   );
 
-  const facilityLabel = session.tenantName ?? "AfyaSmart Facility";
+  const facilityLabel =
+    getActiveFacilityName(session) ?? "AfyaSmart Facility";
 
   const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
 
@@ -313,6 +316,7 @@ export function AppShellClient({
             {subtitle ?? facilityLabel}
           </p>
         </div>
+        <FacilitySwitcher session={session} className="shrink-0 max-w-[11rem]" />
       </header>
 
       {mobileNavOpen && (
@@ -389,11 +393,17 @@ export function AppShellClient({
                     </p>
                   )}
                 </div>
-                {actions && (
-                  <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end [&_button]:w-full sm:[&_button]:w-auto">
-                    {actions}
-                  </div>
-                )}
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
+                  <FacilitySwitcher
+                    session={session}
+                    className="hidden lg:block lg:max-w-[14rem]"
+                  />
+                  {actions && (
+                    <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center [&_button]:w-full sm:[&_button]:w-auto">
+                      {actions}
+                    </div>
+                  )}
+                </div>
               </div>
             </header>
           )}

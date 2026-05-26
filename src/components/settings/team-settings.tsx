@@ -9,9 +9,18 @@ import {
   updateTeamMemberRole,
   type TeamMemberView,
 } from "@/lib/actions/team";
+import { ResetPasswordDialog } from "@/components/auth/reset-password-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -23,10 +32,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
+type ResetStaffTarget = { membershipId: string; email: string };
+
 export function TeamSettings() {
   const [members, setMembers] = useState<TeamMemberView[]>([]);
   const [slotsRemaining, setSlotsRemaining] = useState(3);
   const [pending, startTransition] = useTransition();
+  const [resetTarget, setResetTarget] = useState<ResetStaffTarget | null>(
+    null,
+  );
+  const [removeTarget, setRemoveTarget] = useState<TeamMemberView | null>(
+    null,
+  );
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -78,35 +95,85 @@ export function TeamSettings() {
     });
   };
 
-  const handleRemove = (membershipId: string) => {
-    if (!window.confirm("Remove this team member?")) return;
+  const confirmRemove = () => {
+    if (!removeTarget) return;
+    const membershipId = removeTarget.membershipId;
     startTransition(async () => {
       const res = await removeTeamMember(membershipId);
       if (!res.success) toast.error(res.error);
       else {
         toast.success("Removed");
+        setRemoveTarget(null);
         load();
       }
     });
   };
 
-  const handleResetPassword = (membershipId: string, memberEmail: string) => {
-    const newPassword = window.prompt(
-      `New password for ${memberEmail} (min 8 chars):`,
-    );
-    if (!newPassword) return;
-    startTransition(async () => {
-      const res = await resetTeamMemberPassword({
-        membershipId,
-        newPassword,
-      });
-      if (!res.success) toast.error(res.error);
-      else toast.success("Password updated");
-    });
-  };
-
   return (
     <div className="space-y-8">
+      <ResetPasswordDialog
+        open={resetTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setResetTarget(null);
+        }}
+        title="Reset staff password"
+        description={
+          resetTarget
+            ? `Set a new password for ${resetTarget.email}.`
+            : ""
+        }
+        onSubmit={async (newPassword) => {
+          if (!resetTarget) {
+            return { success: false, error: "No member selected" };
+          }
+          const res = await resetTeamMemberPassword({
+            membershipId: resetTarget.membershipId,
+            newPassword,
+          });
+          if (!res.success) {
+            return { success: false, error: res.error };
+          }
+          return { success: true };
+        }}
+        onSuccess={() => toast.success("Password updated")}
+      />
+
+      <Dialog
+        open={removeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Remove team member</DialogTitle>
+            <DialogDescription>
+              {removeTarget
+                ? `Remove ${removeTarget.email} from this facility? They will lose access immediately.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={() => setRemoveTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={pending}
+              onClick={confirmRemove}
+            >
+              {pending ? "Removing…" : "Remove"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <p className="text-sm text-muted-foreground">
         As facility owner you can add up to <strong>3</strong> staff: one deputy
         (receive + reports) and two dispensers (POS only).
@@ -205,7 +272,10 @@ export function TeamSettings() {
                       size="sm"
                       disabled={pending}
                       onClick={() =>
-                        handleResetPassword(m.membershipId, m.email)
+                        setResetTarget({
+                          membershipId: m.membershipId,
+                          email: m.email,
+                        })
                       }
                     >
                       Reset password
@@ -215,7 +285,7 @@ export function TeamSettings() {
                       variant="outline"
                       size="sm"
                       disabled={pending}
-                      onClick={() => handleRemove(m.membershipId)}
+                      onClick={() => setRemoveTarget(m)}
                     >
                       Remove
                     </Button>

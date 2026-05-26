@@ -25,10 +25,10 @@ export async function requirePlatformAdmin(): Promise<SessionPayload> {
 
 export async function requireFacilityOwner(): Promise<SessionPayload> {
   const session = await requireSession();
-  if (session.isPlatformAdmin || session.role !== "OWNER") {
+  if (session.isPlatformAdmin || session.activeRole !== "OWNER") {
     throw new AppError("Facility owner access required", "FORBIDDEN");
   }
-  if (!session.tenantId) {
+  if (!session.activeFacilityId) {
     throw new AppError("No facility assigned", "FORBIDDEN");
   }
   return session;

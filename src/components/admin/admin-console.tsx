@@ -8,6 +8,7 @@ import {
   type FacilityListItem,
 } from "@/lib/actions/admin";
 import { logout } from "@/lib/actions/auth";
+import { ResetPasswordDialog } from "@/components/auth/reset-password-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -22,11 +23,16 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+type ResetOwnerTarget = { tenantId: string; facilityName: string };
+
 export function AdminConsole() {
   const router = useRouter();
   const [facilities, setFacilities] = useState<FacilityListItem[]>([]);
   const [loading, startLoad] = useTransition();
   const [pending, startMutate] = useTransition();
+  const [resetTarget, setResetTarget] = useState<ResetOwnerTarget | null>(
+    null,
+  );
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -70,21 +76,6 @@ export function AdminConsole() {
     });
   };
 
-  const handleResetOwner = (tenantId: string, facilityName: string) => {
-    const newPassword = window.prompt(
-      `New password for owner at ${facilityName} (min 8 chars):`,
-    );
-    if (!newPassword) return;
-    startMutate(async () => {
-      const res = await resetFacilityOwnerPassword({
-        tenantId,
-        newPassword,
-      });
-      if (!res.success) toast.error(res.error);
-      else toast.success("Owner password updated");
-    });
-  };
-
   const handleLogout = () => {
     startMutate(async () => {
       await logout();
@@ -95,6 +86,33 @@ export function AdminConsole() {
 
   return (
     <div className="space-y-8">
+      <ResetPasswordDialog
+        open={resetTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setResetTarget(null);
+        }}
+        title="Reset owner password"
+        description={
+          resetTarget
+            ? `Set a new password for the owner at ${resetTarget.facilityName}.`
+            : ""
+        }
+        onSubmit={async (newPassword) => {
+          if (!resetTarget) {
+            return { success: false, error: "No facility selected" };
+          }
+          const res = await resetFacilityOwnerPassword({
+            tenantId: resetTarget.tenantId,
+            newPassword,
+          });
+          if (!res.success) {
+            return { success: false, error: res.error };
+          }
+          return { success: true };
+        }}
+        onSuccess={() => toast.success("Owner password updated")}
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           Manage facilities and reset <strong>owner</strong> passwords only.
@@ -196,7 +214,12 @@ export function AdminConsole() {
                           variant="outline"
                           size="sm"
                           disabled={pending}
-                          onClick={() => handleResetOwner(f.id, f.name)}
+                          onClick={() =>
+                            setResetTarget({
+                              tenantId: f.id,
+                              facilityName: f.name,
+                            })
+                          }
                         >
                           Reset owner password
                         </Button>

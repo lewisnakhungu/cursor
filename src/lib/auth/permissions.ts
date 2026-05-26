@@ -49,8 +49,8 @@ export function hasPermission(
   if (session.isPlatformAdmin) {
     return permission === "platform.admin";
   }
-  if (!session.role) return false;
-  return permissionsForRole(session.role).has(permission);
+  if (!session.activeRole) return false;
+  return permissionsForRole(session.activeRole).has(permission);
 }
 
 export function requirePermission(

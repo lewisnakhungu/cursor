@@ -142,16 +142,6 @@ export async function createFacility(input: {
           },
         });
 
-        const otherMemberships = await tx.membership.findMany({
-          where: { userId: owner.id, role: "OWNER" },
-        });
-        if (otherMemberships.some((m) => m.tenantId !== facility.id)) {
-          throw new AppError(
-            "This email is already an owner at another facility",
-            "VALIDATION",
-          );
-        }
-
         await tx.membership.upsert({
           where: {
             tenantId_userId: { tenantId: facility.id, userId: owner.id },

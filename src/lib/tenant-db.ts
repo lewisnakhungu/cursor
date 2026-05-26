@@ -10,6 +10,6 @@ export type TenantDb = {
 export async function resolveTenantDb(
   session?: SessionPayload,
 ): Promise<TenantDb> {
-  const tenantId = session?.tenantId ?? (await getActiveTenantId());
+  const tenantId = session?.activeFacilityId ?? (await getActiveTenantId());
   return { tenantId, db: getTenantPrisma(tenantId) };
 }

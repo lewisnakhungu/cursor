@@ -32,7 +32,7 @@ export async function listTeamMembers(): Promise<
     async () => {
       const memberships = await prisma.membership.findMany({
         where: {
-          tenantId: session.tenantId!,
+          tenantId: session.activeFacilityId!,
           role: { in: STAFF_ROLES },
         },
         include: {
@@ -55,7 +55,7 @@ export async function listTeamMembers(): Promise<
         slotsRemaining: Math.max(0, MAX_FACILITY_STAFF - members.length),
       };
     },
-    { tenantId: session.tenantId! },
+    { tenantId: session.activeFacilityId! },
   );
 }
 
@@ -84,7 +84,7 @@ export async function addTeamMember(input: {
 
       const staffCount = await prisma.membership.count({
         where: {
-          tenantId: session.tenantId!,
+          tenantId: session.activeFacilityId!,
           role: { in: STAFF_ROLES },
         },
       });
@@ -120,7 +120,7 @@ export async function addTeamMember(input: {
         const existing = await tx.membership.findUnique({
           where: {
             tenantId_userId: {
-              tenantId: session.tenantId!,
+              tenantId: session.activeFacilityId!,
               userId: user.id,
             },
           },
@@ -133,19 +133,9 @@ export async function addTeamMember(input: {
           throw new AppError("User is already on this team", "VALIDATION");
         }
 
-        const otherFacility = await tx.membership.findFirst({
-          where: { userId: user.id },
-        });
-        if (otherFacility && otherFacility.tenantId !== session.tenantId) {
-          throw new AppError(
-            "User already belongs to another facility",
-            "VALIDATION",
-          );
-        }
-
         return tx.membership.create({
           data: {
-            tenantId: session.tenantId!,
+            tenantId: session.activeFacilityId!,
             userId: user.id,
             role: input.role,
           },
@@ -154,7 +144,7 @@ export async function addTeamMember(input: {
 
       return { membershipId: membership.id };
     },
-    { tenantId: session.tenantId! },
+    { tenantId: session.activeFacilityId! },
   );
 }
 
@@ -169,7 +159,7 @@ export async function updateTeamMemberRole(input: {
       const membership = await prisma.membership.findFirst({
         where: {
           id: input.membershipId,
-          tenantId: session.tenantId!,
+          tenantId: session.activeFacilityId!,
           role: { in: STAFF_ROLES },
         },
       });
@@ -185,7 +175,7 @@ export async function updateTeamMemberRole(input: {
 
       return { ok: true };
     },
-    { tenantId: session.tenantId! },
+    { tenantId: session.activeFacilityId! },
   );
 }
 
@@ -199,7 +189,7 @@ export async function removeTeamMember(
       const membership = await prisma.membership.findFirst({
         where: {
           id: membershipId,
-          tenantId: session.tenantId!,
+          tenantId: session.activeFacilityId!,
           role: { in: STAFF_ROLES },
         },
       });
@@ -211,7 +201,7 @@ export async function removeTeamMember(
       await prisma.membership.delete({ where: { id: membership.id } });
       return { ok: true };
     },
-    { tenantId: session.tenantId! },
+    { tenantId: session.activeFacilityId! },
   );
 }
 
@@ -231,7 +221,7 @@ export async function resetTeamMemberPassword(input: {
       const membership = await prisma.membership.findFirst({
         where: {
           id: input.membershipId,
-          tenantId: session.tenantId!,
+          tenantId: session.activeFacilityId!,
           role: { in: STAFF_ROLES },
         },
         include: { user: true },
@@ -248,6 +238,6 @@ export async function resetTeamMemberPassword(input: {
 
       return { ok: true };
     },
-    { tenantId: session.tenantId! },
+    { tenantId: session.activeFacilityId! },
   );
 }

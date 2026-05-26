@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth/jwt";
 import {
   SESSION_COOKIE,
+  type FacilityMembership,
   type SessionPayload,
 } from "@/lib/auth/session-types";
 
@@ -37,15 +38,24 @@ export async function clearSessionCookie(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE);
 }
 
+function sortMemberships(
+  memberships: FacilityMembership[],
+): FacilityMembership[] {
+  return [...memberships].sort((a, b) =>
+    a.facilityName.localeCompare(b.facilityName),
+  );
+}
+
 export async function buildSessionForUser(
   userId: string,
+  preferredActiveFacilityId?: string,
 ): Promise<SessionPayload | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       memberships: {
         include: { tenant: { select: { id: true, name: true } } },
-        take: 1,
+        orderBy: { tenant: { name: "asc" } },
       },
     },
   });
@@ -58,23 +68,35 @@ export async function buildSessionForUser(
       email: user.email,
       name: user.name,
       isPlatformAdmin: true,
-      tenantId: null,
-      tenantName: null,
-      role: null,
+      activeFacilityId: null,
+      activeRole: null,
+      availableFacilities: [],
     };
   }
 
-  const membership = user.memberships[0];
-  if (!membership) return null;
+  const availableFacilities = sortMemberships(
+    user.memberships.map((m) => ({
+      facilityId: m.tenant.id,
+      facilityName: m.tenant.name,
+      role: m.role,
+    })),
+  );
+
+  if (availableFacilities.length === 0) return null;
+
+  const active =
+    availableFacilities.find(
+      (f) => f.facilityId === preferredActiveFacilityId,
+    ) ?? availableFacilities[0];
 
   return {
     userId: user.id,
     email: user.email,
     name: user.name,
     isPlatformAdmin: false,
-    tenantId: membership.tenant.id,
-    tenantName: membership.tenant.name,
-    role: membership.role,
+    activeFacilityId: active.facilityId,
+    activeRole: active.role,
+    availableFacilities,
   };
 }
 
