@@ -20,7 +20,8 @@ async function main(): Promise<void> {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const tx = prisma;
+    {
       await tx.tenant.upsert({
         where: { id: DEFAULT_TENANT_ID },
         create: {
@@ -69,7 +70,7 @@ async function main(): Promise<void> {
       console.log(
         `  SaleLine rows updated: ${lines.count} (+ ${orphanLines} orphan fix)`,
       );
-    });
+    }
   } finally {
     await prisma.$disconnect();
     await pool.end();
