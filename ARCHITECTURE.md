@@ -32,11 +32,14 @@ Pharmacist flow: **search `Medicine`** → pick formulation → see **available 
 
 ### `StockBatch`
 
-Operational inventory. Created only via `receiveInventory`, never from KEML seed.
+Operational inventory per **tenant**. Created via `receiveInventory` or `db:seed-stock`, never from KEML seed.
 
 | Field | Purpose |
 |-------|---------|
+| `tenantId` | FK → `Tenant` — isolation boundary |
 | `medicineId` | FK → `Medicine` |
+| `stockUnit` | How qty is counted (TABLET, BOX, …) |
+| `unitsPerPack` | Optional inner count per box/strip |
 | `batchNumber` | Supplier/lot label (nullable) |
 | `supplierName` | Vendor (e.g. KEMSA) — set at receive |
 | `quantityOnHand` | Int — mutable on dispense / audit correction |
@@ -168,10 +171,74 @@ Stub filter: `dosageForm === 'As per KEML listing'` OR `strength === 'As per cli
 
 ---
 
-## 7. Environment (required before `db push`)
+## 7. Multi-tenancy (shared DB + tenant key)
 
-- `DATABASE_URL` — local PostgreSQL
-- `SENTRY_DSN` — project DSN
-- `NEXT_PUBLIC_SENTRY_DSN` — same DSN for client (if using public env pattern)
+### Tenant boundary
 
-**Phase 1 gate:** Do not run `prisma db push` until user supplies credentials.
+| Model | `tenantId` |
+|-------|------------|
+| `Medicine`, `MedicineAlias` | No — shared KEML |
+| `StockBatch`, `Sale`, `SaleLine` | Yes — required |
+
+### Request flow
+
+1. User signs in → session JWT contains `tenantId` + `role` (or `isPlatformAdmin`).
+2. Server actions call `requireTenantContext(permission)` → `getTenantPrisma(tenantId)`.
+3. Prisma extension merges `WHERE tenantId = …` on reads/writes for scoped models.
+4. Dispense `$queryRaw` also filters `"tenantId"` explicitly.
+
+### Platform admin
+
+- `isPlatformAdmin` users have no `tenantId` on session.
+- May only access `/admin` routes (middleware).
+- Cross-tenant analytics use unscoped `prisma` in `admin.ts` actions.
+
+### Concurrent facilities
+
+Postgres MVCC; no cross-tenant row locks. Per-tenant FEFO dispense still uses Serializable transactions within one facility.
+
+---
+
+## 8. Authentication & IAM
+
+### Session (`src/lib/auth/`)
+
+- Cookie `afyasmart_session` — HS256 JWT signed with `AUTH_SECRET`
+- `buildSessionForUser` — loads membership or platform admin flag
+
+### Roles
+
+| Role | Key permissions |
+|------|-----------------|
+| `OWNER` | Team management + full facility ops |
+| `DEPUTY` | Receive, reports, insights, sales, dispense |
+| `DISPENSER` | `dashboard.view`, `dispense.sale` only |
+
+`MAX_FACILITY_STAFF = 3` (deputy + dispensers; owner separate).
+
+### Password policy
+
+- Min 8 characters (`validatePasswordPolicy`)
+- Super user resets **owner** passwords only
+- Owner resets **staff** passwords only
+
+---
+
+## 9. Stock counting units
+
+- Enum `StockUnit` on `StockBatch` and `SaleLine` (snapshot at dispense)
+- Optional `unitsPerPack` for boxes/strips
+- `src/lib/stock-unit.ts` — formatting and cart/stock summaries
+
+---
+
+## 10. Environment
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL (local or Neon pooled) |
+| `AUTH_SECRET` | Session signing (min 16 chars) — **required** |
+| `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` | Optional telemetry |
+| `SUPER_EMAIL` / `SUPER_PASSWORD` | Optional overrides for `db:seed-auth` |
+
+Prisma: `.env.local` loads first, then `.env`.

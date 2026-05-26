@@ -1,7 +1,7 @@
 # AfyaSmart-Stock — Complete Project Documentation
 
 **Last updated:** May 2026  
-**Status:** MVP operational (local PostgreSQL)
+**Status:** Production-ready MVP — multi-tenant, authenticated, deployed on Vercel + Neon
 
 ---
 
@@ -11,106 +11,110 @@
 2. [Repository layout](#2-repository-layout)
 3. [KEML reference data](#3-keml-reference-data)
 4. [Application stack](#4-application-stack)
-5. [Database schema](#5-database-schema)
-6. [Routes & user journeys](#6-routes--user-journeys)
-7. [Server actions API](#7-server-actions-api)
-8. [UI & UX](#8-ui--ux)
-9. [Seeding & sample data](#9-seeding--sample-data)
-10. [Build history (phases)](#10-build-history-phases)
-11. [Operations guide](#11-operations-guide)
-12. [Known gaps & future work](#12-known-gaps--future-work)
-13. [Related documents](#13-related-documents)
+5. [Authentication & IAM](#5-authentication--iam)
+6. [Multi-tenancy](#6-multi-tenancy)
+7. [Database schema](#7-database-schema)
+8. [Stock counting units](#8-stock-counting-units)
+9. [Routes & user journeys](#9-routes--user-journeys)
+10. [Server actions API](#10-server-actions-api)
+11. [UI & UX](#11-ui--ux)
+12. [Seeding & sample data](#12-seeding--sample-data)
+13. [Build history (phases)](#13-build-history-phases)
+14. [Operations guide](#14-operations-guide)
+15. [Deploy (Vercel + Neon)](#15-deploy-vercel--neon)
+16. [Known gaps & future work](#16-known-gaps--future-work)
+17. [Related documents](#17-related-documents)
 
 ---
 
 ## 1. What we built
 
-**AfyaSmart-Stock** is a pharmacy **point-of-sale and stock** MVP for Kenyan facilities. It uses **KEML 2023** as a **catalog autocomplete** layer (drug name + formulation)—not as operational inventory.
+**AfyaSmart-Stock** is a pharmacy **point-of-sale and stock** system for Kenyan health facilities. It uses **KEML 2023** as a shared **catalog** (drug name + formulation). Each **facility (tenant)** keeps its own batches, sales, and staff accounts.
 
 | Capability | Summary |
 |------------|---------|
 | **KEML catalog** | ~1,567 medicines seeded; ~1,459 searchable in POS/receive |
-| **Brand alias search** | ~3,654 aliases (`alias_names.json`); type Panadol, Septrin, Coartem, etc. |
-| **Receive stock** | Search catalog → record batch, qty, expiry, supplier, costs, retail price |
-| **FEFO dispense** | POS cart → transactional deduct (nearest expiry first) + sale log |
-| **Pricing** | Unit price from batch retail price; receipt shows line totals + grand total |
-| **Sales tracking** | Today’s revenue, units, top drugs (today + 7 days) |
-| **Audit corrections** | Edit or void dispensed lines; stock restored/adjusted; reason required |
-| **Operations dashboard** | Expiry alerts (90d), low stock, FEFO-ordered active batches |
-| **Telemetry** | Sentry (client, server, edge) on all server actions |
+| **Brand alias search** | ~3,654 aliases; type Panadol, Septrin, Coartem, etc. |
+| **Multi-tenant isolation** | Shared DB + `tenantId` on stock and sales |
+| **Login & roles** | JWT session cookie; platform admin + facility owner/deputy/dispenser |
+| **Receive stock** | Search catalog → batch, qty, **stock unit** (tablet/box/etc.), expiry, costs |
+| **FEFO dispense** | POS cart → transactional deduct + priced sale log |
+| **Stock-aware POS search** | Typing “paracetamol” shows which formulations are **in stock** per facility |
+| **Sales & insights** | Today’s metrics, top drugs, receive/sell-through, printable reports |
+| **Platform admin** | List facilities, 30-day usage, create facilities, reset **owner** passwords only |
+| **Facility team** | Owner adds up to **3** staff (deputy + dispensers), assigns roles, resets staff passwords |
+| **Telemetry** | Sentry on server actions (includes `tenantId` tag when available) |
 
 ```mermaid
-flowchart LR
-  KEML[KEML JSON/CSV] --> Medicine[(Medicine catalog)]
-  Receive[/receive] --> StockBatch[(StockBatch)]
-  POS[/pos] --> Sale[(Sale + SaleLine)]
-  StockBatch --> POS
-  Medicine --> Receive
-  Medicine --> POS
-  Sale --> Sales[/sales dashboard]
+flowchart TB
+  subgraph platform [Platform]
+    SA[Super user admin@afyasmart.local]
+    SA --> Admin[/admin]
+  end
+  subgraph facility [Facility tenant]
+    O[Owner]
+    D[Deputy]
+    P[Dispenser x2]
+    O --> Team[/settings/team]
+    O --> Receive[/receive]
+    D --> Receive
+    D --> Reports[/reports]
+    P --> POS[/pos]
+  end
+  KEML[(Medicine catalog global)] --> Receive
+  KEML --> POS
+  Receive --> StockBatch[(StockBatch per tenantId)]
+  POS --> Sale[(Sale per tenantId)]
 ```
 
 ---
 
 ## 2. Repository layout
 
-**Git root and Vercel root:** this folder (`afyasmart-app/`). A parent `README.md` may exist if the repo is checked out one level higher.
+**Git root and Vercel root:** this folder (`afyasmart-app/`).
 
 ```
-afyasmart-app/                 ← project root (deploy from here)
-├── DOCUMENTATION.md           ← This file
-├── ARCHITECTURE.md
-├── ACHIEVEMENTS.md
-├── .cursorrules
-├── vercel.json
-├── data/
-│   ├── final_keml_2023.json   ← KEML catalog seed (1,576 rows)
-│   ├── final_keml_2023.csv
-│   ├── alias_names.json       ← Brand aliases seed
-│   ├── clean_index_names.json
-│   └── clean_index_names_with_pages.json
+afyasmart-app/
+├── DOCUMENTATION.md           ← Master reference (this file)
+├── ARCHITECTURE.md            ← FEFO, transactions, tenancy
+├── ACHIEVEMENTS.md            ← Executive summary
+├── FRONTEND.md                ← UI components & routes
+├── README.md                  ← Quick start
+├── data/                      ← KEML + alias JSON
 ├── prisma/
 │   ├── schema.prisma
 │   ├── seed.ts
 │   ├── seed-stock.ts
-│   └── seed-aliases.ts
+│   ├── seed-aliases.ts
+│   ├── seed-tenants.ts        ← Demo facilities
+│   ├── seed-auth.ts           ← Super user + demo owners
+│   ├── migrate-to-multitenant.ts
+│   └── neon-multitenant-setup.ts
+├── deferred/multitenant/      ← Historical reference only
 ├── src/
-│   ├── app/                   ← /, /receive, /pos, /sales
+│   ├── app/                   ← Routes incl. /login, /admin
 │   ├── components/
-│   ├── lib/actions/
-│   └── generated/prisma/
-├── FRONTEND.md
-└── README.md
+│   ├── lib/
+│   │   ├── actions/
+│   │   ├── auth/              ← session, JWT, permissions
+│   │   ├── prisma-tenant.ts   ← Tenant-scoped Prisma extension
+│   │   └── stock-unit.ts
+│   └── middleware.ts          ← Auth + RBAC route guard
+└── vercel.json
 ```
 
 ---
 
 ## 3. KEML reference data
 
-### Production files (kept)
-
-| File | Records | Used by app |
-|------|---------|-------------|
+| File | Records | Used by |
+|------|---------|---------|
 | `data/final_keml_2023.json` | 1,576 | `npm run db:seed` |
-| `data/final_keml_2023.csv` | 1,576 | Backup / Excel |
 | `data/alias_names.json` | 695 | `npm run db:seed-aliases` |
-| `data/clean_index_names.json` | 694 | Legacy index (not seeded) |
-| `data/clean_index_names_with_pages.json` | 694 | PDF cross-ref only |
 
-### Row fields (catalog)
+**Stubs** (`isStub: true`): placeholder form/strength — hidden from search (~108 rows).
 
-`generic_name`, `dosage_form`, `strength`, `level_of_use`, `chapter`, `section`, `subsection`, `code`, `page`
-
-### Stubs (hidden from search)
-
-- `dosage_form` = `As per KEML listing`
-- `strength` = `As per clinical need`
-
-Marked `isStub: true` in DB (~108 rows).
-
-### Design decision
-
-KEML seeds **what can be dispensed** (product definitions). **Stock, supplier, and pricing** live only in `StockBatch` created via **Receive** or `db:seed-stock`.
+KEML = **what can be dispensed**. **Stock** = `StockBatch` per facility via Receive or `db:seed-stock`.
 
 ---
 
@@ -118,309 +122,395 @@ KEML seeds **what can be dispensed** (product definitions). **Stock, supplier, a
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14 (App Router, `src/`) |
+| Framework | Next.js 14 (App Router) |
 | Language | TypeScript (strict) |
-| UI | Tailwind CSS, Shadcn UI, Lucide icons, Sonner toasts |
-| Layout | `AppShell` — fixed sidebar navigation |
-| Client state | Zustand (`cart-store` on POS only) |
+| UI | Tailwind, Shadcn, Lucide, Sonner |
+| Auth | bcryptjs + jose (HTTP-only session cookie) |
 | ORM | Prisma 7 + `@prisma/adapter-pg` + `pg` |
-| Database | PostgreSQL (local) |
-| Observability | `@sentry/nextjs` + `runAction()` wrapper |
+| Database | PostgreSQL (local dev + **Neon** production) |
+| Observability | Sentry + `runAction()` |
 
-### Environment (`.env` / `.env.local`)
+### Environment variables
 
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | PostgreSQL connection |
-| `SENTRY_DSN` | Server Sentry |
-| `NEXT_PUBLIC_SENTRY_DSN` | Browser Sentry |
-| `NEXT_PUBLIC_FACILITY_NAME` | Thermal receipt header |
-| `SENTRY_ORG` / `SENTRY_PROJECT` | Optional (source maps) |
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `DATABASE_URL` | Yes | PostgreSQL (Neon pooled in prod) |
+| `AUTH_SECRET` | Yes | Min 16 chars — signs session JWT |
+| `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` | Optional | Error reporting |
+| `NEXT_PUBLIC_FACILITY_NAME` | Optional | Legacy display; session shows tenant name |
+| `SUPER_EMAIL` / `SUPER_PASSWORD` | Optional | Override defaults when running `db:seed-auth` |
 
-Prisma loads `.env.local` first, then `.env` (`prisma.config.ts`).
+Prisma loads `.env.local` first, then `.env`.
 
 ### NPM scripts
 
 | Command | Purpose |
 |---------|---------|
-| `npm run dev` | Dev server → http://localhost:3000 |
-| `npm run build` | Production build (verified) |
-| `npx prisma db push` | Sync schema |
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run db:push` | Apply schema (active `DATABASE_URL`) |
+| `npm run db:push:local` | Schema → local Postgres only |
 | `npm run db:seed` | Import KEML medicines |
-| `npm run db:seed-stock` | Sample stock for ~95 common drugs |
+| `npm run db:seed-aliases` | Brand aliases |
+| `npm run db:seed-stock` | Sample stock (uses `TENANT_ID` or `default`) |
+| `npm run db:seed-tenants` | Demo facility rows |
+| `npm run db:seed-auth` | Super user + demo owners |
+| `npm run db:migrate-multitenant` | Backfill `tenantId` on existing rows |
+| `npm run db:neon:multitenant` | Neon brownfield: tenant row + push + seed tenants |
+| `npm run db:neon:setup` | Push + KEML + aliases on Neon |
 | `npm run db:generate` | Regenerate Prisma client |
-| `npx prisma studio` | DB browser |
 
 ---
 
-## 5. Database schema
+## 5. Authentication & IAM
 
-### Models
+### Session
 
-**Medicine** — KEML formulary row (`searchKey` unique, `isStub` flag).
+- **Cookie:** `afyasmart_session` (HTTP-only, 7-day JWT via `AUTH_SECRET`)
+- **Login:** `/login` → `login()` server action
+- **Middleware:** `src/middleware.ts` — redirects unauthenticated users; enforces route permissions
 
-**MedicineAlias** — Kenyan market brand / trade name linked to a formulation (`@@unique([medicineId, name])`, indexed on `name`).
+### Account types
 
-**StockBatch** — Operational lot:
+| Type | How identified | Landing route |
+|------|----------------|---------------|
+| **Platform admin** | `User.isPlatformAdmin = true` | `/admin` |
+| **Facility user** | `Membership` row (one facility per user) | `/` (menu filtered by role) |
 
-- `batchNumber`, `supplierName`
-- `quantityOnHand`, `expiryDate`
-- `supplierCost`, `retailSalePrice` (Decimal)
-- `receivedAt`
+### Roles (`TenantRole`)
 
-**Sale** — Dispense header:
+| Role | Permissions |
+|------|-------------|
+| **OWNER** | Everything at facility + **Team** (`/settings/team`) — manage up to 3 staff |
+| **DEPUTY** | Dashboard, receive, dispense, sales, insights, reports |
+| **DISPENSER** | Dashboard + **POS only** |
 
-- `createdAt`, `totalAmount` (sum of active lines)
+Permissions are enforced in:
 
-**SaleLine** — Line item:
+- `src/lib/auth/permissions.ts` — `hasPermission`, `canAccessNav`, `canAccessPath`
+- `src/lib/auth/guards.ts` — `requireTenantContext`, `requirePlatformAdmin`, `requireFacilityOwner`
+- Every operational server action (via `requireTenantContext`)
 
-- `quantity`, `unitPrice`, `lineTotal`
-- `status`: `ACTIVE` | `VOIDED`
-- `correctionNote` (audit trail)
-- Snapshots: `genericName`, `dosageForm`, `strength`
-- FKs: `medicineId`, `stockBatchId`, `saleId`
+### Password management
+
+| Actor | Can reset passwords for |
+|-------|-------------------------|
+| **Super user** | Facility **owners** only (`resetFacilityOwnerPassword`) |
+| **Owner** | **Staff** on their team — deputy & dispensers (`resetTeamMemberPassword`) |
+
+Owners **cannot** create another owner. Super user **cannot** reset deputy/dispenser passwords (owners do that).
+
+### Default seeded credentials (`npm run db:seed-auth`)
+
+| Account | Email | Password |
+|---------|--------|----------|
+| Super user | `admin@afyasmart.local` | `ChangeMeAdmin1!` |
+| Demo owner (Default) | `owner@default.local` | `ChangeMeOwner1!` |
+| Demo owner (Kakamega) | `owner@kakamega.local` | `ChangeMeOwner1!` |
+
+Change these immediately in production. Override at seed time with `SUPER_EMAIL` / `SUPER_PASSWORD`.
+
+### UI
+
+- `PasswordInput` — show/hide toggle on login, admin create-facility, team add-member
+- Sign out in sidebar footer
+
+---
+
+## 6. Multi-tenancy
+
+**Model:** Shared database, **tenant key isolation** on operational tables.
+
+| Data | Scope |
+|------|--------|
+| `Medicine`, `MedicineAlias` | **Global** (KEML) |
+| `StockBatch`, `Sale`, `SaleLine` | **`tenantId` required** |
+| `Tenant`, `User`, `Membership` | Identity |
+
+### Runtime isolation
+
+`getTenantPrisma(tenantId)` (`src/lib/prisma-tenant.ts`) extends Prisma to inject `tenantId` on all queries/creates for scoped models.
+
+`getActiveTenantId()` reads the signed-in user’s facility from the session (not `TENANT_ID` env in production).
+
+### Demo facilities (`npm run db:seed-tenants`)
+
+| id | Name | slug |
+|----|------|------|
+| `default` | Default Facility | `default` |
+| `facility-a` | Kakamega General Pharmacy | `kakamega` |
+| `facility-b` | Kisumu County Dispensary | `kisumu` |
+| `facility-c` | Nairobi Central Pharmacy | `nairobi` |
+| `facility-d` | Mombasa Coast Clinic | `mombasa` |
+
+### Concurrent access
+
+Multiple facilities and users read/write in parallel. Postgres MVCC handles concurrency; dispense uses **Serializable** transactions and `FOR UPDATE` on batches. Isolation = correct `tenantId` on every operational query.
+
+---
+
+## 7. Database schema
+
+### Identity
+
+- **Tenant** — facility (`name`, `slug`)
+- **User** — `email`, `passwordHash`, `isPlatformAdmin`
+- **Membership** — `tenantId` + `userId` + `role` (`@@unique([tenantId, userId])`)
+
+### Catalog
+
+- **Medicine** — KEML row (`searchKey`, `isStub`)
+- **MedicineAlias** — brand names
+
+### Operations (tenant-scoped)
+
+- **StockBatch** — `tenantId`, `stockUnit`, `unitsPerPack`, qty, expiry, prices
+- **Sale** — `tenantId`, `totalAmount`
+- **SaleLine** — `tenantId`, snapshots, `stockUnit`, `status`, `correctionNote`
 
 ```mermaid
 erDiagram
+  Tenant ||--o{ StockBatch : owns
+  Tenant ||--o{ Sale : owns
+  Tenant ||--o{ Membership : has
+  User ||--o{ Membership : belongs
   Medicine ||--o{ StockBatch : receives
   Medicine ||--o{ SaleLine : dispensed_as
   StockBatch ||--o{ SaleLine : deducted_from
   Sale ||--o{ SaleLine : contains
-
-  StockBatch {
-    string supplierName
-    decimal retailSalePrice
-    int quantityOnHand
-    date expiryDate
-  }
-
-  Sale {
-    decimal totalAmount
-    datetime createdAt
-  }
-
-  SaleLine {
-    int quantity
-    decimal unitPrice
-    decimal lineTotal
-    enum status
-    string correctionNote
-  }
 ```
 
-### Seed counts (typical)
+---
 
-| Dataset | Count |
-|---------|------:|
-| Medicines (total) | 1,567 |
-| Searchable (non-stub) | 1,459 |
-| Stock batches (`db:seed-stock`) | ~219 on ~95 drugs |
+## 8. Stock counting units
+
+Staff count stock in explicit units so “5” always means five **tablets**, five **boxes**, etc.
+
+### Enum `StockUnit`
+
+`TABLET`, `CAPSULE`, `STRIP`, `BOX`, `BOTTLE`, `VIAL`, `TUBE`, `SACHET`, `UNIT`
+
+### Fields
+
+- `StockBatch.stockUnit` — how `quantityOnHand` is counted
+- `StockBatch.unitsPerPack` — optional (e.g. 100 tablets per box)
+- `SaleLine.stockUnit` / `unitsPerPack` — snapshot at dispense
+
+### Helpers
+
+`src/lib/stock-unit.ts` — labels, `formatQuantityWithUnit`, `summarizeStockByUnit`, `summarizeCartByUnit`, POS/receive UI badges.
 
 ---
 
-## 6. Routes & user journeys
+## 9. Routes & user journeys
 
-| Route | Who | Flow |
-|-------|-----|------|
-| **`/`** | Pharmacist / manager | KPI expiry + low stock; FEFO active stock table; links to receive/POS |
-| **`/receive`** | Storekeeper | Search KEML → enter supplier, batch, qty, expiry, cost, retail price → `receiveInventory` |
-| **`/pos`** | Pharmacist | Search → pick FEFO batch → cart (priced) → **Complete dispense** → thermal receipt |
-| **`/sales`** | Manager / audit | Today’s sales count & revenue; top drugs; list all today’s sales; **Correct** lines |
+| Route | Who | Purpose |
+|-------|-----|---------|
+| **`/login`** | Public | Email + password sign-in |
+| **`/admin`** | Platform admin | Facilities, usage, create facility, reset owner passwords |
+| **`/`** | Owner, deputy, dispenser* | Operations dashboard (*dispenser: limited) |
+| **`/receive`** | Owner, deputy | Receive stock with unit + pricing |
+| **`/pos`** | All facility roles | Dispense; **stock-aware catalog search** |
+| **`/sales`** | Owner, deputy | Today’s sales, top drugs, audit corrections |
+| **`/insights`** | Owner, deputy | Receive history, sell-through, restock trends |
+| **`/reports`** | Owner, deputy | Printable weekly/monthly sales + stock reports |
+| **`/settings/team`** | Owner only | Add/remove up to 3 staff, roles, reset staff passwords |
 
-### Sidebar navigation
+### POS stock-aware search
 
-Dashboard · Receive · Dispense (POS) · Sales
+When `MedicineCatalogSearch` runs with `variant="dispense"`:
+
+- Loads live stock per formulation for **current tenant**
+- Green badges: e.g. `240 tablets`, `10 boxes + 50 tablets`
+- Sorts **in stock** first; out-of-stock formulary rows shown disabled
+- Hint when multiple paracetamol (etc.) formulations match
 
 ---
 
-## 7. Server actions API
+## 10. Server actions API
 
-All under `src/lib/actions/`. Pattern: `ActionResult<T>` + `Sentry.captureException` via `runAction()`.
+All use `ActionResult<T>` + `runAction()` + Sentry (optional `tenantId` tag).
+
+### Auth (`auth.ts`)
+
+| Action | Description |
+|--------|-------------|
+| `login(email, password)` | Verify bcrypt; set session cookie |
+| `logout()` | Clear session |
+| `getCurrentUser()` | Session summary for UI |
+
+### Admin (`admin.ts`) — platform admin only
+
+| Action | Description |
+|--------|-------------|
+| `listFacilities()` | All tenants + owner + 30d usage stats |
+| `createFacility(...)` | New tenant + owner user + membership |
+| `resetFacilityOwnerPassword(...)` | Owner role only |
+
+### Team (`team.ts`) — facility owner only
+
+| Action | Description |
+|--------|-------------|
+| `listTeamMembers()` | Staff list + slots remaining (max 3) |
+| `addTeamMember(...)` | DEPUTY or DISPENSER |
+| `updateTeamMemberRole(...)` | Switch deputy ↔ dispenser |
+| `removeTeamMember(...)` | Delete membership |
+| `resetTeamMemberPassword(...)` | Staff only |
 
 ### Catalog (`catalog.ts`)
 
 | Action | Description |
 |--------|-------------|
-| `searchCatalog(query)` | Min 2 chars; max 20; excludes stubs; matches **generic**, `searchKey`, or **brand alias**; returns `matchedBrand` when hit via alias |
-| `getBatchesForMedicine(id)` | Qty > 0, not expired; FEFO order |
+| `searchCatalog(query, { withStock? })` | KEML search; `withStock` adds tenant stock totals (POS) |
+| `getBatchesForMedicine(id)` | FEFO batches for tenant |
 
-### Inventory (`inventory.ts`)
+### Inventory, dispense, sales, insights, reports
 
-| Action | Description |
-|--------|-------------|
-| `receiveInventory(input)` | New batch + optional supplier, costs, retail price |
-| `getExpiringStock()` | 90-day warning list + all active batches (FEFO sorted) |
+Same as before, but all require auth + permission + tenant scope via `requireTenantContext`.
 
-### Dispense (`dispense.ts`)
-
-| Action | Description |
-|--------|-------------|
-| `dispenseMedicine(cartItems)` | Serializable tx, `FOR UPDATE`, FEFO; sets `unitPrice`/`lineTotal` from batch retail; updates `Sale.totalAmount` |
-| `correctSaleLine({ saleLineId, newQuantity, reason })` | Audit fix: adjust qty or void (0); restores/deducts stock; recalculates sale total |
-
-### Sales (`sales.ts`)
-
-| Action | Description |
-|--------|-------------|
-| `getSalesDashboard()` | Today metrics, today’s sales list, top drugs today & 7 days |
-
-### FEFO dispense (summary)
-
-1. Lock batches (`FOR UPDATE`).
-2. Allocate earliest `expiryDate` first.
-3. Decrement with conditional `updateMany` (no oversell).
-4. Create `SaleLine` with frozen price snapshot.
-5. Roll back entire cart on any failure.
-
-### Audit correction (summary)
-
-- **Reduce qty** → difference returned to `StockBatch`.
-- **Increase qty** → extra deducted if stock available.
-- **Qty = 0** → line `VOIDED`, full qty restored, `lineTotal = 0`.
-- **Reason** required (min 3 chars).
+**Dispense** raw SQL includes `"tenantId"` filter for defense in depth.
 
 ---
 
-## 8. UI & UX
+## 11. UI & UX
 
-Pharmacy POS patterns applied (touch targets, FEFO badges, risk colors, single shell).
+| Component | Role |
+|-----------|------|
+| `AppShell` | Server wrapper → `AppShellClient` with session-based nav |
+| `MedicineCatalogSearch` | `variant="dispense"` \| `"receive"` |
+| `PasswordInput` | Show/hide password |
+| `AdminConsole` | Platform facility management |
+| `TeamSettings` | Owner staff IAM |
+| `StockUnitSelect` / `StockUnitBadge` | Unit labels across app |
 
-| Component | Path | Role |
-|-----------|------|------|
-| `AppShell` | `components/layout/` | Sidebar nav + page header |
-| `MedicineCatalogSearch` | `components/catalog/` | Shared combobox (receive + POS) |
-| `StockDashboard` | `components/dashboard/` | Server: expiry + stock tables |
-| `ReceiveIntakeForm` | `components/receive/` | Step badges + supplier field |
-| `PosTerminal` | `components/pos/` | 2-column search + priced cart |
-| `BatchPicker` | `components/pos/` | FEFO “Use first” + expiry risk badges |
-| `DispenseReceipt` | `components/pos/` | Per-line price + total; 80mm print CSS |
-| `SalesDashboardClient` | `components/sales/` | Metrics, top drugs, audit UI |
+Sidebar shows only routes the role may access. Facility name from session.
 
 Details: [`FRONTEND.md`](./FRONTEND.md)
 
-### Receipt format (thermal)
-
-```
-FACILITY NAME
-DISPENSE RECEIPT
-Sale: …  Date/time
-
-Drug name
-Form · Strength
-Batch: LOT-xxx
-3 × KES 8.00 = KES 24.00
-
-TOTAL KES …
-*** DISPENSED — VERIFY BEFORE USE ***
-```
-
 ---
 
-## 9. Seeding & sample data
+## 12. Seeding & sample data
 
-### 1) Catalog — `npm run db:seed`
-
-- Source: `data/final_keml_2023.json`
-- Idempotent: `createMany({ skipDuplicates: true })` on `searchKey`
-- Stubs flagged `isStub: true`
-
-### 2) Demo stock — `npm run db:seed-stock`
-
-- ~96 curated **high-volume Kenya** generics (malaria, HIV/TB, antibiotics, MNCH, etc.)
-- 1–2 batches per drug: `KE-2026-###-A/B`
-- Quantities 80–360; expiry 8–18 months out
-- Retail/supplier costs for receipt testing
-
-Safe to re-run (skips duplicate batch numbers).
-
----
-
-## 10. Build history (phases)
-
-| Phase | Deliverable | Status |
-|-------|-------------|--------|
-| **0** | `ARCHITECTURE.md` — Medicine vs StockBatch, FEFO design | Done |
-| **1** | Next.js 14, Tailwind, Prisma 7, Sentry, PostgreSQL | Done |
-| **2** | `prisma/seed.ts` — KEML → `Medicine` | Done |
-| **3** | Server actions: search, receive, dispense + Sentry | Done |
-| **4a** | `/pos` — Zustand cart, Shadcn, dispense, toast | Done |
-| **4b** | `/receive` — intake form | Done |
-| **4c** | `/` — expiry dashboard, FEFO stock table | Done |
-| **4d** | Thermal receipt (`@media print` 80mm) | Done |
-| **UI pass** | AppShell, badges, KPI cards, split POS layout | Done |
-| **Stock seed** | `seed-stock.ts` — common Kenya medicines | Done |
-| **Sales** | `/sales` — today metrics, top drugs, audit corrections | Done |
-| **Pricing** | Line unit/total on dispense, receipt, cart | Done |
-| **Supplier** | `supplierName` on receive | Done |
-
----
-
-## 11. Operations guide
-
-### First-time setup
+### Recommended full setup (local)
 
 ```bash
-cp .env.example .env
-# Edit DATABASE_URL (and Sentry DSNs if desired)
+cp .env.example .env .env.local
+# Set DATABASE_URL (local), AUTH_SECRET (16+ chars)
 
 npm install
 npx prisma db push
 npm run db:seed
+npm run db:seed-aliases
+npm run db:seed-tenants
+npm run db:seed-auth
 npm run db:seed-stock
 npm run dev
 ```
 
-### Daily workflow
+### Neon (production)
 
-1. **Receive** deliveries at `/receive` (supplier + batch + retail price).
-2. Check **Dashboard** `/` for expiry/low stock.
-3. **Dispense** at `/pos` (FEFO batch picker).
-4. Review **Sales** `/sales` at end of day.
-5. Use **Correct** on `/sales` if audit finds mistakes.
+```bash
+# Use Neon URL from .env (avoid .env.local overriding)
+export DATABASE_URL="<neon-pooled-url>"
+npx prisma db push --accept-data-loss
+npm run db:seed
+npm run db:seed-aliases
+npm run db:seed-tenants
+npm run db:seed-auth
+```
+
+Set `AUTH_SECRET` in Vercel environment variables.
+
+---
+
+## 13. Build history (phases)
+
+| Phase | Deliverable |
+|-------|-------------|
+| 0–4 | MVP: KEML, receive, FEFO POS, dashboard, receipt |
+| 5 | Sales dashboard, pricing, supplier, audit |
+| 6 | Insights, printable reports |
+| 7 | **Stock units** across receive, POS, reports |
+| 8 | **Multi-tenant** schema + Prisma tenant extension |
+| 9 | **POS stock-aware search** (formulation + in-stock tags) |
+| 10 | **Auth + IAM**: login, super admin, owner team (3 staff), RBAC |
+| 11 | Password show/hide toggle; Neon auth schema + seed |
+
+---
+
+## 14. Operations guide
+
+### Daily workflow (facility user)
+
+1. Sign in at `/login`.
+2. **Receive** deliveries at `/receive`.
+3. Check **Dashboard** for expiry/low stock.
+4. **Dispense** at `/pos` (use stock badges to pick formulation).
+5. **Sales** / **Insights** / **Reports** as needed.
+6. Owner: manage **Team** at `/settings/team`.
+
+### Platform admin
+
+1. Sign in as `admin@afyasmart.local` → `/admin`.
+2. Create facilities or reset owner passwords.
+3. Do not use facility POS routes (middleware redirects to `/admin`).
 
 ### Dev troubleshooting
 
-**`Cannot find module './894.js'` or 500 after big changes:**
+**Stale Next cache:**
 
 ```bash
-# Stop dev server, then:
-rm -rf .next
-npm run dev
+rm -rf .next && npm run dev
 ```
 
-Use only `src/app/` (not a duplicate root `app/` folder).
-
-### Money display
-
-All user-facing currency uses `formatKes()` from `src/lib/money.ts` (en-KE locale).
+**Auth errors:** ensure `AUTH_SECRET` is set.
 
 ---
 
-## 12. Known gaps & future work
+## 15. Deploy (Vercel + Neon)
+
+1. Connect repo; root = `afyasmart-app` (or monorepo subfolder).
+2. **Environment variables:**
+   - `DATABASE_URL` — Neon **pooled** URL
+   - `AUTH_SECRET` — long random string (required)
+   - Optional: Sentry DSNs
+3. One-time against Neon (from dev machine):
+
+   ```bash
+   export DATABASE_URL="<neon-url>"
+   npx prisma db push --accept-data-loss
+   npm run db:seed && npm run db:seed-aliases
+   npm run db:seed-tenants && npm run db:seed-auth
+   ```
+
+4. Redeploy after env changes.
+
+---
+
+## 16. Known gaps & future work
 
 | Gap | Notes |
 |-----|-------|
-| Auth / roles | No login; open access for MVP |
-| KEML index in DB | `clean_index_names*.json` not imported (brand search uses `alias_names.json`) |
-| Strength normalization | Raw text search only |
-| Appendix rows | Some KEML appendix entries still in catalog |
+| Owner self-service password change | Super user / owner reset only |
+| Email verification / MFA | Not implemented |
+| Multi-facility per user | One membership per user today |
+| PostgreSQL RLS | App-layer isolation only (optional hardening) |
 | Barcode scan | Not implemented |
-| Multi-facility | Single `NEXT_PUBLIC_FACILITY_NAME` |
-| Historical sales reports | Beyond today + 7-day top drugs |
 | PWA / offline | Not implemented |
-| Old sales pricing | Pre-pricing dispenses may show KES 0 |
+| Prompt-based password reset UX | Admin/team use `window.prompt`; could be inline forms |
 
 ---
 
-## 13. Related documents
+## 17. Related documents
 
 | Document | Purpose |
 |----------|---------|
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO algorithm, transaction design, entity relationships |
-| [`FRONTEND.md`](./FRONTEND.md) | Components, routes, UI research, file tree |
-| [`README.md`](./README.md) | Quick start & scripts |
-| [`.cursorrules`](./.cursorrules) | AI/dev coding standards |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO, transactions, tenancy, auth design |
+| [`FRONTEND.md`](./FRONTEND.md) | Components, routes, UI decisions |
+| [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive deliverables summary |
+| [`README.md`](./README.md) | Quick start |
+| [`.cursorrules`](./.cursorrules) | Dev standards |
 
 ---
 
-*AfyaSmart-Stock — KEML-powered pharmacy POS MVP for Kenya.*
+*AfyaSmart-Stock — KEML-powered, multi-tenant pharmacy POS for Kenya.*

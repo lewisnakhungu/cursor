@@ -1,51 +1,68 @@
 # AfyaSmart-Stock POS
 
-Pharmacy MVP for Kenya: **KEML catalog autocomplete**, **brand alias search**, **FEFO stock**, **priced dispense**, **sales tracking**, and **audit corrections**.
+Pharmacy system for Kenya: **KEML catalog**, **multi-facility stock**, **role-based login**, **FEFO dispense**, **insights & reports**.
 
-**This directory is the project root** (git + Vercel). All commands run from here.
+**Project root** (git + Vercel). Run all commands from this folder.
 
 ## Documentation
 
 | Doc | Description |
 |-----|-------------|
 | [`DOCUMENTATION.md`](./DOCUMENTATION.md) | **Master reference** — everything built |
-| [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive summary of deliverables |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO, transactions, domain model |
-| [`FRONTEND.md`](./FRONTEND.md) | UI components, routes, design decisions |
+| [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive summary |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO, multi-tenancy, auth |
+| [`FRONTEND.md`](./FRONTEND.md) | UI, routes, components |
 
 ## Quick start
 
 ```bash
 cp .env.example .env
 cp .env.example .env.local
-# Edit .env.local → local DATABASE_URL | .env → Neon/Sentry (see .env.example)
+# .env.local → local DATABASE_URL + AUTH_SECRET (min 16 chars)
+# .env → Neon / Sentry (optional)
 
 npm install
 npx prisma db push
 npm run db:seed
-npm run db:seed-stock
 npm run db:seed-aliases
+npm run db:seed-tenants
+npm run db:seed-auth
+npm run db:seed-stock
 npm run dev
 ```
 
+Open http://localhost:3000/login
+
+| Account | Email | Password |
+|---------|--------|----------|
+| Super user | `admin@afyasmart.local` | `ChangeMeAdmin1!` |
+| Facility owner | `owner@default.local` | `ChangeMeOwner1!` |
+
 ## Deploy (Vercel + Neon)
 
-1. Connect this repo; set **Root Directory** to `.` (this folder if the repo is only `afyasmart-app`, or `afyasmart-app` if the monorepo parent is checked out).
-2. Add env: `DATABASE_URL` (Neon pooled), optional Sentry + `NEXT_PUBLIC_FACILITY_NAME`.
-3. One-time from your machine against Neon:
+1. Set env: `DATABASE_URL` (Neon pooled), **`AUTH_SECRET`** (required), optional Sentry.
+2. One-time against Neon:
+
    ```bash
-   npx prisma db push
+   export DATABASE_URL="<neon-pooled-url>"
+   npx prisma db push --accept-data-loss
    npm run db:seed && npm run db:seed-aliases
+   npm run db:seed-tenants && npm run db:seed-auth
    ```
 
 ## Routes
 
 | URL | Purpose |
 |-----|---------|
-| http://localhost:3000 | Operations dashboard (expiry, FEFO stock) |
-| http://localhost:3000/receive | Receive inventory (+ supplier) |
-| http://localhost:3000/pos | Dispense (priced cart + receipt) |
-| http://localhost:3000/sales | Today’s sales, top drugs, audit fixes |
+| `/login` | Sign in |
+| `/admin` | Platform admin (facilities, owner password reset) |
+| `/` | Dashboard (expiry, stock) |
+| `/receive` | Receive inventory |
+| `/pos` | Dispense — stock-aware search |
+| `/sales` | Sales & audit corrections |
+| `/insights` | Restock & sell-through |
+| `/reports` | Printable reports |
+| `/settings/team` | Owner: staff accounts (max 3) |
 
 ## Scripts
 
@@ -53,25 +70,25 @@ npm run dev
 |---------|---------|
 | `npm run dev` | Development server |
 | `npm run build` | Production build |
-| `npm run db:push` | Apply Prisma schema (uses active `DATABASE_URL`) |
-| `npm run db:push:local` | Apply schema to **local** Postgres (`.env.local`) |
-| `npm run db:seed` | Import KEML from `data/final_keml_2023.json` |
-| `npm run db:seed-stock` | Sample stock (~95 common Kenya drugs) |
-| `npm run db:seed-aliases` | Brands from `data/alias_names.json` |
-| `npm run db:neon:setup` | Push schema + seed KEML + aliases on **Neon** (uses `.env` only) |
-| `npm run db:generate` | Regenerate Prisma client |
+| `npm run db:push` | Apply schema |
+| `npm run db:seed` | KEML catalog |
+| `npm run db:seed-aliases` | Brand aliases |
+| `npm run db:seed-tenants` | Demo facilities |
+| `npm run db:seed-auth` | Super user + demo owners |
+| `npm run db:seed-stock` | Sample stock |
+| `npm run db:migrate-multitenant` | Backfill tenantId on existing rows |
+| `npm run db:neon:multitenant` | Neon brownfield tenant setup |
 
 ## Key paths
 
 ```
-data/                      # KEML + alias JSON (see data/README.md)
 prisma/schema.prisma
-prisma/seed.ts
-prisma/seed-aliases.ts
+src/lib/auth/          # session, permissions, guards
+src/lib/prisma-tenant.ts
 src/lib/actions/
-src/components/
+src/middleware.ts
 ```
 
 ## Standards
 
-See [`.cursorrules`](./.cursorrules): Prisma transactions for stock, Sentry on server actions, TypeScript throughout.
+See [`.cursorrules`](./.cursorrules): tenant-scoped stock/sales, auth on server actions, Prisma transactions for dispense, Sentry on errors.

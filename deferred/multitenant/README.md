@@ -1,8 +1,14 @@
-# Multi-tenant work
+# Multi-tenant work (historical)
 
-**Shipped in the active app** (`src/lib/prisma-tenant.ts`, `src/lib/tenant-context.ts`, schema).
+**Shipped in the active app.** See [`DOCUMENTATION.md`](../DOCUMENTATION.md) §6 Multi-tenancy and [`ARCHITECTURE.md`](../ARCHITECTURE.md) §7.
 
-This folder kept only as a historical reference; scripts live under `prisma/`:
+Active code:
 
+- `src/lib/prisma-tenant.ts`
+- `src/lib/tenant-context.ts`
+- `src/lib/tenant-db.ts`
 - `prisma/migrate-to-multitenant.ts`
 - `prisma/seed-tenants.ts`
+- `prisma/neon-multitenant-setup.ts`
+
+This folder is kept for reference only; excluded from TypeScript build via `tsconfig.json`.

@@ -1,18 +1,20 @@
 # AfyaSmart-Stock — Achievements Summary
 
-A concise record of everything delivered in this project to date.
+Executive record of everything delivered in this project.
 
 ---
 
 ## Product vision
 
-Build a **Kenya pharmacy POS** that:
+A **Kenya pharmacy POS** that:
 
-- Speeds up stock registers with **KEML autocomplete** (names + formulations).
-- Keeps **real inventory** (batches, expiry, FEFO) separate from the national formulary list.
-- Dispenses safely under **database transactions** with audit trails.
+- Uses **KEML** for fast, accurate drug lookup (including brand aliases).
+- Keeps **real inventory** (batches, expiry, FEFO) separate from the national formulary.
+- Supports **multiple facilities** on one platform with strict data isolation.
+- Gives each facility **role-based staff accounts** (owner, deputy, dispensers).
+- Dispenses safely under **database transactions** with full audit trails.
 
-**That vision is implemented in MVP form.**
+**Implemented in production-ready MVP form.**
 
 ---
 
@@ -21,47 +23,56 @@ Build a **Kenya pharmacy POS** that:
 | Achievement | Detail |
 |-------------|--------|
 | KEML 2023 ingested | 1,576 JSON rows → 1,567 `Medicine` records |
-| Searchable catalog | 1,459 non-stub formulations for POS/receive |
-| Reference files preserved | CSV + JSON + index JSON at repo root |
-| Sample stock | ~95 common Kenya drugs, ~219 batches with prices |
-| Schema evolution | Supplier, pricing, sale totals, line status, audit notes |
+| Searchable catalog | 1,459 non-stub formulations |
+| Brand aliases | ~3,654 alias rows from `alias_names.json` |
+| Multi-tenant schema | `Tenant`, `User`, `Membership`, `tenantId` on stock/sales |
+| Stock units | `StockUnit` enum + pack size on batches and sale lines |
+| Neon production | Schema pushed; auth users seeded |
 
 ---
 
 ## Application features
 
+### Authentication & IAM
+
+- Login at `/login` with HTTP-only JWT session (`AUTH_SECRET`)
+- **Super user** — `/admin`: manage facilities, view 30-day usage, reset **owner** passwords only
+- **Facility owner** — `/settings/team`: up to **3** staff (deputy + dispensers), role assignment, staff password reset
+- **RBAC** — middleware + server actions; dispensers see POS only; deputy/owner see receive & reports
+- Show/hide password on login and password fields
+
+### Multi-tenancy
+
+- Shared PostgreSQL + `tenantId` isolation on `StockBatch`, `Sale`, `SaleLine`
+- Global KEML catalog; per-facility operational data
+- Prisma client extension auto-scopes tenant queries
+- Demo facilities: default, Kakamega, Kisumu, Nairobi, Mombasa
+
 ### Operations dashboard (`/`)
 
-- KPI cards: active batches, expiring ≤90d, critical ≤30d, low stock
-- Expiry risk queue (sorted by days left)
-- Active stock table in **FEFO pull order**
-- Amber alerts with CTA to dispense
+- Expiry alerts, low stock, FEFO-ordered stock table
 
-### Receive inventory (`/receive`)
+### Receive (`/receive`)
 
-- KEML catalog search (shared component)
-- **Supplier / vendor** field
-- Batch number, quantity, expiry date
-- Supplier cost & **retail sale price** (used at dispense)
-- Step indicator UI + Sonner feedback
+- KEML search, supplier, batch, **stock unit** (tablet/box/etc.), optional pack size, costs, retail price
 
 ### Point of sale (`/pos`)
 
-- Split layout: search | priced cart
-- FEFO batch picker (“Use first”, expiry risk badges)
-- Zustand cart with unit price × qty = line total
-- **Complete dispense** → Serializable transaction
-- Thermal receipt: **per-drug pricing + grand total**
-- 80mm print stylesheet
+- **Stock-aware search** — in-stock badges per formulation when typing generics (e.g. paracetamol)
+- FEFO batch picker, priced cart, thermal receipt
+- Serializable dispense transaction
 
-### Sales & audit (`/sales`)
+### Sales (`/sales`)
 
-- **Today’s sales count** and **revenue (KES)**
-- Units sold today
-- **Top drugs** (today + last 7 days by units/revenue)
-- Full list of today’s sales with line detail
-- **Correct** dispensed lines (qty change or void)
-- Mandatory audit reason; stock auto-adjusted
+- Today’s revenue, top drugs, audit corrections with stock restore
+
+### Insights (`/insights`)
+
+- Receive history, sell-through %, weekly trends, slow movers
+
+### Reports (`/reports`)
+
+- Printable weekly/monthly sales + stock reports
 
 ---
 
@@ -69,46 +80,38 @@ Build a **Kenya pharmacy POS** that:
 
 | Area | Achievement |
 |------|-------------|
-| Stack | Next.js 14, TypeScript, Tailwind, Shadcn, Prisma 7, PostgreSQL |
-| Server actions | Typed `ActionResult`, Sentry on every action |
-| FEFO | `FOR UPDATE` + expiry ordering + conditional decrement |
-| UI shell | Persistent sidebar; pharmacy-themed design system |
+| Stack | Next.js 14, TypeScript, Tailwind, Shadcn, Prisma 7, PostgreSQL, Neon |
+| Auth | bcryptjs + jose sessions, middleware route guards |
+| Multi-tenant | `getTenantPrisma`, session-based `tenantId` |
+| FEFO | `FOR UPDATE` + expiry ordering + tenant filter in dispense SQL |
+| Observability | Sentry with action + tenant tags |
 | Build | `npm run build` passes |
 | Docs | `DOCUMENTATION.md`, `ARCHITECTURE.md`, `FRONTEND.md`, this file |
 
 ---
 
-## Commands cheat sheet
+## Default credentials (change in production)
 
-```bash
-# from project root
-npx prisma db push
-npm run db:seed
-npm run db:seed-stock
-npm run dev
-```
-
-| URL | Page |
-|-----|------|
-| http://localhost:3000 | Dashboard |
-| http://localhost:3000/receive | Receive stock |
-| http://localhost:3000/pos | Dispense |
-| http://localhost:3000/sales | Sales & audit |
+| Role | Email | Password |
+|------|--------|----------|
+| Super user | `admin@afyasmart.local` | `ChangeMeAdmin1!` |
+| Owner (default facility) | `owner@default.local` | `ChangeMeOwner1!` |
 
 ---
 
 ## Timeline (build order)
 
-1. Architecture & stack scaffold  
-2. KEML seed + Prisma schema  
-3. Server actions (catalog, receive, dispense)  
-4. POS + receive + dashboard + receipt  
-5. Pharmacy UI overhaul (shell, badges, FEFO UX)  
-6. Kenya common stock seed  
-7. Sales dashboard, pricing, supplier, audit corrections  
+1. Architecture & KEML seed  
+2. Receive, FEFO POS, dashboard, receipt  
+3. Sales, pricing, supplier, audit  
+4. Insights & printable reports  
+5. Stock counting units  
+6. Multi-tenant schema + isolation  
+7. POS stock-aware catalog search  
+8. Auth, super admin, facility team IAM, Neon deploy  
 
 ---
 
 ## Full documentation
 
-See [`DOCUMENTATION.md`](./DOCUMENTATION.md) for the complete technical reference (same folder).
+See [`DOCUMENTATION.md`](./DOCUMENTATION.md).

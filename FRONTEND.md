@@ -365,11 +365,61 @@ Industry patterns applied from retail/pharmacy POS case studies:
 
 `supplierName` field on receive form → `StockBatch.supplierName`.
 
-## 15. Not implemented (frontend gaps)
+## 16. Authentication UI (2026)
 
-- Dark mode / theme toggle (removed `next-themes` for stability)
-- Dedicated low-stock-only page (shown as flags on dashboard table)
-- Receive success → redirect to dashboard
+| Feature | Implementation |
+|---------|----------------|
+| Login | `/login` — `LoginForm` + `PasswordInput` show/hide |
+| Middleware | `src/middleware.ts` — auth redirect + RBAC per path |
+| App shell | `AppShell` (server) → `AppShellClient` (session nav + sign out) |
+| Nav filtering | `canAccessNav` — role-based sidebar items |
+| Admin | `/admin` — `AdminConsole` (facilities table, create, owner password reset) |
+| Team | `/settings/team` — `TeamSettings` (add deputy/dispenser, max 3) |
+
+**Server pages** wrap content in `AppShell`; client dashboards no longer import shell directly (avoids `next/headers` in client bundles).
+
+---
+
+## 17. Stock-aware POS search (2026)
+
+`MedicineCatalogSearch` with `variant="dispense"`:
+
+- Calls `searchCatalog(query, { withStock: true })`
+- Green badges: on-hand qty per formulation (tenant-scoped)
+- Groups: in stock vs formulary-only (disabled)
+- Hint when multiple formulations match same generic
+
+---
+
+## 18. Stock units UI
+
+- `StockUnitSelect` on receive
+- `StockUnitBadge` on POS, dashboard, reports
+- Cart and receipts show unit labels via `formatQuantityWithUnit`
+
+---
+
+## 19. Routes (current)
+
+| URL | Access |
+|-----|--------|
+| `/login` | Public |
+| `/admin` | Platform admin |
+| `/` | Dashboard |
+| `/receive` | Owner, deputy |
+| `/pos` | All facility roles |
+| `/sales` | Owner, deputy |
+| `/insights` | Owner, deputy |
+| `/reports` | Owner, deputy |
+| `/settings/team` | Owner only |
+
+---
+
+## 20. Not implemented (frontend gaps)
+
+- Dark mode / theme toggle
+- Dedicated low-stock-only page
+- Inline password reset dialogs (admin/team use browser `prompt`)
+- Owner change-own-password screen
 - Offline / PWA
 - Barcode scanner input
-- Role-based UI / auth gates
