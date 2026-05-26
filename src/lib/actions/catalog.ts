@@ -6,8 +6,17 @@ import type {
   CatalogMedicine,
   StockBatchView,
 } from "@/lib/types";
-import type { StockUnitCode } from "@/lib/stock-unit";
+import {
+  summarizeStockByUnit,
+  type StockUnitCode,
+} from "@/lib/stock-unit";
+import type { CatalogStockAvailability } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+
+export type SearchCatalogOptions = {
+  /** Attach live stock totals per formulation (POS dispense). */
+  withStock?: boolean;
+};
 
 function normalizeQuery(query: string): string {
   return query
@@ -38,11 +47,67 @@ function resolveMatchedBrand(
   return null;
 }
 
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+async function loadStockByMedicineId(
+  medicineIds: string[],
+): Promise<Map<string, CatalogStockAvailability>> {
+  const map = new Map<string, CatalogStockAvailability>();
+  if (medicineIds.length === 0) return map;
+
+  const today = startOfToday();
+  const batches = await prisma.stockBatch.findMany({
+    where: {
+      medicineId: { in: medicineIds },
+      quantityOnHand: { gt: 0 },
+      expiryDate: { gte: today },
+    },
+    select: {
+      medicineId: true,
+      quantityOnHand: true,
+      stockUnit: true,
+      unitsPerPack: true,
+    },
+  });
+
+  const grouped = new Map<
+    string,
+    Array<{
+      quantityOnHand: number;
+      stockUnit: StockUnitCode;
+      unitsPerPack: number | null;
+    }>
+  >();
+
+  for (const batch of batches) {
+    const rows = grouped.get(batch.medicineId) ?? [];
+    rows.push({
+      quantityOnHand: batch.quantityOnHand,
+      stockUnit: batch.stockUnit as StockUnitCode,
+      unitsPerPack: batch.unitsPerPack,
+    });
+    grouped.set(batch.medicineId, rows);
+  }
+
+  for (const id of medicineIds) {
+    const rows = grouped.get(id) ?? [];
+    map.set(id, summarizeStockByUnit(rows));
+  }
+
+  return map;
+}
+
 export async function searchCatalog(
   query: string,
+  options?: SearchCatalogOptions,
 ): Promise<ActionResult<CatalogMedicine[]>> {
   return runAction("searchCatalog", async () => {
     const normalized = normalizeQuery(query);
+    const withStock = options?.withStock === true;
 
     if (normalized.length < 2) {
       return [];
@@ -67,11 +132,15 @@ export async function searchCatalog(
           orderBy: { name: "asc" },
         },
       },
-      orderBy: [{ genericName: "asc" }, { dosageForm: "asc" }],
-      take: 20,
+      orderBy: [{ genericName: "asc" }, { dosageForm: "asc" }, { strength: "asc" }],
+      take: withStock ? 30 : 20,
     });
 
-    return medicines.map((medicine) => {
+    const stockByMedicine = withStock
+      ? await loadStockByMedicineId(medicines.map((m) => m.id))
+      : null;
+
+    const rows = medicines.map((medicine) => {
       const aliasNames = medicine.aliases.map((a) => a.name);
       return {
         id: medicine.id,
@@ -85,7 +154,24 @@ export async function searchCatalog(
           medicine.genericName,
           aliasNames,
         ),
+        stock: stockByMedicine?.get(medicine.id),
       };
+    });
+
+    if (!withStock) {
+      return rows;
+    }
+
+    return rows.sort((a, b) => {
+      const aStock = a.stock?.hasStock ? 1 : 0;
+      const bStock = b.stock?.hasStock ? 1 : 0;
+      if (bStock !== aStock) return bStock - aStock;
+      if (a.genericName !== b.genericName) {
+        return a.genericName.localeCompare(b.genericName);
+      }
+      return `${a.dosageForm} ${a.strength}`.localeCompare(
+        `${b.dosageForm} ${b.strength}`,
+      );
     });
   });
 }

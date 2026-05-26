@@ -56,6 +56,60 @@ export function normalizeStockUnit(
   return "UNIT";
 }
 
+export function summarizeStockByUnit(
+  rows: Array<{
+    quantityOnHand: number;
+    stockUnit: StockUnitCode | string;
+    unitsPerPack: number | null;
+  }>,
+): {
+  hasStock: boolean;
+  totalOnHand: number;
+  batchCount: number;
+  summary: string;
+  mixedUnits: boolean;
+} {
+  if (rows.length === 0) {
+    return {
+      hasStock: false,
+      totalOnHand: 0,
+      batchCount: 0,
+      summary: "Out of stock",
+      mixedUnits: false,
+    };
+  }
+
+  const byUnit = new Map<
+    StockUnitCode,
+    { qty: number; unitsPerPack: number | null }
+  >();
+
+  for (const row of rows) {
+    const unit = normalizeStockUnit(row.stockUnit);
+    const existing = byUnit.get(unit);
+    if (existing) {
+      existing.qty += row.quantityOnHand;
+    } else {
+      byUnit.set(unit, {
+        qty: row.quantityOnHand,
+        unitsPerPack: row.unitsPerPack,
+      });
+    }
+  }
+
+  const parts = Array.from(byUnit.entries()).map(([unit, { qty, unitsPerPack }]) =>
+    formatQuantityWithUnit(qty, unit, unitsPerPack),
+  );
+
+  return {
+    hasStock: true,
+    totalOnHand: rows.reduce((sum, row) => sum + row.quantityOnHand, 0),
+    batchCount: rows.length,
+    summary: parts.join(" + "),
+    mixedUnits: byUnit.size > 1,
+  };
+}
+
 export function summarizeCartByUnit(
   items: Array<{ quantity: number; stockUnit: StockUnitCode | string }>,
 ): string {

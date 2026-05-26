@@ -1,5 +1,14 @@
 import type { StockUnitCode } from "@/lib/stock-unit";
 
+export type CatalogStockAvailability = {
+  hasStock: boolean;
+  totalOnHand: number;
+  batchCount: number;
+  /** Human-readable, e.g. "240 tablets" or "10 boxes + 50 tablets" */
+  summary: string;
+  mixedUnits: boolean;
+};
+
 export type CatalogMedicine = {
   id: string;
   genericName: string;
@@ -8,6 +17,7 @@ export type CatalogMedicine = {
   levelOfUse: string | null;
   aliases?: string[];
   matchedBrand?: string | null;
+  stock?: CatalogStockAvailability;
 };
 
 export type StockBatchView = {

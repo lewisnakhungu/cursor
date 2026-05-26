@@ -162,6 +162,7 @@ export function PosTerminal() {
           <p className="pharmacy-panel-title mb-3">1 · Find medicine</p>
           <div ref={searchWrapperRef}>
             <MedicineCatalogSearch
+              variant="dispense"
               inputId="catalog-search"
               onSelect={openBatchPicker}
               disabled={isDispensing}
