@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/team";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Table,
   TableBody,
@@ -143,8 +144,7 @@ export function TeamSettings() {
               <option value="DEPUTY">Deputy — receive &amp; reports</option>
               <option value="DISPENSER">Dispenser — POS only</option>
             </select>
-            <Input
-              type="password"
+            <PasswordInput
               placeholder="Initial password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -10,6 +10,7 @@ import {
 import { logout } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Table,
   TableBody,
@@ -133,8 +134,7 @@ export function AdminConsole() {
             value={ownerName}
             onChange={(e) => setOwnerName(e.target.value)}
           />
-          <Input
-            type="password"
+          <PasswordInput
             placeholder="Owner initial password"
             value={ownerPassword}
             onChange={(e) => setOwnerPassword(e.target.value)}
