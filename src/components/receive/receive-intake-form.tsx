@@ -1,14 +1,23 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, ClipboardList, Package } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
+import { StockUnitSelect } from "@/components/ui/stock-unit-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { receiveInventory } from "@/lib/actions/inventory";
+import {
+  formatPricePerUnitLabel,
+  stockUnitMeta,
+  stockUnitOptionSupportsPackSize,
+  stockUnitPlural,
+  suggestStockUnitFromDosageForm,
+  type StockUnitCode,
+} from "@/lib/stock-unit";
 import type { CatalogMedicine } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -16,20 +25,33 @@ export function ReceiveIntakeForm() {
   const [selected, setSelected] = useState<CatalogMedicine | null>(null);
   const [batchNumber, setBatchNumber] = useState("");
   const [supplierName, setSupplierName] = useState("");
+  const [stockUnit, setStockUnit] = useState<StockUnitCode>("UNIT");
+  const [unitsPerPack, setUnitsPerPack] = useState("");
   const [quantityOnHand, setQuantityOnHand] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [supplierCost, setSupplierCost] = useState("");
   const [retailSalePrice, setRetailSalePrice] = useState("");
   const [isSubmitting, startSubmit] = useTransition();
 
+  useEffect(() => {
+    if (selected) {
+      setStockUnit(suggestStockUnitFromDosageForm(selected.dosageForm));
+    }
+  }, [selected]);
+
   const resetForm = () => {
     setBatchNumber("");
     setSupplierName("");
+    setUnitsPerPack("");
     setQuantityOnHand("");
     setExpiryDate("");
     setSupplierCost("");
     setRetailSalePrice("");
+    setStockUnit("UNIT");
   };
+
+  const showPackSize = stockUnitOptionSupportsPackSize(stockUnit);
+  const unitLabel = stockUnitPlural(stockUnit, 1);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,7 +62,7 @@ export function ReceiveIntakeForm() {
 
     const qty = Number.parseInt(quantityOnHand, 10);
     if (!Number.isFinite(qty) || qty <= 0) {
-      toast.error("Enter a valid quantity (whole units / box count)");
+      toast.error(`Enter a valid quantity (whole ${unitLabel}s)`);
       return;
     }
     if (!expiryDate) {
@@ -64,6 +86,15 @@ export function ReceiveIntakeForm() {
       return;
     }
 
+    let packSize: number | undefined;
+    if (unitsPerPack.trim() !== "") {
+      packSize = Number.parseInt(unitsPerPack, 10);
+      if (!Number.isFinite(packSize) || packSize < 2) {
+        toast.error("Pack size must be 2 or more (e.g. 100 tablets per box)");
+        return;
+      }
+    }
+
     startSubmit(async () => {
       const response = await receiveInventory({
         medicineId: selected.id,
@@ -71,6 +102,8 @@ export function ReceiveIntakeForm() {
         supplierName: supplierName.trim() || undefined,
         quantityOnHand: qty,
         expiryDate,
+        stockUnit,
+        unitsPerPack: packSize,
         supplierCost: cost,
         retailSalePrice: retail,
       });
@@ -89,7 +122,7 @@ export function ReceiveIntakeForm() {
   return (
     <AppShell
       title="Receive inventory"
-      subtitle="Link stock to KEML catalog · record batch, qty, expiry, pricing"
+      subtitle="Define how you count stock (tablets, boxes, etc.) — qty and prices use the same unit"
     >
       <div className="mb-6 flex flex-wrap gap-2">
         <Badge
@@ -103,7 +136,7 @@ export function ReceiveIntakeForm() {
           variant={expiryDate && quantityOnHand ? "success" : "outline"}
           className="min-h-8 px-3"
         >
-          <span className="mr-1.5">2</span> Batch details
+          <span className="mr-1.5">2</span> Batch & counting unit
         </Badge>
         <Badge variant="outline" className="min-h-8 px-3">
           <span className="mr-1.5">3</span> Confirm receive
@@ -139,9 +172,16 @@ export function ReceiveIntakeForm() {
         <section className="pharmacy-panel">
           <p className="pharmacy-panel-title mb-4 flex items-center gap-2">
             <Package className="size-4" />
-            Batch & pricing
+            Batch, unit of measure & pricing
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
+              <strong className="text-foreground">Counting rule:</strong> quantity,
+              supplier cost, and retail price all refer to the same unit (e.g. per
+              box or per tablet). Reports will label quantities using your choice
+              below.
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
                 <label className="text-sm font-medium" htmlFor="supplier-name">
@@ -172,8 +212,42 @@ export function ReceiveIntakeForm() {
               </div>
 
               <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="stock-unit">
+                  Count stock as
+                </label>
+                <StockUnitSelect
+                  id="stock-unit"
+                  value={stockUnit}
+                  onChange={setStockUnit}
+                  disabled={isSubmitting || !selected}
+                />
+              </div>
+
+              {showPackSize && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium" htmlFor="units-per-pack">
+                    Items per {stockUnitMeta(stockUnit).label.toLowerCase()}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      (optional)
+                    </span>
+                  </label>
+                  <Input
+                    id="units-per-pack"
+                    type="number"
+                    min={2}
+                    step={1}
+                    className="h-11 text-base"
+                    placeholder="e.g. 100 tablets per box"
+                    value={unitsPerPack}
+                    onChange={(e) => setUnitsPerPack(e.target.value)}
+                    disabled={isSubmitting || !selected}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="quantity">
-                  Quantity on hand
+                  Quantity received ({unitLabel}s)
                 </label>
                 <Input
                   id="quantity"
@@ -181,7 +255,7 @@ export function ReceiveIntakeForm() {
                   min={1}
                   step={1}
                   className="h-11 text-base"
-                  placeholder="Box / unit count"
+                  placeholder={`How many ${stockUnitPlural(stockUnit, 2)}?`}
                   value={quantityOnHand}
                   onChange={(e) => setQuantityOnHand(e.target.value)}
                   disabled={isSubmitting || !selected}
@@ -206,7 +280,7 @@ export function ReceiveIntakeForm() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="supplier-cost">
-                  Supplier cost (KES)
+                  Supplier cost per {unitLabel} (KES)
                 </label>
                 <Input
                   id="supplier-cost"
@@ -223,7 +297,7 @@ export function ReceiveIntakeForm() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="retail-price">
-                  Retail price (KES)
+                  Retail price per {unitLabel} (KES)
                 </label>
                 <Input
                   id="retail-price"
@@ -231,11 +305,20 @@ export function ReceiveIntakeForm() {
                   min={0}
                   step="0.01"
                   className="h-11"
-                  placeholder="Optional"
+                  placeholder="Used at POS for this batch"
                   value={retailSalePrice}
                   onChange={(e) => setRetailSalePrice(e.target.value)}
                   disabled={isSubmitting || !selected}
                 />
+                {retailSalePrice.trim() !== "" &&
+                  Number.isFinite(Number.parseFloat(retailSalePrice)) && (
+                    <p className="text-xs text-muted-foreground">
+                      {formatPricePerUnitLabel(
+                        Number.parseFloat(retailSalePrice),
+                        stockUnit,
+                      )}
+                    </p>
+                  )}
               </div>
             </div>
 

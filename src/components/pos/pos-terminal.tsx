@@ -7,9 +7,11 @@ import { AppShell } from "@/components/layout/app-shell";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { BatchPicker } from "@/components/pos/batch-picker";
 import { DispenseReceipt } from "@/components/pos/dispense-receipt";
+import { StockUnitBadge } from "@/components/pos/stock-unit-badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -20,6 +22,13 @@ import { useCartStore } from "@/stores/cart-store";
 import { getBatchesForMedicine } from "@/lib/actions/catalog";
 import { dispenseMedicine } from "@/lib/actions/dispense";
 import { formatKes } from "@/lib/money";
+import {
+  formatPricePerUnitLabel,
+  formatQuantityWithUnit,
+  normalizeStockUnit,
+  stockUnitPlural,
+  summarizeCartByUnit,
+} from "@/lib/stock-unit";
 import type { CatalogMedicine, DispenseResult, StockBatchView } from "@/lib/types";
 
 export function PosTerminal() {
@@ -28,7 +37,6 @@ export function PosTerminal() {
     useState<CatalogMedicine | null>(null);
   const [batches, setBatches] = useState<StockBatchView[]>([]);
   const [batchDialogOpen, setBatchDialogOpen] = useState(false);
-  const [pickQty, setPickQty] = useState("1");
   const [receipt, setReceipt] = useState<DispenseResult | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoadingBatches, startLoadBatches] = useTransition();
@@ -41,7 +49,7 @@ export function PosTerminal() {
   const clearCart = useCartStore((state) => state.clear);
   const cartTotalAmount = useCartStore((state) => state.cartTotal);
 
-  const cartUnits = lines.reduce((sum, line) => sum + line.quantity, 0);
+  const cartSummary = summarizeCartByUnit(lines);
   const cartTotal = cartTotalAmount();
 
   useEffect(() => {
@@ -61,23 +69,21 @@ export function PosTerminal() {
       }
       setSelectedMedicine(medicine);
       setBatches(response.data);
-      setPickQty("1");
       setBatchDialogOpen(true);
     });
   }, []);
 
-  const addBatchToCart = (batch: StockBatchView) => {
+  const addBatchToCart = (batch: StockBatchView, quantity: number) => {
     if (!selectedMedicine) return;
-    const quantity = Number.parseInt(pickQty, 10);
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      toast.error("Enter a valid quantity");
-      return;
-    }
+
     if (quantity > batch.quantityOnHand) {
-      toast.error(`Only ${batch.quantityOnHand} units in this batch`);
+      toast.error(
+        `Only ${formatQuantityWithUnit(batch.quantityOnHand, normalizeStockUnit(batch.stockUnit), batch.unitsPerPack)} available`,
+      );
       return;
     }
 
+    const unit = normalizeStockUnit(batch.stockUnit);
     const unitPrice = batch.retailSalePrice
       ? Number.parseFloat(batch.retailSalePrice)
       : 0;
@@ -90,15 +96,16 @@ export function PosTerminal() {
       strength: selectedMedicine.strength,
       batchNumber: batch.batchNumber,
       expiryDate: batch.expiryDate,
+      stockUnit: unit,
+      unitsPerPack: batch.unitsPerPack,
       quantity,
       maxQuantity: batch.quantityOnHand,
       unitPrice: Number.isFinite(unitPrice) ? unitPrice : 0,
     });
 
-    setBatchDialogOpen(false);
-    setSelectedMedicine(null);
-    searchWrapperRef.current?.querySelector("input")?.focus();
-    toast.success("Added to cart");
+    toast.success(
+      `Added ${formatQuantityWithUnit(quantity, unit, batch.unitsPerPack)} to cart`,
+    );
   };
 
   const handleDispense = () => {
@@ -130,11 +137,14 @@ export function PosTerminal() {
     <AppShell
       wide
       title="Dispense (POS)"
-      subtitle="FEFO batch selection · transactional checkout · thermal receipt"
+      subtitle="Quantities use each batch's counting unit (tablets, boxes, etc.)"
       actions={
         <>
-          <Badge variant="secondary" className="w-full justify-center sm:w-auto sm:inline-flex">
-            {lines.length} line(s) · {cartUnits} units · {formatKes(cartTotal)}
+          <Badge
+            variant="secondary"
+            className="w-full justify-center sm:w-auto sm:inline-flex"
+          >
+            {lines.length} line(s) · {cartSummary} · {formatKes(cartTotal)}
           </Badge>
           <Button
             size="lg"
@@ -160,8 +170,8 @@ export function PosTerminal() {
           <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
             <Keyboard className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
-              Search by generic name. Select a row to pick batch (earliest expiry
-              highlighted). Esc clears search.
+              After search, pick a batch and enter qty in that batch&apos;s unit
+              (same as Receive). Prices are per tablet, box, bottle, etc.
             </p>
           </div>
         </section>
@@ -190,64 +200,101 @@ export function PosTerminal() {
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
               <ShoppingCart className="size-10 text-muted-foreground/50" />
               <p className="mt-3 font-medium">Cart is empty</p>
-              <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-                Search the KEML catalog and add batches. Stock deducts on
-                dispense using FEFO rules.
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                Each line shows quantity in the unit defined at receive (e.g.
+                tablets or boxes). Stock deducts in that same unit on dispense.
               </p>
             </div>
           ) : (
             <ul className="space-y-3">
-              {lines.map((line) => (
-                <li
-                  key={line.id}
-                  className="flex flex-wrap items-center gap-3 rounded-xl border bg-background p-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold leading-snug">
-                      {line.genericName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {line.dosageForm} · {line.strength}
-                    </p>
-                    <p className="mt-1 font-mono text-xs text-muted-foreground">
-                      Batch {line.batchNumber ?? "—"} · Exp {line.expiryDate}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-primary">
-                      {line.quantity} × {formatKes(line.unitPrice)} ={" "}
-                      {formatKes(line.lineTotal)}
-                    </p>
-                  </div>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={line.maxQuantity}
-                    value={line.quantity}
-                    disabled={isDispensing}
-                    className="h-11 w-20 text-center text-base"
-                    onChange={(e) =>
-                      updateQuantity(
-                        line.id,
-                        Number.parseInt(e.target.value, 10) || 1,
-                      )
-                    }
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="min-h-10"
-                    disabled={isDispensing}
-                    onClick={() => removeLine(line.id)}
+              {lines.map((line) => {
+                const unit = normalizeStockUnit(line.stockUnit);
+                return (
+                  <li
+                    key={line.id}
+                    className="flex flex-wrap items-center gap-3 rounded-xl border bg-background p-3"
                   >
-                    Remove
-                  </Button>
-                </li>
-              ))}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold leading-snug">
+                          {line.genericName}
+                        </p>
+                        <StockUnitBadge
+                          unit={unit}
+                          unitsPerPack={line.unitsPerPack}
+                          className="text-[10px]"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {line.dosageForm} · {line.strength}
+                      </p>
+                      <p className="mt-1 font-mono text-xs text-muted-foreground">
+                        Batch {line.batchNumber ?? "—"} · Exp {line.expiryDate}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        <span className="font-medium text-primary">
+                          {formatQuantityWithUnit(
+                            line.quantity,
+                            unit,
+                            line.unitsPerPack,
+                          )}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          × {formatPricePerUnitLabel(line.unitPrice, unit)}
+                        </span>
+                        <span className="ml-2 font-semibold">
+                          = {formatKes(line.lineTotal)}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <label className="sr-only">
+                        Quantity in {stockUnitPlural(unit, 2)}
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={line.maxQuantity}
+                        value={line.quantity}
+                        disabled={isDispensing}
+                        className="h-12 w-24 text-center text-lg font-semibold"
+                        aria-label={`Quantity in ${stockUnitPlural(unit, 2)}`}
+                        onChange={(e) =>
+                          updateQuantity(
+                            line.id,
+                            Number.parseInt(e.target.value, 10) || 1,
+                          )
+                        }
+                      />
+                      <span className="text-center text-xs font-medium text-muted-foreground">
+                        {stockUnitPlural(unit, line.quantity)}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        max {line.maxQuantity}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="min-h-10"
+                      disabled={isDispensing}
+                      onClick={() => removeLine(line.id)}
+                    >
+                      Remove
+                    </Button>
+                  </li>
+                );
+              })}
             </ul>
           )}
           {lines.length > 0 && (
-            <p className="mt-4 text-right text-lg font-semibold">
-              Cart total {formatKes(cartTotal)}
-            </p>
+            <div className="mt-4 text-right">
+              <p className="text-sm text-muted-foreground">{cartSummary}</p>
+              <p className="text-lg font-semibold">
+                Cart total {formatKes(cartTotal)}
+              </p>
+            </div>
           )}
         </section>
       </div>
@@ -255,15 +302,19 @@ export function PosTerminal() {
       <Dialog open={batchDialogOpen} onOpenChange={setBatchDialogOpen}>
         <DialogContent className="mx-2 max-h-[90dvh] max-w-[calc(100vw-1rem)] overflow-y-auto sm:mx-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Select batch (FEFO)</DialogTitle>
+            <DialogTitle>Pick batch & quantity</DialogTitle>
+            <DialogDescription>
+              Dispense in the same unit used at receive (per batch). Select a
+              lot, enter qty, then add to cart.
+            </DialogDescription>
           </DialogHeader>
           {selectedMedicine && (
             <BatchPicker
               medicine={selectedMedicine}
               batches={batches}
-              pickQty={pickQty}
-              onPickQtyChange={setPickQty}
-              onSelectBatch={addBatchToCart}
+              onAddToCart={(batch, qty) => {
+                addBatchToCart(batch, qty);
+              }}
               disabled={isLoadingBatches}
             />
           )}

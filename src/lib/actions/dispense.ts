@@ -4,6 +4,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { decimalToNumber } from "@/lib/money";
 import { InsufficientStockError, AppError } from "@/lib/errors";
+import type { StockUnitCode } from "@/lib/stock-unit";
 import type { ActionResult, CartDispenseItem, DispenseResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
 
@@ -54,11 +55,13 @@ export async function dispenseMedicine(
               id: string;
               quantityOnHand: number;
               retailSalePrice: Prisma.Decimal | null;
+              stockUnit: StockUnitCode;
+              unitsPerPack: number | null;
             }>
           >(
             item.stockBatchId
               ? Prisma.sql`
-                  SELECT id, "quantityOnHand", "retailSalePrice"
+                  SELECT id, "quantityOnHand", "retailSalePrice", "stockUnit", "unitsPerPack"
                   FROM stock_batches
                   WHERE id = ${item.stockBatchId}
                     AND "medicineId" = ${item.medicineId}
@@ -67,7 +70,7 @@ export async function dispenseMedicine(
                   FOR UPDATE
                 `
               : Prisma.sql`
-                  SELECT id, "quantityOnHand", "retailSalePrice"
+                  SELECT id, "quantityOnHand", "retailSalePrice", "stockUnit", "unitsPerPack"
                   FROM stock_batches
                   WHERE "medicineId" = ${item.medicineId}
                     AND "quantityOnHand" > 0
@@ -115,6 +118,8 @@ export async function dispenseMedicine(
                 genericName: medicine.genericName,
                 dosageForm: medicine.dosageForm,
                 strength: medicine.strength,
+                stockUnit: batch.stockUnit,
+                unitsPerPack: batch.unitsPerPack,
               },
             });
 
@@ -173,6 +178,8 @@ export async function dispenseMedicine(
         strength: line.strength,
         batchNumber: line.stockBatch.batchNumber,
         quantity: line.quantity,
+        stockUnit: line.stockUnit as StockUnitCode,
+        unitsPerPack: line.unitsPerPack,
         unitPrice: decimalToNumber(line.unitPrice),
         lineTotal: decimalToNumber(line.lineTotal),
         status: line.status,

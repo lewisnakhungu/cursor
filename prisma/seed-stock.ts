@@ -268,6 +268,7 @@ async function createBatchesForMedicine(
 
     await prisma.stockBatch.create({
       data: {
+        stockUnit: "TABLET",
         medicineId: medicine.id,
         batchNumber: `KE-${year}-${String(index + 1).padStart(3, "0")}-${template.batchSuffix}`,
         quantityOnHand: template.quantityOnHand,

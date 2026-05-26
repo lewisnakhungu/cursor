@@ -18,6 +18,11 @@ import {
   getExpiryRisk,
   getExpiryRiskLabel,
 } from "@/lib/ui/stock-status";
+import {
+  formatPricePerUnitShort,
+  formatQuantityWithUnit,
+  stockUnitMeta,
+} from "@/lib/stock-unit";
 
 export async function StockDashboard() {
   const result = await getExpiringStock();
@@ -100,7 +105,7 @@ export async function StockDashboard() {
                 <TableRow>
                   <TableHead>Medicine</TableHead>
                   <TableHead>Batch</TableHead>
-                  <TableHead>Units</TableHead>
+                  <TableHead>On hand</TableHead>
                   <TableHead>Expiry</TableHead>
                   <TableHead>Days</TableHead>
                   <TableHead>Risk</TableHead>
@@ -120,8 +125,12 @@ export async function StockDashboard() {
                       <TableCell className="font-mono text-xs">
                         {row.batchNumber ?? "—"}
                       </TableCell>
-                      <TableCell className="tabular-nums">
-                        {row.quantityOnHand}
+                      <TableCell className="tabular-nums text-sm">
+                        {formatQuantityWithUnit(
+                          row.quantityOnHand,
+                          row.stockUnit,
+                          row.unitsPerPack,
+                        )}
                       </TableCell>
                       <TableCell>{row.expiryDate}</TableCell>
                       <TableCell className="tabular-nums">
@@ -171,7 +180,8 @@ export async function StockDashboard() {
                   <TableHead>FEFO</TableHead>
                   <TableHead>Medicine</TableHead>
                   <TableHead>Batch</TableHead>
-                  <TableHead>Units</TableHead>
+                  <TableHead>On hand</TableHead>
+                  <TableHead>Unit price</TableHead>
                   <TableHead>Expiry</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -195,8 +205,23 @@ export async function StockDashboard() {
                     <TableCell className="font-mono text-xs">
                       {row.batchNumber ?? row.id.slice(0, 8)}
                     </TableCell>
-                    <TableCell className="tabular-nums">
-                      {row.quantityOnHand}
+                    <TableCell className="text-sm tabular-nums">
+                      {formatQuantityWithUnit(
+                        row.quantityOnHand,
+                        row.stockUnit,
+                        row.unitsPerPack,
+                      )}
+                      <span className="block text-xs text-muted-foreground">
+                        {stockUnitMeta(row.stockUnit).label}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {row.retailSalePrice !== null
+                        ? formatPricePerUnitShort(
+                            row.retailSalePrice,
+                            row.stockUnit,
+                          )
+                        : "—"}
                     </TableCell>
                     <TableCell>{row.expiryDate}</TableCell>
                     <TableCell>

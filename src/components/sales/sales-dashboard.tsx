@@ -32,6 +32,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatKes } from "@/lib/money";
+import {
+  formatPricePerUnitShort,
+  formatQuantityWithUnit,
+  stockUnitMeta,
+} from "@/lib/stock-unit";
 import type { SalesDashboardData, SaleLineView } from "@/lib/types";
 
 export function SalesDashboardClient() {
@@ -130,9 +135,9 @@ export function SalesDashboardClient() {
           icon={<TrendingUp className="size-5" />}
         />
         <StatCard
-          label="Units sold today"
+          label="Items dispensed today"
           value={data.today.unitsSold}
-          hint={`${data.today.lineCount} line(s) recorded`}
+          hint={`${data.today.lineCount} line(s) — mixed units; see detail below`}
           icon={<BarChart3 className="size-5" />}
         />
         <StatCard
@@ -147,7 +152,7 @@ export function SalesDashboardClient() {
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section className="pharmacy-panel">
           <h2 className="mb-4 text-base font-semibold">
-            Top drugs today (by units)
+            Top drugs today (by qty, per counting unit)
           </h2>
           {data.topDrugsToday.length === 0 ? (
             <p className="text-sm text-muted-foreground">No sales yet today.</p>
@@ -156,18 +161,25 @@ export function SalesDashboardClient() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Medicine</TableHead>
-                  <TableHead>Units</TableHead>
+                  <TableHead>Count as</TableHead>
+                  <TableHead>Qty sold</TableHead>
                   <TableHead>Revenue</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.topDrugsToday.map((drug, i) => (
-                  <TableRow key={`${drug.medicineId}-${i}`}>
+                  <TableRow key={`${drug.medicineId}-${drug.stockUnit}-${i}`}>
                     <TableCell>
                       <div className="font-medium">{drug.genericName}</div>
                       <div className="text-xs text-muted-foreground">
                         {drug.dosageForm} · {drug.strength}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {stockUnitMeta(drug.stockUnit).label}
+                      {drug.unitsPerPack
+                        ? ` (${drug.unitsPerPack}/pack)`
+                        : ""}
                     </TableCell>
                     <TableCell>{drug.unitsSold}</TableCell>
                     <TableCell>{formatKes(drug.revenue)}</TableCell>
@@ -189,18 +201,22 @@ export function SalesDashboardClient() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Medicine</TableHead>
-                  <TableHead>Units</TableHead>
+                  <TableHead>Count as</TableHead>
+                  <TableHead>Qty sold</TableHead>
                   <TableHead>Revenue</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.topDrugs7Days.map((drug, i) => (
-                  <TableRow key={`${drug.medicineId}-7d-${i}`}>
+                  <TableRow key={`${drug.medicineId}-7d-${drug.stockUnit}-${i}`}>
                     <TableCell>
                       <div className="font-medium">{drug.genericName}</div>
                       <div className="text-xs text-muted-foreground">
                         {drug.dosageForm} · {drug.strength}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {stockUnitMeta(drug.stockUnit).label}
                     </TableCell>
                     <TableCell>{drug.unitsSold}</TableCell>
                     <TableCell>{formatKes(drug.revenue)}</TableCell>
@@ -245,8 +261,8 @@ export function SalesDashboardClient() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Drug</TableHead>
-                      <TableHead>Qty</TableHead>
-                      <TableHead>Unit</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Price / unit</TableHead>
                       <TableHead>Line total</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead />
@@ -266,8 +282,24 @@ export function SalesDashboardClient() {
                             </p>
                           )}
                         </TableCell>
-                        <TableCell>{line.quantity}</TableCell>
-                        <TableCell>{formatKes(line.unitPrice)}</TableCell>
+                        <TableCell>
+                          {formatQuantityWithUnit(
+                            line.quantity,
+                            line.stockUnit,
+                            line.unitsPerPack,
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium">
+                            {formatKes(line.unitPrice)}
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            {formatPricePerUnitShort(
+                              line.unitPrice,
+                              line.stockUnit,
+                            )}
+                          </span>
+                        </TableCell>
                         <TableCell>{formatKes(line.lineTotal)}</TableCell>
                         <TableCell>
                           <Badge
@@ -315,12 +347,23 @@ export function SalesDashboardClient() {
             <div className="space-y-4">
               <p className="font-medium">{correctingLine.genericName}</p>
               <p className="text-sm text-muted-foreground">
-                Current qty: {correctingLine.quantity} · Was{" "}
-                {formatKes(correctingLine.lineTotal)}
+                Current:{" "}
+                {formatQuantityWithUnit(
+                  correctingLine.quantity,
+                  correctingLine.stockUnit,
+                  correctingLine.unitsPerPack,
+                )}{" "}
+                · Was {formatKes(correctingLine.lineTotal)} (
+                {formatPricePerUnitShort(
+                  correctingLine.unitPrice,
+                  correctingLine.stockUnit,
+                )}
+                )
               </p>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="new-qty">
-                  New quantity
+                  New quantity ({stockUnitMeta(correctingLine.stockUnit).label}
+                  s)
                 </label>
                 <Input
                   id="new-qty"

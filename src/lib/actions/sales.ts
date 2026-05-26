@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { decimalToNumber } from "@/lib/money";
+import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
   ActionResult,
   SalesDashboardData,
@@ -24,6 +25,10 @@ function daysAgo(n: number): Date {
   return d;
 }
 
+function topDrugKey(medicineId: string, stockUnit: StockUnitCode): string {
+  return `${medicineId}:${stockUnit}`;
+}
+
 function mapSaleLine(
   line: {
     id: string;
@@ -32,6 +37,8 @@ function mapSaleLine(
     dosageForm: string;
     strength: string;
     quantity: number;
+    stockUnit: string;
+    unitsPerPack: number | null;
     unitPrice: { toString(): string };
     lineTotal: { toString(): string };
     status: "ACTIVE" | "VOIDED";
@@ -48,6 +55,8 @@ function mapSaleLine(
     strength: line.strength,
     batchNumber: line.stockBatch.batchNumber,
     quantity: line.quantity,
+    stockUnit: line.stockUnit as StockUnitCode,
+    unitsPerPack: line.unitsPerPack,
     unitPrice: decimalToNumber(line.unitPrice),
     lineTotal: decimalToNumber(line.lineTotal),
     status: line.status,
@@ -107,7 +116,8 @@ async function getTopDrugs(
   const map = new Map<string, TopSellingDrug>();
 
   for (const line of lines) {
-    const key = line.medicineId;
+    const stockUnit = line.stockUnit as StockUnitCode;
+    const key = topDrugKey(line.medicineId, stockUnit);
     const existing = map.get(key);
     const revenue = decimalToNumber(line.lineTotal);
 
@@ -115,12 +125,17 @@ async function getTopDrugs(
       existing.unitsSold += line.quantity;
       existing.revenue += revenue;
       existing.dispenseCount += 1;
+      if (line.unitsPerPack && !existing.unitsPerPack) {
+        existing.unitsPerPack = line.unitsPerPack;
+      }
     } else {
       map.set(key, {
         medicineId: line.medicine.id,
         genericName: line.medicine.genericName,
         dosageForm: line.medicine.dosageForm,
         strength: line.medicine.strength,
+        stockUnit,
+        unitsPerPack: line.unitsPerPack,
         unitsSold: line.quantity,
         revenue,
         dispenseCount: 1,
@@ -131,15 +146,29 @@ async function getTopDrugs(
   return Array.from(map.values())
     .sort((a, b) => b.unitsSold - a.unitsSold || b.revenue - a.revenue)
     .slice(0, limit)
-    .map(({ medicineId, genericName, dosageForm, strength, unitsSold, revenue, dispenseCount }) => ({
-      medicineId,
-      genericName,
-      dosageForm,
-      strength,
-      unitsSold,
-      revenue,
-      dispenseCount,
-    }));
+    .map(
+      ({
+        medicineId,
+        genericName,
+        dosageForm,
+        strength,
+        stockUnit,
+        unitsPerPack,
+        unitsSold,
+        revenue,
+        dispenseCount,
+      }) => ({
+        medicineId,
+        genericName,
+        dosageForm,
+        strength,
+        stockUnit,
+        unitsPerPack,
+        unitsSold,
+        revenue,
+        dispenseCount,
+      }),
+    );
 }
 
 export async function getSalesDashboard(): Promise<

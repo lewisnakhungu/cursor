@@ -3,6 +3,12 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/lib/errors";
+import {
+  isStockUnitCode,
+  stockUnitOptionSupportsPackSize,
+  type StockUnitCode,
+} from "@/lib/stock-unit";
+import { decimalToNumber } from "@/lib/money";
 import type {
   ActionResult,
   ExpiringStockReport,
@@ -33,6 +39,9 @@ function mapBatchRow(
     batchNumber: string | null;
     quantityOnHand: number;
     expiryDate: Date;
+    stockUnit: StockUnitCode;
+    unitsPerPack: number | null;
+    retailSalePrice: { toString(): string } | null;
     medicine: {
       genericName: string;
       dosageForm: string;
@@ -53,6 +62,11 @@ function mapBatchRow(
     daysUntilExpiry: days,
     isLowStock: batch.quantityOnHand <= LOW_STOCK_THRESHOLD,
     isExpiringSoon: days >= 0 && days <= EXPIRY_WARNING_DAYS,
+    stockUnit: batch.stockUnit,
+    unitsPerPack: batch.unitsPerPack,
+    retailSalePrice: batch.retailSalePrice
+      ? decimalToNumber(batch.retailSalePrice)
+      : null,
   };
 }
 
@@ -62,6 +76,10 @@ export async function receiveInventory(
   return runAction("receiveInventory", async () => {
     if (batchData.quantityOnHand <= 0) {
       throw new AppError("Quantity must be greater than zero", "VALIDATION");
+    }
+
+    if (!isStockUnitCode(batchData.stockUnit)) {
+      throw new AppError("Invalid stock counting unit", "VALIDATION");
     }
 
     const expiryDate = new Date(batchData.expiryDate);
@@ -83,6 +101,22 @@ export async function receiveInventory(
       throw new AppError("Retail price cannot be negative", "VALIDATION");
     }
 
+    let unitsPerPack: number | null = null;
+    if (batchData.unitsPerPack !== undefined) {
+      if (
+        !Number.isInteger(batchData.unitsPerPack) ||
+        batchData.unitsPerPack < 2
+      ) {
+        throw new AppError(
+          "Pack size must be a whole number of 2 or more (e.g. 100 tablets per box)",
+          "VALIDATION",
+        );
+      }
+      unitsPerPack = batchData.unitsPerPack;
+    } else if (stockUnitOptionSupportsPackSize(batchData.stockUnit)) {
+      unitsPerPack = null;
+    }
+
     const medicine = await prisma.medicine.findUnique({
       where: { id: batchData.medicineId },
       select: { id: true },
@@ -100,6 +134,8 @@ export async function receiveInventory(
         quantityOnHand: batchData.quantityOnHand,
         quantityReceived: batchData.quantityOnHand,
         expiryDate,
+        stockUnit: batchData.stockUnit,
+        unitsPerPack,
         supplierCost:
           batchData.supplierCost !== undefined
             ? new Prisma.Decimal(batchData.supplierCost)

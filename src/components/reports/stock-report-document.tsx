@@ -1,6 +1,11 @@
 "use client";
 
 import { formatKes } from "@/lib/money";
+import {
+  formatPricePerUnitShort,
+  formatQuantityWithUnit,
+  stockUnitMeta,
+} from "@/lib/stock-unit";
 import type { StockReportData } from "@/lib/types";
 import {
   ReportKpiGrid,
@@ -13,7 +18,7 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
   return (
     <ReportPrintLayout
       title={data.reportTitle}
-      subtitle="All non-expired batches with quantity on hand"
+      subtitle="All non-expired batches — quantities use each batch's counting unit"
       facilityName={data.facilityName}
       generatedAt={data.generatedAt}
     >
@@ -21,7 +26,10 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
         <ReportKpiGrid
           items={[
             { label: "Active batches", value: String(data.totalBatches) },
-            { label: "Total units", value: String(data.totalUnits) },
+            {
+              label: "Total counted items",
+              value: String(data.totalUnits),
+            },
             {
               label: "Est. retail value",
               value:
@@ -37,7 +45,7 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
         />
         {data.lowStockCount > 0 ? (
           <p className="mt-2 text-xs text-neutral-700">
-            Low stock batches (≤10 units): {data.lowStockCount}
+            Low stock batches (≤10 in batch unit): {data.lowStockCount}
           </p>
         ) : null}
       </ReportSection>
@@ -47,20 +55,28 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
           headers={[
             "Medicine",
             "Batch",
-            "Qty",
+            "Count as",
+            "Qty on hand",
             "Expiry",
             "Days",
-            "Unit price",
+            "Retail/unit",
             "Value",
             "Notes",
           ]}
           rows={data.rows.map((r) => [
             `${r.genericName} — ${r.dosageForm} · ${r.strength}`,
             r.batchNumber ?? "—",
-            String(r.quantityOnHand),
+            stockUnitMeta(r.stockUnit).label,
+            formatQuantityWithUnit(
+              r.quantityOnHand,
+              r.stockUnit,
+              r.unitsPerPack,
+            ),
             r.expiryDate,
             String(r.daysUntilExpiry),
-            r.retailSalePrice !== null ? formatKes(r.retailSalePrice) : "—",
+            r.retailSalePrice !== null
+              ? formatPricePerUnitShort(r.retailSalePrice, r.stockUnit)
+              : "—",
             r.stockValue !== null ? formatKes(r.stockValue) : "—",
             r.flags.length > 0 ? r.flags.join(", ") : "OK",
           ])}

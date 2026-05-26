@@ -1,3 +1,5 @@
+import type { StockUnitCode } from "@/lib/stock-unit";
+
 export type CatalogMedicine = {
   id: string;
   genericName: string;
@@ -18,6 +20,8 @@ export type StockBatchView = {
   supplierCost: string | null;
   retailSalePrice: string | null;
   supplierName: string | null;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
 };
 
 export type ReceiveInventoryInput = {
@@ -28,6 +32,8 @@ export type ReceiveInventoryInput = {
   expiryDate: string;
   supplierCost?: number;
   retailSalePrice?: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack?: number;
 };
 
 export type CartDispenseItem = {
@@ -43,6 +49,8 @@ export type SaleReceiptLine = {
   strength: string;
   batchNumber: string | null;
   quantity: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   unitPrice: number;
   lineTotal: number;
   status: "ACTIVE" | "VOIDED";
@@ -68,6 +76,9 @@ export type StockBatchRow = {
   daysUntilExpiry: number;
   isLowStock: boolean;
   isExpiringSoon: boolean;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  retailSalePrice: number | null;
 };
 
 export type ExpiringStockReport = {
@@ -93,6 +104,8 @@ export type SaleLineView = {
   strength: string;
   batchNumber: string | null;
   quantity: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   unitPrice: number;
   lineTotal: number;
   status: "ACTIVE" | "VOIDED";
@@ -113,6 +126,8 @@ export type TopSellingDrug = {
   genericName: string;
   dosageForm: string;
   strength: string;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   unitsSold: number;
   revenue: number;
   dispenseCount: number;
@@ -141,6 +156,8 @@ export type ReceiveHistoryRow = {
   strength: string;
   batchNumber: string | null;
   supplierName: string | null;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   quantityReceived: number;
   quantityOnHand: number;
   quantitySold: number;
@@ -149,6 +166,8 @@ export type ReceiveHistoryRow = {
   retailSalePrice: number | null;
   receiveCostTotal: number | null;
   revenueFromBatch: number;
+  costOfGoodsSold: number | null;
+  grossMargin: number | null;
 };
 
 export type WeeklyStockingBucket = {
@@ -167,12 +186,14 @@ export type StockingInsightsSummary = {
   receiveCostValue: number;
   unitsSold: number;
   revenue: number;
+  grossMargin: number | null;
   sellThroughPercent: number;
   distinctMedicines: number;
 };
 
 export type TopRestockedItem = {
   genericName: string;
+  stockUnit: StockUnitCode;
   receiveCount: number;
   unitsReceived: number;
   unitsSold: number;
@@ -198,6 +219,22 @@ export type SalesByDayRow = {
   revenue: number;
 };
 
+export type SalesReportLineDetail = {
+  saleId: string;
+  saleAt: string;
+  lineId: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  batchNumber: string | null;
+  quantity: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  unitPrice: number;
+  lineTotal: number;
+  status: "ACTIVE" | "VOIDED";
+};
+
 export type SalesReportData = {
   reportTitle: string;
   periodDays: ReportPeriodDays;
@@ -215,6 +252,7 @@ export type SalesReportData = {
   };
   salesByDay: SalesByDayRow[];
   topDrugs: TopSellingDrug[];
+  lineDetails: SalesReportLineDetail[];
   stocking: StockingInsightsSummary | null;
   weeklyRestockTrend: WeeklyStockingBucket[];
   topRestocked: TopRestockedItem[];
@@ -227,6 +265,8 @@ export type StockReportRow = {
   batchNumber: string | null;
   supplierName: string | null;
   quantityOnHand: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   expiryDate: string;
   daysUntilExpiry: number;
   retailSalePrice: number | null;

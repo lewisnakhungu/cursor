@@ -11,6 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { formatKes } from "@/lib/money";
+import {
+  formatPricePerUnitLabel,
+  formatQuantityWithUnit,
+  normalizeStockUnit,
+} from "@/lib/stock-unit";
 import type { DispenseResult } from "@/lib/types";
 
 const FACILITY_NAME =
@@ -98,19 +103,31 @@ function ReceiptBody({
         {formatTimestamp(receipt.createdAt)}
       </p>
       <div className="mt-3 space-y-2 border-t border-dashed border-black pt-2">
-        {activeLines.map((line) => (
-          <div key={line.id} className="text-xs leading-snug">
-            <p className="font-semibold">{line.genericName}</p>
-            <p>
-              {line.dosageForm} · {line.strength}
-            </p>
-            <p>Batch: {line.batchNumber ?? "N/A"}</p>
-            <p>
-              {line.quantity} × {formatKes(line.unitPrice)} ={" "}
-              <span className="font-semibold">{formatKes(line.lineTotal)}</span>
-            </p>
-          </div>
-        ))}
+        {activeLines.map((line) => {
+          const unit = normalizeStockUnit(line.stockUnit);
+          return (
+            <div key={line.id} className="text-xs leading-snug">
+              <p className="font-semibold">{line.genericName}</p>
+              <p>
+                {line.dosageForm} · {line.strength}
+              </p>
+              <p>Batch: {line.batchNumber ?? "N/A"}</p>
+              <p>
+                {formatQuantityWithUnit(
+                  line.quantity,
+                  unit,
+                  line.unitsPerPack,
+                )}
+              </p>
+              <p>
+                {formatPricePerUnitLabel(line.unitPrice, unit)} →{" "}
+                <span className="font-semibold">
+                  {formatKes(line.lineTotal)}
+                </span>
+              </p>
+            </div>
+          );
+        })}
       </div>
       <p className="mt-3 border-t border-dashed border-black pt-2 text-right text-sm font-bold">
         TOTAL {formatKes(receipt.totalAmount)}

@@ -6,6 +6,7 @@ import type {
   CatalogMedicine,
   StockBatchView,
 } from "@/lib/types";
+import type { StockUnitCode } from "@/lib/stock-unit";
 import { runAction } from "@/lib/actions/utils";
 
 function normalizeQuery(query: string): string {
@@ -115,6 +116,8 @@ export async function getBatchesForMedicine(
       supplierCost: batch.supplierCost?.toString() ?? null,
       retailSalePrice: batch.retailSalePrice?.toString() ?? null,
       supplierName: batch.supplierName,
+      stockUnit: batch.stockUnit as StockUnitCode,
+      unitsPerPack: batch.unitsPerPack,
     }));
   });
 }

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { normalizeStockUnit, type StockUnitCode } from "@/lib/stock-unit";
 
 export type CartLine = {
   id: string;
@@ -9,6 +10,8 @@ export type CartLine = {
   strength: string;
   batchNumber: string | null;
   expiryDate: string;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
   quantity: number;
   maxQuantity: number;
   unitPrice: number;
@@ -58,6 +61,7 @@ export const useCartStore = create<CartState>((set, get) => ({
           ...state.lines,
           {
             ...line,
+            stockUnit: normalizeStockUnit(line.stockUnit),
             id: crypto.randomUUID(),
             quantity,
             lineTotal,

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { decimalToNumber } from "@/lib/money";
+import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
   ActionResult,
   InsightsPeriodDays,
@@ -72,6 +73,8 @@ function buildReceiveRow(
     supplierName: string | null;
     quantityOnHand: number;
     quantityReceived: number;
+    stockUnit: StockUnitCode;
+    unitsPerPack: number | null;
     supplierCost: { toString(): string } | null;
     retailSalePrice: { toString(): string } | null;
     medicine: {
@@ -91,8 +94,23 @@ function buildReceiveRow(
   const supplierCost = batch.supplierCost
     ? decimalToNumber(batch.supplierCost)
     : null;
+  const retailSalePrice = batch.retailSalePrice
+    ? decimalToNumber(batch.retailSalePrice)
+    : null;
   const sellThroughPercent =
     received > 0 ? Math.round((soldQty / received) * 100) : 0;
+  const receiveCostTotal =
+    supplierCost !== null
+      ? Math.round(supplierCost * received * 100) / 100
+      : null;
+  const costOfGoodsSold =
+    supplierCost !== null
+      ? Math.round(supplierCost * soldQty * 100) / 100
+      : null;
+  const grossMargin =
+    costOfGoodsSold !== null
+      ? Math.round((revenue - costOfGoodsSold) * 100) / 100
+      : null;
 
   return {
     batchId: batch.id,
@@ -102,17 +120,18 @@ function buildReceiveRow(
     strength: batch.medicine.strength,
     batchNumber: batch.batchNumber,
     supplierName: batch.supplierName,
+    stockUnit: batch.stockUnit,
+    unitsPerPack: batch.unitsPerPack,
     quantityReceived: received,
     quantityOnHand: batch.quantityOnHand,
     quantitySold: soldQty,
     sellThroughPercent,
     supplierCost,
-    retailSalePrice: batch.retailSalePrice
-      ? decimalToNumber(batch.retailSalePrice)
-      : null,
-    receiveCostTotal:
-      supplierCost !== null ? Math.round(supplierCost * received * 100) / 100 : null,
+    retailSalePrice,
+    receiveCostTotal,
     revenueFromBatch: revenue,
+    costOfGoodsSold,
+    grossMargin,
   };
 }
 
@@ -120,144 +139,160 @@ export async function getStockingInsights(
   periodDays: InsightsPeriodDays = 30,
 ): Promise<ActionResult<StockingInsightsData>> {
   return runAction("getStockingInsights", async () => {
-    const since = daysAgo(periodDays);
+      const since = daysAgo(periodDays);
 
-    const batches = await prisma.stockBatch.findMany({
-      where: { receivedAt: { gte: since } },
-      include: {
-        medicine: {
-          select: { genericName: true, dosageForm: true, strength: true },
+      const batches = await prisma.stockBatch.findMany({
+        where: { receivedAt: { gte: since } },
+        include: {
+          medicine: {
+            select: { genericName: true, dosageForm: true, strength: true },
+          },
         },
-      },
-      orderBy: { receivedAt: "desc" },
-    });
-
-    const batchIds = batches.map((b) => b.id);
-
-    const salesAgg =
-      batchIds.length > 0
-        ? await prisma.saleLine.groupBy({
-            by: ["stockBatchId"],
-            where: {
-              stockBatchId: { in: batchIds },
-              status: "ACTIVE",
-            },
-            _sum: { quantity: true, lineTotal: true },
-          })
-        : [];
-
-    const soldMap = new Map<
-      string,
-      { quantity: number; revenue: number }
-    >();
-    for (const row of salesAgg) {
-      soldMap.set(row.stockBatchId, {
-        quantity: row._sum.quantity ?? 0,
-        revenue: decimalToNumber(row._sum.lineTotal ?? 0),
+        orderBy: { receivedAt: "desc" },
       });
-    }
 
-    const receiveHistory: ReceiveHistoryRow[] = batches.map((batch) => {
-      const sold = soldMap.get(batch.id) ?? { quantity: 0, revenue: 0 };
-      return buildReceiveRow(batch, sold.quantity, sold.revenue);
-    });
+      const batchIds = batches.map((b) => b.id);
 
-    let unitsReceived = 0;
-    let receiveCostValue = 0;
-    let unitsSold = 0;
-    let revenue = 0;
-    const medicineSet = new Set<string>();
+      const salesAgg =
+        batchIds.length > 0
+          ? await prisma.saleLine.groupBy({
+              by: ["stockBatchId"],
+              where: {
+                stockBatchId: { in: batchIds },
+                status: "ACTIVE",
+              },
+              _sum: { quantity: true, lineTotal: true },
+            })
+          : [];
 
-    for (const row of receiveHistory) {
-      unitsReceived += row.quantityReceived;
-      unitsSold += row.quantitySold;
-      revenue += row.revenueFromBatch;
-      if (row.receiveCostTotal !== null) {
-        receiveCostValue += row.receiveCostTotal;
+      const soldMap = new Map<string, { quantity: number; revenue: number }>();
+      for (const row of salesAgg) {
+        soldMap.set(row.stockBatchId, {
+          quantity: row._sum.quantity ?? 0,
+          revenue: decimalToNumber(row._sum.lineTotal ?? 0),
+        });
       }
-      medicineSet.add(row.genericName);
-    }
 
-    const sellThroughPercent =
-      unitsReceived > 0 ? Math.round((unitsSold / unitsReceived) * 100) : 0;
+      const receiveHistory: ReceiveHistoryRow[] = batches.map((batch) => {
+        const sold = soldMap.get(batch.id) ?? { quantity: 0, revenue: 0 };
+        return buildReceiveRow(
+          {
+            ...batch,
+            stockUnit: batch.stockUnit as StockUnitCode,
+          },
+          sold.quantity,
+          sold.revenue,
+        );
+      });
 
-    const weekMap = new Map<string, WeeklyStockingBucket>();
+      let unitsReceived = 0;
+      let receiveCostValue = 0;
+      let unitsSold = 0;
+      let revenue = 0;
+      let grossMarginSum = 0;
+      let marginRows = 0;
+      const medicineSet = new Set<string>();
 
-    for (const row of receiveHistory) {
-      const weekStart = startOfWeek(new Date(row.receivedAt));
-      const key = weekStart.toISOString().slice(0, 10);
-      const existing = weekMap.get(key) ?? {
-        weekStart: key,
-        label: formatWeekLabel(weekStart),
-        receiveCount: 0,
-        unitsReceived: 0,
-        receiveCost: 0,
-        unitsSold: 0,
-        revenue: 0,
-      };
-      existing.receiveCount += 1;
-      existing.unitsReceived += row.quantityReceived;
-      existing.unitsSold += row.quantitySold;
-      existing.revenue += row.revenueFromBatch;
-      if (row.receiveCostTotal !== null) {
-        existing.receiveCost += row.receiveCostTotal;
+      for (const row of receiveHistory) {
+        unitsReceived += row.quantityReceived;
+        unitsSold += row.quantitySold;
+        revenue += row.revenueFromBatch;
+        if (row.receiveCostTotal !== null) {
+          receiveCostValue += row.receiveCostTotal;
+        }
+        if (row.grossMargin !== null) {
+          grossMarginSum += row.grossMargin;
+          marginRows++;
+        }
+        medicineSet.add(row.genericName);
       }
-      weekMap.set(key, existing);
-    }
 
-    const weeklyTrend = Array.from(weekMap.values()).sort((a, b) =>
-      a.weekStart.localeCompare(b.weekStart),
-    );
+      const sellThroughPercent =
+        unitsReceived > 0 ? Math.round((unitsSold / unitsReceived) * 100) : 0;
 
-    const restockMap = new Map<string, TopRestockedItem>();
-    for (const row of receiveHistory) {
-      const existing = restockMap.get(row.genericName) ?? {
-        genericName: row.genericName,
-        receiveCount: 0,
-        unitsReceived: 0,
-        unitsSold: 0,
+      const weekMap = new Map<string, WeeklyStockingBucket>();
+
+      for (const row of receiveHistory) {
+        const weekStart = startOfWeek(new Date(row.receivedAt));
+        const key = weekStart.toISOString().slice(0, 10);
+        const existing = weekMap.get(key) ?? {
+          weekStart: key,
+          label: formatWeekLabel(weekStart),
+          receiveCount: 0,
+          unitsReceived: 0,
+          receiveCost: 0,
+          unitsSold: 0,
+          revenue: 0,
+        };
+        existing.receiveCount += 1;
+        existing.unitsReceived += row.quantityReceived;
+        existing.unitsSold += row.quantitySold;
+        existing.revenue += row.revenueFromBatch;
+        if (row.receiveCostTotal !== null) {
+          existing.receiveCost += row.receiveCostTotal;
+        }
+        weekMap.set(key, existing);
+      }
+
+      const weeklyTrend = Array.from(weekMap.values()).sort((a, b) =>
+        a.weekStart.localeCompare(b.weekStart),
+      );
+
+      const restockMap = new Map<string, TopRestockedItem>();
+      for (const row of receiveHistory) {
+        const key = `${row.genericName}:${row.stockUnit}`;
+        const existing = restockMap.get(key) ?? {
+          genericName: row.genericName,
+          stockUnit: row.stockUnit,
+          receiveCount: 0,
+          unitsReceived: 0,
+          unitsSold: 0,
+        };
+        existing.receiveCount += 1;
+        existing.unitsReceived += row.quantityReceived;
+        existing.unitsSold += row.quantitySold;
+        restockMap.set(key, existing);
+      }
+
+      const topRestocked = Array.from(restockMap.values())
+        .sort(
+          (a, b) =>
+            b.receiveCount - a.receiveCount ||
+            b.unitsReceived - a.unitsReceived,
+        )
+        .slice(0, 10);
+
+      const twoWeeksAgo = daysAgo(14);
+      const slowMovers = receiveHistory
+        .filter(
+          (row) =>
+            new Date(row.receivedAt) <= twoWeeksAgo &&
+            row.sellThroughPercent < 25 &&
+            row.quantityOnHand > 0,
+        )
+        .sort((a, b) => a.sellThroughPercent - b.sellThroughPercent)
+        .slice(0, 10);
+
+      return {
+        periodDays,
+        periodLabel: periodLabel(periodDays),
+        summary: {
+          receiveEvents: receiveHistory.length,
+          unitsReceived,
+          receiveCostValue: Math.round(receiveCostValue * 100) / 100,
+          unitsSold,
+          revenue: Math.round(revenue * 100) / 100,
+          grossMargin:
+            marginRows > 0
+              ? Math.round(grossMarginSum * 100) / 100
+              : null,
+          sellThroughPercent,
+          distinctMedicines: medicineSet.size,
+        },
+        weeklyTrend,
+        receiveHistory,
+        topRestocked,
+        slowMovers,
       };
-      existing.receiveCount += 1;
-      existing.unitsReceived += row.quantityReceived;
-      existing.unitsSold += row.quantitySold;
-      restockMap.set(row.genericName, existing);
-    }
-
-    const topRestocked = Array.from(restockMap.values())
-      .sort(
-        (a, b) =>
-          b.receiveCount - a.receiveCount ||
-          b.unitsReceived - a.unitsReceived,
-      )
-      .slice(0, 10);
-
-    const twoWeeksAgo = daysAgo(14);
-    const slowMovers = receiveHistory
-      .filter(
-        (row) =>
-          new Date(row.receivedAt) <= twoWeeksAgo &&
-          row.sellThroughPercent < 25 &&
-          row.quantityOnHand > 0,
-      )
-      .sort((a, b) => a.sellThroughPercent - b.sellThroughPercent)
-      .slice(0, 10);
-
-    return {
-      periodDays,
-      periodLabel: periodLabel(periodDays),
-      summary: {
-        receiveEvents: receiveHistory.length,
-        unitsReceived,
-        receiveCostValue: Math.round(receiveCostValue * 100) / 100,
-        unitsSold,
-        revenue: Math.round(revenue * 100) / 100,
-        sellThroughPercent,
-        distinctMedicines: medicineSet.size,
-      },
-      weeklyTrend,
-      receiveHistory,
-      topRestocked,
-      slowMovers,
-    };
   });
 }

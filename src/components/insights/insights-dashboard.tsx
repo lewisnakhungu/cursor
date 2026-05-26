@@ -23,6 +23,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatKes } from "@/lib/money";
+import {
+  formatPricePerUnitShort,
+  formatQuantityWithUnit,
+  stockUnitMeta,
+} from "@/lib/stock-unit";
 import type { InsightsPeriodDays, StockingInsightsData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +115,8 @@ export function InsightsDashboardClient() {
 
       <p className="mb-6 text-sm text-muted-foreground">
         Showing <strong>{data.periodLabel}</strong> — each row is one receive
-        (restock) event. Sales are traced to the batch they were dispensed from.
+        (restock). Quantities use the <strong>counting unit</strong> chosen at
+        receive (tablets, boxes, etc.); prices are per that same unit.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -121,19 +127,23 @@ export function InsightsDashboardClient() {
           icon={<PackagePlus className="size-5" />}
         />
         <StatCard
-          label="Units received"
+          label="Items received"
           value={data.summary.unitsReceived}
           hint={
             data.summary.receiveCostValue > 0
-              ? `Cost ${formatKes(data.summary.receiveCostValue)}`
-              : "Add supplier cost on receive for margin view"
+              ? `Stock-in cost ${formatKes(data.summary.receiveCostValue)}`
+              : "Add supplier cost per unit on receive for margin"
           }
           icon={<TrendingUp className="size-5" />}
         />
         <StatCard
           label="Sell-through"
           value={`${data.summary.sellThroughPercent}%`}
-          hint={`${data.summary.unitsSold} units sold · ${formatKes(data.summary.revenue)} revenue`}
+          hint={`${data.summary.unitsSold} dispensed · ${formatKes(data.summary.revenue)} revenue${
+            data.summary.grossMargin !== null
+              ? ` · Margin ${formatKes(data.summary.grossMargin)}`
+              : ""
+          }`}
           tone={
             data.summary.sellThroughPercent < 40
               ? "warning"
@@ -154,8 +164,8 @@ export function InsightsDashboardClient() {
                 <TableRow>
                   <TableHead>Week</TableHead>
                   <TableHead className="text-right">Receives</TableHead>
-                  <TableHead className="text-right">Units in</TableHead>
-                  <TableHead className="text-right">Units sold</TableHead>
+                  <TableHead className="text-right">Qty in</TableHead>
+                  <TableHead className="text-right">Qty sold</TableHead>
                   <TableHead className="text-right">Revenue</TableHead>
                 </TableRow>
               </TableHeader>
@@ -191,15 +201,19 @@ export function InsightsDashboardClient() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Medicine</TableHead>
+                  <TableHead>Unit</TableHead>
                   <TableHead className="text-right">Receives</TableHead>
-                  <TableHead className="text-right">Units in</TableHead>
-                  <TableHead className="text-right">Units sold</TableHead>
+                  <TableHead className="text-right">Qty in</TableHead>
+                  <TableHead className="text-right">Qty sold</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.topRestocked.map((row) => (
-                  <TableRow key={row.genericName}>
+                  <TableRow key={`${row.genericName}-${row.stockUnit}`}>
                     <TableCell className="font-medium">{row.genericName}</TableCell>
+                    <TableCell className="text-sm">
+                      {stockUnitMeta(row.stockUnit).label}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {row.receiveCount}
                     </TableCell>
@@ -249,8 +263,18 @@ export function InsightsDashboardClient() {
                     <TableCell className="text-right tabular-nums">
                       {row.quantityOnHand}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {row.quantitySold} / {row.quantityReceived}
+                    <TableCell className="text-right text-sm tabular-nums">
+                      {formatQuantityWithUnit(
+                        row.quantitySold,
+                        row.stockUnit,
+                        row.unitsPerPack,
+                      )}{" "}
+                      /{" "}
+                      {formatQuantityWithUnit(
+                        row.quantityReceived,
+                        row.stockUnit,
+                        row.unitsPerPack,
+                      )}
                     </TableCell>
                     <TableCell>
                       <SellThroughBadge percent={row.sellThroughPercent} />
@@ -291,11 +315,15 @@ export function InsightsDashboardClient() {
                 <TableRow>
                   <TableHead>Received</TableHead>
                   <TableHead>Medicine</TableHead>
+                  <TableHead>Count as</TableHead>
                   <TableHead>Supplier</TableHead>
                   <TableHead className="text-right">In</TableHead>
                   <TableHead className="text-right">Sold</TableHead>
                   <TableHead className="text-right">Left</TableHead>
+                  <TableHead className="text-right">Cost/unit</TableHead>
+                  <TableHead className="text-right">Retail/unit</TableHead>
                   <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Margin</TableHead>
                   <TableHead>Sell-through</TableHead>
                 </TableRow>
               </TableHeader>
@@ -319,6 +347,14 @@ export function InsightsDashboardClient() {
                       )}
                     </TableCell>
                     <TableCell className="text-sm">
+                      {stockUnitMeta(row.stockUnit).label}
+                      {row.unitsPerPack ? (
+                        <span className="block text-xs text-muted-foreground">
+                          {row.unitsPerPack} per pack
+                        </span>
+                      ) : null}
+                    </TableCell>
+                    <TableCell className="text-sm">
                       {row.supplierName ?? "—"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
@@ -335,8 +371,26 @@ export function InsightsDashboardClient() {
                     >
                       {row.quantityOnHand}
                     </TableCell>
+                    <TableCell className="text-right text-sm tabular-nums">
+                      {row.supplierCost !== null
+                        ? formatPricePerUnitShort(row.supplierCost, row.stockUnit)
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right text-sm tabular-nums">
+                      {row.retailSalePrice !== null
+                        ? formatPricePerUnitShort(
+                            row.retailSalePrice,
+                            row.stockUnit,
+                          )
+                        : "—"}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {formatKes(row.revenueFromBatch)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {row.grossMargin !== null
+                        ? formatKes(row.grossMargin)
+                        : "—"}
                     </TableCell>
                     <TableCell>
                       <SellThroughBadge percent={row.sellThroughPercent} />
