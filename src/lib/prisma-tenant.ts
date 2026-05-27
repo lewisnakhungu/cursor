@@ -23,9 +23,7 @@ function injectTenantIntoData(
 const scopedWhereOps = new Set([
   "findMany",
   "findFirst",
-  "findUnique",
   "findFirstOrThrow",
-  "findUniqueOrThrow",
   "update",
   "updateMany",
   "updateManyAndReturn",
@@ -121,6 +119,8 @@ export type TenantPrismaClient = ReturnType<typeof createTenantClient>;
 /**
  * Prisma client that scopes stockBatch, sale, and saleLine to one tenant.
  * Medicine / MedicineAlias stay on the base `prisma` client (shared KEML catalog).
+ *
+ * Use findFirst (not findUnique) when loading by id + tenant scope.
  */
 export function getTenantPrisma(tenantId: string): TenantPrismaClient {
   let client = tenantClientCache.get(tenantId);

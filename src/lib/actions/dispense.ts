@@ -162,7 +162,8 @@ export async function dispenseMedicine(
         },
       );
 
-      const sale = await db.sale.findUnique({
+      // findFirst (not findUnique): tenant extension adds tenantId; AND breaks findUnique.
+      const sale = await db.sale.findFirst({
         where: { id: saleId },
         include: {
           lines: {
