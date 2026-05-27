@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
 import {
-  Activity,
   BarChart3,
   Building2,
   ClipboardList,
@@ -115,7 +115,7 @@ function SidebarBrand({
     >
       <div className="flex items-center gap-2">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Activity className="size-5" aria-hidden />
+          <AfyaSmartLogo size={28} variant="onPrimary" />
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold leading-tight">
