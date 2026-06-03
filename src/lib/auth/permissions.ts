@@ -97,7 +97,7 @@ export function canAccessNav(
 export function pathnameToNavId(pathname: string): NavItemId | null {
   if (pathname.startsWith("/admin")) return "admin";
   if (pathname.startsWith("/settings/team")) return "team";
-  if (pathname === "/") return "dashboard";
+  if (pathname === "/dashboard") return "dashboard";
   if (pathname.startsWith("/receive")) return "receive";
   if (pathname.startsWith("/pos")) return "pos";
   if (pathname.startsWith("/sales")) return "sales";

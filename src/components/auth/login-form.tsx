@@ -26,11 +26,12 @@ export function LoginForm() {
       toast.success("Signed in");
       const from = searchParams.get("from");
       const dest = result.data.redirectTo;
-      router.push(
-        from && from !== "/login" && !from.startsWith("/admin")
-          ? from
-          : dest,
-      );
+      const safeFrom =
+        from &&
+        from !== "/login" &&
+        from !== "/" &&
+        !from.startsWith("/admin");
+      router.push(safeFrom ? from : dest);
       router.refresh();
     });
   };

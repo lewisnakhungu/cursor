@@ -49,7 +49,7 @@ const ALL_NAV: NavEntry[] = [
   },
   {
     navId: "dashboard",
-    href: "/",
+    href: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
     description: "Expiry & stock overview",
@@ -148,8 +148,8 @@ function SidebarNav({
     >
       {navItems.map((item) => {
         const active =
-          item.href === "/"
-            ? pathname === "/"
+          item.href === "/dashboard"
+            ? pathname === "/dashboard"
             : pathname.startsWith(item.href);
         const Icon = item.icon;
 
@@ -270,7 +270,9 @@ export function AppShellClient({
   }, [mobileNavOpen]);
 
   const activeNav = navItems.find((item) =>
-    item.href === "/" ? pathname === "/" : pathname.startsWith(item.href),
+    item.href === "/dashboard"
+      ? pathname === "/dashboard"
+      : pathname.startsWith(item.href),
   );
 
   const handleLogout = () => {

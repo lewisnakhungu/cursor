@@ -42,7 +42,7 @@ export async function login(
 
     await setSessionCookie(session);
 
-    const redirectTo = session.isPlatformAdmin ? "/admin" : "/";
+    const redirectTo = session.isPlatformAdmin ? "/admin" : "/dashboard";
     return { redirectTo };
   });
 }
@@ -80,7 +80,7 @@ export async function switchActiveFacility(
       }
 
       if (match.facilityId === session.activeFacilityId) {
-        return { redirectTo: "/" };
+        return { redirectTo: "/dashboard" };
       }
 
       const updated = {
@@ -91,7 +91,7 @@ export async function switchActiveFacility(
 
       await setSessionCookie(updated);
 
-      return { redirectTo: "/" };
+      return { redirectTo: "/dashboard" };
     },
     { tenantId: targetFacilityId },
   );

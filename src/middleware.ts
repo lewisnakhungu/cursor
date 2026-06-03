@@ -6,6 +6,10 @@ import { SESSION_COOKIE } from "@/lib/auth/session-types";
 
 const PUBLIC_PATHS = ["/login"];
 
+function appHomeForSession(session: NonNullable<Awaited<ReturnType<typeof verifySessionToken>>>) {
+  return session.isPlatformAdmin ? "/admin" : "/dashboard";
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -23,10 +27,16 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifySessionToken(token) : null;
 
+  if (pathname === "/") {
+    if (session) {
+      return NextResponse.redirect(new URL(appHomeForSession(session), request.url));
+    }
+    return NextResponse.next();
+  }
+
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     if (session) {
-      const dest = session.isPlatformAdmin ? "/admin" : "/";
-      return NextResponse.redirect(new URL(dest, request.url));
+      return NextResponse.redirect(new URL(appHomeForSession(session), request.url));
     }
     return NextResponse.next();
   }
