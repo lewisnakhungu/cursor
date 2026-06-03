@@ -12,6 +12,9 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
+    pathname === "/sw.js" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname.startsWith("/icon-") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();
