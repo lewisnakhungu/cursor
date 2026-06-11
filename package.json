@@ -21,6 +21,7 @@
     "db:neon:multitenant": "tsx prisma/neon-multitenant-setup.ts",
     "db:seed-aliases": "tsx prisma/seed-aliases.ts",
     "db:neon:setup": "tsx prisma/neon-setup.ts",
+    "db:fix-warfarin": "tsx prisma/fix-warfarin.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
