@@ -120,6 +120,7 @@ export async function changeOwnPassword(input: {
       data: {
         passwordHash: await hashPassword(newPassword),
         sessionVersion: { increment: 1 },
+        mustChangePassword: false,
       },
     });
 

@@ -19,6 +19,7 @@ function makeSession(overrides: Partial<SessionPayload> = {}): SessionPayload {
       { facilityId: "t1", facilityName: "Facility One", role: "OWNER" },
     ],
     sessionVersion: 0,
+    mustChangePassword: false,
     ...overrides,
   };
 }

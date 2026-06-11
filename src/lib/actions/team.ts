@@ -105,6 +105,7 @@ export async function addTeamMember(input: {
               name: parsed.name || null,
               passwordHash: await hashPassword(parsed.password),
               isPlatformAdmin: false,
+              mustChangePassword: true,
             },
           }));
 
@@ -244,6 +245,7 @@ export async function resetTeamMemberPassword(input: {
         data: {
           passwordHash: await hashPassword(input.newPassword),
           sessionVersion: { increment: 1 },
+          mustChangePassword: true,
         },
       });
 

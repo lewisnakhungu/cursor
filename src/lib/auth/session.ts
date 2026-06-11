@@ -72,6 +72,7 @@ export async function buildSessionForUser(
       activeRole: null,
       availableFacilities: [],
       sessionVersion: user.sessionVersion,
+      mustChangePassword: user.mustChangePassword,
     };
   }
 
@@ -99,6 +100,7 @@ export async function buildSessionForUser(
     activeRole: active.role,
     availableFacilities,
     sessionVersion: user.sessionVersion,
+    mustChangePassword: user.mustChangePassword,
   };
 }
 

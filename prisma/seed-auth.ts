@@ -53,10 +53,13 @@ async function main(): Promise<void> {
         name: "Platform Admin",
         passwordHash: superHash,
         isPlatformAdmin: true,
+        // Seeded default credentials must be replaced at first sign-in (SS3)
+        mustChangePassword: true,
       },
       update: {
         passwordHash: superHash,
         isPlatformAdmin: true,
+        mustChangePassword: true,
       },
     });
     console.log(`✓ Super user: ${SUPER_EMAIL}`);
@@ -78,8 +81,9 @@ async function main(): Promise<void> {
           name: demo.name,
           passwordHash: hash,
           isPlatformAdmin: false,
+          mustChangePassword: true,
         },
-        update: { name: demo.name, passwordHash: hash },
+        update: { name: demo.name, passwordHash: hash, mustChangePassword: true },
       });
 
       await prisma.membership.upsert({

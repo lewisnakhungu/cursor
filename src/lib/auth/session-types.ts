@@ -28,6 +28,8 @@ export type SessionPayload = {
    * password change/reset or membership removal.
    */
   sessionVersion: number;
+  /** Admin/owner assigned this password — user must set their own before continuing */
+  mustChangePassword: boolean;
 };
 
 export const SESSION_COOKIE = "afyasmart_session";

@@ -14,16 +14,21 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { validatePasswordPolicy } from "@/lib/auth/password-policy";
 import { changeOwnPassword } from "@/lib/actions/auth";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type ChangePasswordDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Set when the password was assigned by an admin/owner — cannot be dismissed */
+  forced?: boolean;
 };
 
 export function ChangePasswordDialog({
   open,
   onOpenChange,
+  forced = false,
 }: ChangePasswordDialogProps) {
+  const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -63,19 +68,30 @@ export function ChangePasswordDialog({
       toast.success(
         "Password updated. Other devices have been signed out.",
       );
+      if (forced) {
+        router.refresh();
+      }
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (forced && !next) return;
+        onOpenChange(next);
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Change password</DialogTitle>
+            <DialogTitle>
+              {forced ? "Set your own password" : "Change password"}
+            </DialogTitle>
             <DialogDescription>
-              Pick a new password of at least 8 characters with a letter and a
-              number. You stay signed in here; all other devices are signed
-              out.
+              {forced
+                ? "Your password was assigned by an administrator. Choose your own before continuing — at least 8 characters with a letter and a number."
+                : "Pick a new password of at least 8 characters with a letter and a number. You stay signed in here; all other devices are signed out."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">
@@ -131,14 +147,16 @@ export function ChangePasswordDialog({
             ) : null}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
+            {!forced && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={pending}
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+            )}
             <Button type="submit" disabled={pending}>
               {pending ? "Saving…" : "Update password"}
             </Button>

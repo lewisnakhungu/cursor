@@ -450,8 +450,11 @@ export function AppShellClient({
       </aside>
 
       <ChangePasswordDialog
-        open={changePasswordOpen}
-        onOpenChange={setChangePasswordOpen}
+        open={changePasswordOpen || session.mustChangePassword}
+        onOpenChange={(open) => {
+          if (!session.mustChangePassword) setChangePasswordOpen(open);
+        }}
+        forced={session.mustChangePassword}
       />
 
       <div className="flex min-h-screen flex-col pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pl-[15.5rem] lg:pt-0">

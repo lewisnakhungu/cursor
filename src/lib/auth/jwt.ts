@@ -87,6 +87,7 @@ function normalizePayload(raw: Record<string, unknown>): SessionPayload | null {
     availableFacilities,
     sessionVersion:
       typeof raw.sessionVersion === "number" ? raw.sessionVersion : 0,
+    mustChangePassword: Boolean(raw.mustChangePassword),
   };
 }
 

@@ -127,20 +127,29 @@ export async function createFacility(input: {
           data: { name, slug },
         });
 
-        const owner = await tx.user.upsert({
+        // SECURITY (same class as H6): never overwrite an existing user's
+        // password when attaching them as owner of a new facility.
+        const existingOwner = await tx.user.findUnique({
           where: { email: ownerEmail },
-          create: {
-            email: ownerEmail,
-            name: input.ownerName?.trim() || null,
-            passwordHash,
-            isPlatformAdmin: false,
-          },
-          update: {
-            name: input.ownerName?.trim() || undefined,
-            passwordHash,
-            isPlatformAdmin: false,
-          },
         });
+        const owner =
+          existingOwner ??
+          (await tx.user.create({
+            data: {
+              email: ownerEmail,
+              name: input.ownerName?.trim() || null,
+              passwordHash,
+              isPlatformAdmin: false,
+              mustChangePassword: true,
+            },
+          }));
+
+        if (owner.isPlatformAdmin) {
+          throw new AppError(
+            "Cannot assign a platform admin as facility owner",
+            "VALIDATION",
+          );
+        }
 
         await tx.membership.upsert({
           where: {
@@ -194,6 +203,7 @@ export async function resetFacilityOwnerPassword(input: {
         data: {
           passwordHash: await hashPassword(input.newPassword),
           sessionVersion: { increment: 1 },
+          mustChangePassword: true,
         },
       });
 
