@@ -24,6 +24,7 @@
 15. [Deploy (Vercel + Neon)](#15-deploy-vercel--neon)
 16. [Known gaps & future work](#16-known-gaps--future-work)
 17. [Related documents](#17-related-documents)
+18. [PWA & Offline Architecture](#18-pwa--offline-architecture)
 
 ---
 
@@ -496,7 +497,6 @@ rm -rf .next && npm run dev
 | Multi-facility per user | One membership per user today |
 | PostgreSQL RLS | App-layer isolation only (optional hardening) |
 | Barcode scan | Not implemented |
-| PWA / offline | Not implemented |
 | Prompt-based password reset UX | Admin/team use `window.prompt`; could be inline forms |
 
 ---
@@ -510,6 +510,41 @@ rm -rf .next && npm run dev
 | [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive deliverables summary |
 | [`README.md`](./README.md) | Quick start |
 | [`.cursorrules`](./.cursorrules) | Dev standards |
+
+---
+
+## 18. PWA & Offline Architecture
+
+AfyaSmart-Stock features a full-fledged offline data layer that allows Level 2–4 health facilities to execute their core POS workflows during internet connectivity blackouts. 
+
+### 18.1 Service Worker & Asset Caching (`public/sw.js`)
+* **Static Assets:** The service worker caches static Next.js assets (`/_next/static/*`) using a stale-while-revalidate strategy. This ensures JS bundles, CSS, and fonts are preserved in local storage and load instantaneously.
+* **Shell Pre-caching:** Install-time pre-caching is applied to static shell paths (`/`, `/login`, `/offline`, `/icon.svg`, `/apple-icon.svg`).
+* **Offline Fallback Route:** If navigation requests fail and no cache is present, the Service Worker intercepts the request and serves a dedicated, cached static `/offline` page.
+
+### 18.2 IndexedDB Schema (`src/lib/offline/db.ts`)
+We use a versioned IndexedDB database `"afyasmart-offline"` to store local state:
+1. `catalog_medicines`: Cached KEML medicines with the `searchKey` index (prefix-scan matching).
+2. `tenant_stock`: Cached batch inventory keyed by `[tenantId, batchId]`, indexed by `[tenantId, medicineId, expiryDate]` for FEFO query execution.
+3. `pending_queue`: Pending sales/inventory operations keyed by local autoincrement ID, indexed by `[tenantId, createdAt]` and `status`.
+4. `sync_meta`: Last cached/synced timestamps for data freshness tracking.
+
+### 18.3 Offline Data Caches & Queue
+* **Catalog Cache (`catalog-cache.ts`):** Bulk-seeds KEML medicines from `/api/offline/catalog` on first load/online event. Offline prefix scans are run using `IDBKeyRange.bound(query, query + "\uffff")`.
+* **Stock Cache (`stock-cache.ts`):** Automatically caches batches returned by online catalog searches. Optimistic stock levels are decremented immediately when an offline sale is completed, and rolled back if a server sync rejects the sale.
+* **Sync Queue (`sync-queue.ts`):** Manages offline operations using lifecycle states: `pending` → `syncing` → `synced` / `failed`. Aborts items older than 24 hours to prevent stale dispenses.
+
+### 18.4 Offline POS Workflow
+1. **Network Detection:** The POS client detects connection status via the custom hook `useNetworkStatus()` (which listens to `online` and `offline` browser events).
+2. **Catalog Lookup:** Automatically falls back to IndexedDB scan `searchOfflineCatalog(db, query)` if offline.
+3. **Batch FEFO Picker:** If offline, queries cached batches sorted by nearest expiry date via `getOfflineBatchesForMedicine(db, tenantId, medicineId)`.
+4. **Offline Dispense (`offline-dispense.ts`):** Calculates FEFO allocations client-side using `allocateFefo()`. If stock is sufficient, decrements local stock cache, generates a local receipt (`LOCAL-YYYYMMDD-NNN`), queues the operation in IDB, and triggers service worker Background Sync with the `"dispense-sync"` tag.
+5. **Offline Receipt (`dispense-receipt.tsx`):** Displays a local-only receipt template with a yellow "Offline sale recorded" banner, disables print functionality, and appends a footer indicating sync is pending.
+
+### 18.5 Sync API & Conflict Resolution
+* **Sync Route (`POST /api/offline/sync`):** The client flushes queued operations to this API upon reconnection. It validates user session tenancy, processes operations serially, and runs server-authoritative Prisma transactions (re-running FEFO verification and stock updates).
+* **Sync Status Badge (`sync-status-badge.tsx`):** A client component visible in the app shell that displays the network state, pending operation counts, and sync status. It triggers automatic queue flushes on reconnect.
+* **Conflict Resolution:** If the server rejects an offline sale (e.g. concurrent online checkout depleted the batch), the queue entry is marked `failed` with the server error, local stock decrement is rolled back, and the user is alerted to review the discrepancy.
 
 ---
 
