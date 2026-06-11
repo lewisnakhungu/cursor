@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
 import {
   BarChart3,
@@ -285,6 +292,42 @@ export function AppShellClient({
     };
   }, [mobileNavOpen]);
 
+  const drawerRef = useRef<HTMLElement | null>(null);
+
+  // Drawer a11y (QA-M3, QA-L2): Escape closes, Tab cycles within the drawer.
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const drawer = drawerRef.current;
+    const focusables = () =>
+      drawer?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [];
+
+    focusables()[0]?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeMobileNav();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileNavOpen, closeMobileNav]);
+
   const activeNav = navItems.find((item) =>
     item.href === "/dashboard"
       ? pathname === "/dashboard"
@@ -301,6 +344,12 @@ export function AppShellClient({
 
   return (
     <div className="min-h-screen bg-[hsl(var(--shell-bg))]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
       <header
         className="fixed inset-x-0 top-0 z-50 flex items-center gap-2 border-b border-border/80 bg-[hsl(var(--sidebar-bg))]/95 px-3 backdrop-blur-md lg:hidden"
         style={{
@@ -348,6 +397,7 @@ export function AppShellClient({
 
       <aside
         id="mobile-nav-drawer"
+        ref={drawerRef}
         className={cn(
           "fixed bottom-0 left-0 top-0 z-50 flex w-[min(18rem,88vw)] flex-col border-r border-border/80 bg-[hsl(var(--sidebar-bg))] shadow-xl transition-transform duration-200 ease-out lg:hidden",
           mobileNavOpen
@@ -437,6 +487,8 @@ export function AppShellClient({
           )}
 
           <main
+            id="main-content"
+            tabIndex={-1}
             className={cn(
               "flex-1 px-4 py-4 sm:px-6 sm:py-6",
               "pb-[max(1rem,env(safe-area-inset-bottom))]",

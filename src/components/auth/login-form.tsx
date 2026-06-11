@@ -13,14 +13,18 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     startTransition(async () => {
       const result = await login(email, password);
       if (!result.success) {
-        toast.error(result.error);
+        // Inline error (QA-H4): persistent + announced to screen readers,
+        // unlike a transient toast.
+        setError(result.error);
         return;
       }
       toast.success("Signed in");
@@ -65,6 +69,11 @@ export function LoginForm() {
           disabled={pending}
         />
       </div>
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Signing in…" : "Sign in"}
       </Button>
