@@ -19,6 +19,7 @@ export default defineConfig({
         "src/lib/auth/rate-limit.ts",
         "src/lib/auth/password-policy.ts",
         "src/stores/cart-store.ts",
+        "src/lib/offline/offline-dispense.ts",
       ],
     },
   },
