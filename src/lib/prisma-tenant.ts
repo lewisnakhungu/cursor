@@ -1,93 +1,11 @@
 import { prisma } from "@/lib/prisma";
-
-function mergeTenantWhere(
-  where: Record<string, unknown> | undefined,
-  tenantId: string,
-): Record<string, unknown> {
-  if (!where) {
-    return { tenantId };
-  }
-  return { AND: [where, { tenantId }] };
-}
-
-function injectTenantIntoData(
-  data: Record<string, unknown> | Record<string, unknown>[],
-  tenantId: string,
-): Record<string, unknown> | Record<string, unknown>[] {
-  if (Array.isArray(data)) {
-    return data.map((row) => ({ ...row, tenantId }));
-  }
-  return { ...data, tenantId };
-}
-
-const scopedWhereOps = new Set([
-  "findMany",
-  "findFirst",
-  "findFirstOrThrow",
-  "update",
-  "updateMany",
-  "updateManyAndReturn",
-  "delete",
-  "deleteMany",
-  "count",
-  "aggregate",
-  "groupBy",
-]);
-
-const scopedCreateOps = new Set([
-  "create",
-  "createMany",
-  "createManyAndReturn",
-]);
+import { scopeQueryArgs } from "@/lib/tenant-scope";
 
 type ScopedQueryArgs = {
   operation: string;
   args: Record<string, unknown>;
   query: (args: Record<string, unknown>) => Promise<unknown>;
 };
-
-function scopeQueryArgs(
-  args: ScopedQueryArgs,
-  tenantId: string,
-): Record<string, unknown> {
-  const { operation } = args;
-  const nextArgs = { ...args.args };
-
-  if (scopedWhereOps.has(operation)) {
-    nextArgs.where = mergeTenantWhere(
-      nextArgs.where as Record<string, unknown> | undefined,
-      tenantId,
-    );
-  }
-
-  if (scopedCreateOps.has(operation) && nextArgs.data !== undefined) {
-    nextArgs.data = injectTenantIntoData(
-      nextArgs.data as Record<string, unknown> | Record<string, unknown>[],
-      tenantId,
-    );
-  }
-
-  if (operation === "upsert") {
-    nextArgs.where = mergeTenantWhere(
-      nextArgs.where as Record<string, unknown> | undefined,
-      tenantId,
-    );
-    if (nextArgs.create !== undefined) {
-      nextArgs.create = injectTenantIntoData(
-        nextArgs.create as Record<string, unknown>,
-        tenantId,
-      );
-    }
-    if (nextArgs.update !== undefined) {
-      nextArgs.update = {
-        ...(nextArgs.update as Record<string, unknown>),
-        tenantId,
-      };
-    }
-  }
-
-  return nextArgs;
-}
 
 function tenantModelExtension(tenantId: string) {
   return {
@@ -96,7 +14,7 @@ function tenantModelExtension(tenantId: string) {
       args,
       query,
     }: ScopedQueryArgs) {
-      return query(scopeQueryArgs({ operation, args, query }, tenantId));
+      return query(scopeQueryArgs({ operation, args }, tenantId));
     },
   };
 }
@@ -112,6 +30,11 @@ function createTenantClient(tenantId: string) {
   });
 }
 
+/**
+ * Bounded cache: FIFO eviction keeps memory flat with many tenants.
+ * Recreating a client is cheap (extension over the singleton base client).
+ */
+const MAX_CACHED_TENANT_CLIENTS = 100;
 const tenantClientCache = new Map<string, ReturnType<typeof createTenantClient>>();
 
 export type TenantPrismaClient = ReturnType<typeof createTenantClient>;
@@ -119,12 +42,14 @@ export type TenantPrismaClient = ReturnType<typeof createTenantClient>;
 /**
  * Prisma client that scopes stockBatch, sale, and saleLine to one tenant.
  * Medicine / MedicineAlias stay on the base `prisma` client (shared KEML catalog).
- *
- * Use findFirst (not findUnique) when loading by id + tenant scope.
  */
 export function getTenantPrisma(tenantId: string): TenantPrismaClient {
   let client = tenantClientCache.get(tenantId);
   if (!client) {
+    if (tenantClientCache.size >= MAX_CACHED_TENANT_CLIENTS) {
+      const oldest = tenantClientCache.keys().next().value;
+      if (oldest !== undefined) tenantClientCache.delete(oldest);
+    }
     client = createTenantClient(tenantId);
     tenantClientCache.set(tenantId, client);
   }
