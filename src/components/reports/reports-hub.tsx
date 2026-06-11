@@ -2,8 +2,9 @@
 
 import { useCallback, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { FileText, Package, Printer } from "lucide-react";
+import { Download, FileText, Package, Printer } from "lucide-react";
 import { getSalesReport, getStockReport } from "@/lib/actions/reports";
+import { downloadCsv, salesReportCsv, stockReportCsv } from "@/lib/csv";
 import { SalesReportDocument } from "@/components/reports/sales-report-document";
 import { StockReportDocument } from "@/components/reports/stock-report-document";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,23 @@ export function ReportsHub() {
 
   const clearReport = () => setActive(null);
 
+  const handleExportCsv = useCallback(() => {
+    if (!active) {
+      toast.error("Generate a report first");
+      return;
+    }
+    const stamp = new Date().toISOString().slice(0, 10);
+    if (active.type === "sales") {
+      downloadCsv(
+        `sales-report-${active.data.periodDays}d-${stamp}.csv`,
+        salesReportCsv(active.data),
+      );
+    } else {
+      downloadCsv(`stock-report-${stamp}.csv`, stockReportCsv(active.data));
+    }
+    toast.success("CSV downloaded");
+  }, [active]);
+
   return (
     <>
       <div className="print:hidden">
@@ -59,6 +77,15 @@ export function ReportsHub() {
           <div className="mb-4 flex flex-wrap justify-end gap-2">
             <Button variant="outline" onClick={clearReport} disabled={loading}>
               Clear
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleExportCsv}
+              disabled={loading}
+              className="min-h-11"
+            >
+              <Download className="mr-2 size-4" />
+              Export CSV
             </Button>
             <Button onClick={handlePrint} disabled={loading} className="min-h-11">
               <Printer className="mr-2 size-4" />
@@ -121,10 +148,20 @@ export function ReportsHub() {
             <section className="pharmacy-panel mt-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <h2 className="text-base font-semibold">Preview</h2>
-                <Button onClick={handlePrint} className="min-h-11">
-                  <Printer className="mr-2 size-4" />
-                  Print this report
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleExportCsv}
+                    className="min-h-11"
+                  >
+                    <Download className="mr-2 size-4" />
+                    Export CSV
+                  </Button>
+                  <Button onClick={handlePrint} className="min-h-11">
+                    <Printer className="mr-2 size-4" />
+                    Print this report
+                  </Button>
+                </div>
               </div>
               <div className="max-h-[70vh] overflow-auto rounded-lg border bg-white shadow-inner">
                 <div ref={printRef}>
