@@ -11,16 +11,18 @@ export async function runAction<T>(
     const data = await fn();
     return { success: true, data };
   } catch (error: unknown) {
+    if (error instanceof AppError) {
+      // Expected business conditions (validation, auth, stock) are not
+      // exceptions — keep Sentry signal clean.
+      return { success: false, error: error.message, code: error.code };
+    }
+
     Sentry.captureException(error, {
       tags: {
         action: actionName,
         ...(context?.tenantId ? { tenantId: context.tenantId } : {}),
       },
     });
-
-    if (error instanceof AppError) {
-      return { success: false, error: error.message, code: error.code };
-    }
 
     return { success: false, error: getErrorMessage(error), code: "INTERNAL" };
   }

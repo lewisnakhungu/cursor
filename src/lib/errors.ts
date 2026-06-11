@@ -39,11 +39,7 @@ export function getErrorMessage(error: unknown): string {
     );
     if (mapped) return mapped;
   }
-  if (error instanceof Error) {
-    if (error.message.includes("Sale record missing after dispense")) {
-      return "Dispense could not be saved for this facility. Sign out and back in, then retry.";
-    }
-    return error.message;
-  }
-  return "An unexpected error occurred";
+  // SECURITY: never surface raw error messages (Prisma internals, SQL,
+  // stack hints) to the client. Full details go to Sentry server-side.
+  return "Something went wrong. Please try again or contact support.";
 }
