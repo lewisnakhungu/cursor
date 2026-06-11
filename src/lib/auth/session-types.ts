@@ -22,6 +22,12 @@ export type SessionPayload = {
   activeRole: TenantRole | null;
   /** All sites this user has membership roles for */
   availableFacilities: FacilityMembership[];
+  /**
+   * Mirrors User.sessionVersion at sign-in time. Server-side guards reject
+   * tokens whose version is stale, force-logging-out all devices after a
+   * password change/reset or membership removal.
+   */
+  sessionVersion: number;
 };
 
 export const SESSION_COOKIE = "afyasmart_session";

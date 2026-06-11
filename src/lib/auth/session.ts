@@ -71,6 +71,7 @@ export async function buildSessionForUser(
       activeFacilityId: null,
       activeRole: null,
       availableFacilities: [],
+      sessionVersion: user.sessionVersion,
     };
   }
 
@@ -97,13 +98,33 @@ export async function buildSessionForUser(
     activeFacilityId: active.facilityId,
     activeRole: active.role,
     availableFacilities,
+    sessionVersion: user.sessionVersion,
   };
 }
 
+/**
+ * Server-side revocation check (audit H1): a JWT is only honored while its
+ * sessionVersion matches the DB. Password changes/resets and membership
+ * removals bump the version, force-logging-out every device immediately
+ * (the edge middleware still does the cheap signature/expiry check only).
+ */
 export async function requireSession(): Promise<SessionPayload> {
   const session = await getSession();
   if (!session) {
     throw new AppError("Sign in required", "UNAUTHORIZED");
   }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { sessionVersion: true },
+  });
+
+  if (!user || user.sessionVersion !== session.sessionVersion) {
+    throw new AppError(
+      "Your session is no longer valid. Please sign in again.",
+      "UNAUTHORIZED",
+    );
+  }
+
   return session;
 }

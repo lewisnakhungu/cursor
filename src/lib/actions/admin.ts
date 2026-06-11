@@ -191,7 +191,10 @@ export async function resetFacilityOwnerPassword(input: {
 
       await prisma.user.update({
         where: { id: membership.user.id },
-        data: { passwordHash: await hashPassword(input.newPassword) },
+        data: {
+          passwordHash: await hashPassword(input.newPassword),
+          sessionVersion: { increment: 1 },
+        },
       });
 
       return { ok: true };

@@ -40,6 +40,8 @@ model User {
   passwordHash    String?
   name            String?
   isPlatformAdmin Boolean      @default(false)
+  /** Bumped on password change/reset and membership removal to invalidate old JWTs */
+  sessionVersion  Int          @default(0)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   memberships     Membership[]

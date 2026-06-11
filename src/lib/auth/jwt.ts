@@ -5,7 +5,8 @@ import type {
   SessionPayload,
 } from "@/lib/auth/session-types";
 
-const SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+// 24h TTL (audit H1): limits the window a stolen/stale token stays valid.
+const SESSION_MAX_AGE_SEC = 60 * 60 * 24;
 
 const VALID_ROLES = new Set<TenantRole>(["OWNER", "DEPUTY", "DISPENSER"]);
 
@@ -84,6 +85,8 @@ function normalizePayload(raw: Record<string, unknown>): SessionPayload | null {
     activeFacilityId,
     activeRole,
     availableFacilities,
+    sessionVersion:
+      typeof raw.sessionVersion === "number" ? raw.sessionVersion : 0,
   };
 }
 
