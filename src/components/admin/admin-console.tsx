@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { validatePasswordPolicy } from "@/lib/auth/password-policy";
 
 type ResetOwnerTarget = { tenantId: string; facilityName: string };
 
@@ -54,6 +55,15 @@ export function AdminConsole() {
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    const policyError = validatePasswordPolicy(ownerPassword);
+    if (policyError) {
+      toast.error(policyError);
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(slug.trim().toLowerCase())) {
+      toast.error("Slug may only contain lowercase letters, numbers, and hyphens");
+      return;
+    }
     startMutate(async () => {
       const res = await createFacility({
         name,
@@ -128,37 +138,66 @@ export function AdminConsole() {
           onSubmit={handleCreate}
           className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
         >
-          <Input
-            placeholder="Facility name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            placeholder="Slug (e.g. kakamega)"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
-          />
-          <Input
-            type="email"
-            placeholder="Owner email"
-            value={ownerEmail}
-            onChange={(e) => setOwnerEmail(e.target.value)}
-            required
-          />
-          <Input
-            placeholder="Owner name (optional)"
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
-          />
-          <PasswordInput
-            placeholder="Owner initial password"
-            value={ownerPassword}
-            onChange={(e) => setOwnerPassword(e.target.value)}
-            required
-          />
-          <Button type="submit" disabled={pending}>
+          <div className="space-y-1">
+            <label htmlFor="facility-name" className="text-sm font-medium">
+              Facility name
+            </label>
+            <Input
+              id="facility-name"
+              placeholder="e.g. Afya Chemist Kakamega"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="facility-slug" className="text-sm font-medium">
+              Slug
+            </label>
+            <Input
+              id="facility-slug"
+              placeholder="e.g. kakamega"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="owner-email" className="text-sm font-medium">
+              Owner email
+            </label>
+            <Input
+              id="owner-email"
+              type="email"
+              placeholder="owner@pharmacy.co.ke"
+              value={ownerEmail}
+              onChange={(e) => setOwnerEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="owner-name" className="text-sm font-medium">
+              Owner name <span className="text-muted-foreground">(optional)</span>
+            </label>
+            <Input
+              id="owner-name"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="owner-password" className="text-sm font-medium">
+              Owner initial password
+            </label>
+            <PasswordInput
+              id="owner-password"
+              autoComplete="new-password"
+              value={ownerPassword}
+              onChange={(e) => setOwnerPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" disabled={pending} className="self-end">
             Create facility
           </Button>
         </form>

@@ -76,6 +76,10 @@ export function SalesDashboardClient() {
       toast.error("Enter a valid quantity (0 to void line)");
       return;
     }
+    if (reason.trim().length < 3) {
+      toast.error("Audit reason is required (at least 3 characters)");
+      return;
+    }
 
     startCorrect(async () => {
       const response = await correctSaleLine({

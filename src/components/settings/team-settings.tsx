@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { validatePasswordPolicy } from "@/lib/auth/password-policy";
 
 type ResetStaffTarget = { membershipId: string; email: string };
 
@@ -68,6 +69,11 @@ export function TeamSettings() {
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
+    const policyError = validatePasswordPolicy(password);
+    if (policyError) {
+      toast.error(policyError);
+      return;
+    }
     startTransition(async () => {
       const res = await addTeamMember({
         email,
@@ -195,35 +201,58 @@ export function TeamSettings() {
             onSubmit={handleAdd}
             className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
           >
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <Input
-              placeholder="Name (optional)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <select
-              className="flex h-10 rounded-md border border-input bg-background px-3 text-sm"
-              value={role}
-              onChange={(e) =>
-                setRole(e.target.value as "DEPUTY" | "DISPENSER")
-              }
-            >
-              <option value="DEPUTY">Deputy — receive &amp; reports</option>
-              <option value="DISPENSER">Dispenser — POS only</option>
-            </select>
-            <PasswordInput
-              placeholder="Initial password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <Button type="submit" disabled={pending}>
+            <div className="space-y-1">
+              <label htmlFor="staff-email" className="text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="staff-email"
+                type="email"
+                placeholder="staff@pharmacy.co.ke"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="staff-name" className="text-sm font-medium">
+                Name <span className="text-muted-foreground">(optional)</span>
+              </label>
+              <Input
+                id="staff-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="staff-role" className="text-sm font-medium">
+                Role
+              </label>
+              <select
+                id="staff-role"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={role}
+                onChange={(e) =>
+                  setRole(e.target.value as "DEPUTY" | "DISPENSER")
+                }
+              >
+                <option value="DEPUTY">Deputy — receive &amp; reports</option>
+                <option value="DISPENSER">Dispenser — POS only</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="staff-password" className="text-sm font-medium">
+                Initial password
+              </label>
+              <PasswordInput
+                id="staff-password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={pending} className="self-end">
               Add member
             </Button>
           </form>
