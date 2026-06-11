@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Offline — AfyaSmart-Stock</title>
+  <style>
+    :root {
+      --background: 224 71% 4%;
+      --foreground: 213 31% 91%;
+      --muted: 215 20% 65%;
+      --muted-foreground: 215 20% 65%;
+      --card: 224 71% 4%;
+      --card-foreground: 213 31% 91%;
+      --border: 216 34% 17%;
+      --primary: 142 76% 36%;
+      --primary-foreground: 144 80% 10%;
+      --amber: 38 92% 50%;
+      --amber-foreground: 38 92% 10%;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: hsl(222.2, 84%, 4.9%);
+      color: hsl(210, 40%, 98%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .icon-wrapper {
+      display: flex;
+      height: 4.5rem;
+      width: 4.5rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1.25rem;
+      background-color: rgba(245, 158, 11, 0.1);
+      color: hsl(38, 92%, 50%);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.05);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .icon-wrapper.online {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: hsl(142, 76%, 36%);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: hsl(215, 20.2%, 65.1%);
+      margin-top: 0.25rem;
+    }
+
+    .card {
+      background-color: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: hsl(215, 20.2%, 65.1%);
+      margin-bottom: 0.25rem;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .item svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+    }
+
+    .item.available {
+      color: hsl(210, 40%, 98%);
+    }
+
+    .item.available svg {
+      color: hsl(142, 76%, 36%);
+    }
+
+    .item.unavailable {
+      color: rgba(215, 20.2%, 65.1%, 0.6);
+    }
+
+    .item.unavailable svg {
+      color: rgba(215, 20.2%, 65.1%, 0.3);
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      background-color: rgba(245, 158, 11, 0.05);
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+      color: hsl(38, 92%, 60%);
+      line-height: 1.4;
+    }
+
+    .badge svg {
+      width: 1.125rem;
+      height: 1.125rem;
+      flex-shrink: 0;
+    }
+
+    .status-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: hsl(215, 20.2%, 65.1%);
+    }
+
+    .dot {
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: hsl(38, 92%, 50%);
+    }
+
+    .dot.online {
+      background-color: hsl(142, 76%, 36%);
+    }
+
+    .dot.pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      height: 2.75rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background-color: transparent;
+      color: hsl(210, 40%, 98%);
+    }
+
+    .button:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div id="statusIcon" class="icon-wrapper">
+        <!-- Wifi Off Icon -->
+        <svg id="wifiOffIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.5"></path>
+          <path d="M5 12.5a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        <!-- Wifi On Icon (Hidden initially) -->
+        <svg id="wifiOnIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12.5a10.87 10.87 0 0 1 14 0"></path>
+          <path d="M8.5 16.5a5.88 5.88 0 0 1 7 0"></path>
+          <path d="M2.13 8.75a15.91 15.91 0 0 1 19.74 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+      </div>
+
+      <div>
+        <h1 id="statusTitle" class="title">You're offline</h1>
+        <p id="statusSubtitle" class="subtitle">AfyaSmart-Stock is running in offline mode.</p>
+      </div>
+    </div>
+
+    <!-- Capabilities -->
+    <div id="capabilitiesCard" class="card">
+      <p class="card-title">Offline capabilities</p>
+      <div class="item available">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Dispense from cached stock</span>
+      </div>
+      <div class="item available">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Medicine search (cached catalog)</span>
+      </div>
+      <div class="item unavailable">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span>Receive new inventory</span>
+      </div>
+      <div class="item unavailable">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span>Sales reports & insights</span>
+      </div>
+    </div>
+
+    <!-- Pending Sync Info -->
+    <div id="pendingSyncBadge" class="badge" style="display: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span><strong id="pendingCount">0</strong> sales pending sync — will upload automatically when you reconnect.</span>
+    </div>
+
+    <!-- Status indicator footer -->
+    <div id="statusFooter" class="status-text">
+      <span id="statusDot" class="dot pulse"></span>
+      <span id="statusLabel">No network detected</span>
+    </div>
+
+    <!-- POS Button -->
+    <a href="/pos" class="button">Go to Dispense (offline)</a>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // IndexedDB Pending Count Reader
+    // -------------------------------------------------------------------------
+    function updatePendingCount() {
+      try {
+        const req = indexedDB.open("afyasmart-offline");
+        req.onsuccess = function() {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("pending_queue")) {
+            db.close();
+            return;
+          }
+          const tx = db.transaction("pending_queue", "readonly");
+          const store = tx.objectStore("pending_queue");
+          const idx = store.index("byStatus");
+          const countReq = idx.count(IDBKeyRange.only("pending"));
+          
+          countReq.onsuccess = function() {
+            const count = countReq.result;
+            const badge = document.getElementById("pendingSyncBadge");
+            const countSpan = document.getElementById("pendingCount");
+            if (count > 0) {
+              countSpan.textContent = count;
+              badge.style.display = "flex";
+            } else {
+              badge.style.display = "none";
+            }
+            db.close();
+          };
+          countReq.onerror = function() {
+            db.close();
+          };
+        };
+      } catch (e) {
+        console.error("IndexedDB read error:", e);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Reconnect Listeners & Redirection
+    // -------------------------------------------------------------------------
+    function checkConnection() {
+      const isOnline = navigator.onLine;
+      const statusIcon = document.getElementById("statusIcon");
+      const wifiOff = document.getElementById("wifiOffIcon");
+      const wifiOn = document.getElementById("wifiOnIcon");
+      const title = document.getElementById("statusTitle");
+      const subtitle = document.getElementById("statusSubtitle");
+      const capabilities = document.getElementById("capabilitiesCard");
+      const footerLabel = document.getElementById("statusLabel");
+      const footerDot = document.getElementById("statusDot");
+
+      if (isOnline) {
+        // Switch visual representation to online
+        statusIcon.classList.add("online");
+        wifiOff.style.display = "none";
+        wifiOn.style.display = "block";
+        title.textContent = "Connection restored";
+        subtitle.textContent = "Redirecting you back to the dashboard…";
+        capabilities.style.display = "none";
+        
+        footerLabel.textContent = "Network restored";
+        footerDot.className = "dot online";
+
+        // Redirect after a brief moment
+        setTimeout(function() {
+          window.location.replace("/");
+        }, 1200);
+      } else {
+        statusIcon.classList.remove("online");
+        wifiOff.style.display = "block";
+        wifiOn.style.display = "none";
+        title.textContent = "You're offline";
+        subtitle.textContent = "AfyaSmart-Stock is running in offline mode.";
+        capabilities.style.display = "flex";
+
+        footerLabel.textContent = "No network detected";
+        footerDot.className = "dot pulse";
+      }
+    }
+
+    // Run updates on mount
+    updatePendingCount();
+    checkConnection();
+
+    // Event listeners
+    window.addEventListener("online", checkConnection);
+    window.addEventListener("offline", checkConnection);
+  </script>
+</body>
+</html>

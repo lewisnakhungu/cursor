@@ -11,12 +11,12 @@
  * The activate handler deletes all older caches automatically.
  */
 
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const SHELL_CACHE = `afyasmart-shell-v${CACHE_VERSION}`;
 const STATIC_CACHE = `afyasmart-static-v${CACHE_VERSION}`;
 
 /** App-shell pages pre-cached at install time. */
-const SHELL_ASSETS = ["/", "/login", "/offline", "/icon.svg", "/apple-icon.svg"];
+const SHELL_ASSETS = ["/", "/login", "/offline.html", "/icon.svg", "/apple-icon.svg"];
 
 // ---------------------------------------------------------------------------
 // Install — pre-cache shell assets
@@ -144,7 +144,7 @@ async function networkFirstNavigate(request) {
     if (cached) return cached;
 
     // Last resort: serve the offline page.
-    const offline = await caches.match("/offline");
+    const offline = await caches.match("/offline.html");
     return offline ?? new Response("You are offline", { status: 503 });
   }
 }
