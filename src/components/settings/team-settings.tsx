@@ -79,7 +79,13 @@ export function TeamSettings() {
         toast.error(res.error);
         return;
       }
-      toast.success("Team member added");
+      if (res.data.existingUser) {
+        toast.success(
+          "Existing user added to your team — their current password is unchanged",
+        );
+      } else {
+        toast.success("Team member added");
+      }
       setEmail("");
       setName("");
       setPassword("");

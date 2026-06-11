@@ -11,6 +11,7 @@ import type { TenantRole } from "@/generated/prisma/client";
 import { AppError } from "@/lib/errors";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { addTeamMemberSchema, parseInput } from "@/lib/validation";
 
 export type TeamMemberView = {
   membershipId: string;
@@ -64,20 +65,15 @@ export async function addTeamMember(input: {
   name?: string;
   role: "DEPUTY" | "DISPENSER";
   password: string;
-}): Promise<ActionResult<{ membershipId: string }>> {
+}): Promise<ActionResult<{ membershipId: string; existingUser: boolean }>> {
   const session = await requireFacilityOwner();
   return runAction(
     "addTeamMember",
     async () => {
-      const email = input.email.trim().toLowerCase();
-      if (!email) {
-        throw new AppError("Email is required", "VALIDATION");
-      }
-      if (!STAFF_ROLES.includes(input.role)) {
-        throw new AppError("Invalid role", "VALIDATION");
-      }
+      const parsed = parseInput(addTeamMemberSchema, input);
+      const { email, role } = parsed;
 
-      const passwordError = validatePasswordPolicy(input.password);
+      const passwordError = validatePasswordPolicy(parsed.password);
       if (passwordError) {
         throw new AppError(passwordError, "VALIDATION");
       }
@@ -96,22 +92,21 @@ export async function addTeamMember(input: {
         );
       }
 
-      const passwordHash = await hashPassword(input.password);
+      const result = await prisma.$transaction(async (tx) => {
+        // SECURITY: never overwrite an existing user's password or name —
+        // an owner at another facility must not be able to hijack the account.
+        const existingUser = await tx.user.findUnique({ where: { email } });
 
-      const membership = await prisma.$transaction(async (tx) => {
-        const user = await tx.user.upsert({
-          where: { email },
-          create: {
-            email,
-            name: input.name?.trim() || null,
-            passwordHash,
-            isPlatformAdmin: false,
-          },
-          update: {
-            name: input.name?.trim() || undefined,
-            passwordHash,
-          },
-        });
+        const user =
+          existingUser ??
+          (await tx.user.create({
+            data: {
+              email,
+              name: parsed.name || null,
+              passwordHash: await hashPassword(parsed.password),
+              isPlatformAdmin: false,
+            },
+          }));
 
         if (user.isPlatformAdmin) {
           throw new AppError("Cannot add platform admin as staff", "VALIDATION");
@@ -133,16 +128,21 @@ export async function addTeamMember(input: {
           throw new AppError("User is already on this team", "VALIDATION");
         }
 
-        return tx.membership.create({
+        const membership = await tx.membership.create({
           data: {
             tenantId: session.activeFacilityId!,
             userId: user.id,
-            role: input.role,
+            role,
           },
         });
+
+        return { membership, existingUser: existingUser !== null };
       });
 
-      return { membershipId: membership.id };
+      return {
+        membershipId: result.membership.id,
+        existingUser: result.existingUser,
+      };
     },
     { tenantId: session.activeFacilityId! },
   );
@@ -198,7 +198,15 @@ export async function removeTeamMember(
         throw new AppError("Team member not found", "NOT_FOUND");
       }
 
-      await prisma.membership.delete({ where: { id: membership.id } });
+      await prisma.$transaction([
+        prisma.membership.delete({ where: { id: membership.id } }),
+        // Invalidate the removed member's sessions so a departed employee
+        // loses access immediately instead of when their JWT expires.
+        prisma.user.update({
+          where: { id: membership.userId },
+          data: { sessionVersion: { increment: 1 } },
+        }),
+      ]);
       return { ok: true };
     },
     { tenantId: session.activeFacilityId! },
@@ -233,7 +241,10 @@ export async function resetTeamMemberPassword(input: {
 
       await prisma.user.update({
         where: { id: membership.user.id },
-        data: { passwordHash: await hashPassword(input.newPassword) },
+        data: {
+          passwordHash: await hashPassword(input.newPassword),
+          sessionVersion: { increment: 1 },
+        },
       });
 
       return { ok: true };
