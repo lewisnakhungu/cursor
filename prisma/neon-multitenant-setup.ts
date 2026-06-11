@@ -42,10 +42,21 @@ async function main(): Promise<void> {
     await pool.end();
   }
 
-  execSync("npx prisma db push --accept-data-loss", {
-    stdio: "inherit",
-    env: { ...process.env, DATABASE_URL: databaseUrl },
-  });
+  // Destructive flag requires explicit opt-in: CONFIRM_DATA_LOSS=1
+  const acceptDataLoss = process.env.CONFIRM_DATA_LOSS === "1";
+  if (!acceptDataLoss) {
+    console.warn(
+      "Running db push WITHOUT --accept-data-loss. " +
+        "If push fails on destructive changes, re-run with CONFIRM_DATA_LOSS=1.",
+    );
+  }
+  execSync(
+    `npx prisma db push${acceptDataLoss ? " --accept-data-loss" : ""}`,
+    {
+      stdio: "inherit",
+      env: { ...process.env, DATABASE_URL: databaseUrl },
+    },
+  );
 
   const pool2 = new Pool({ connectionString: databaseUrl });
   const prisma2 = new PrismaClient({ adapter: new PrismaPg(pool2) });
