@@ -8,6 +8,7 @@ import { InsufficientStockError, AppError } from "@/lib/errors";
 import type { StockUnitCode } from "@/lib/stock-unit";
 import type { ActionResult, CartDispenseItem, DispenseResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { withTransientRetry } from "@/lib/db-retry";
 import {
   cartDispenseSchema,
   correctSaleLineSchema,
@@ -34,8 +35,10 @@ export async function dispenseMedicine(
 
       // Use base prisma.$transaction (not tenant-extended db.$transaction).
       // Prisma query extensions can run outside the interactive tx and write wrong tenantId.
-      const saleId = await prisma.$transaction(
-        async (tx) => {
+      // The whole transaction rolls back on conflict, so retrying is safe (audit M7).
+      const saleId = await withTransientRetry(() =>
+        prisma.$transaction(
+          async (tx) => {
           const sale = await tx.sale.create({
             data: { tenantId, totalAmount: 0 },
           });
@@ -152,13 +155,14 @@ export async function dispenseMedicine(
           });
 
           return sale.id;
-        },
-        {
-          // ReadCommitted + FOR UPDATE row locks; Serializable often fails on Neon/serverless.
-          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-          maxWait: 10_000,
-          timeout: 30_000,
-        },
+          },
+          {
+            // ReadCommitted + FOR UPDATE row locks; Serializable often fails on Neon/serverless.
+            isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+            maxWait: 10_000,
+            timeout: 30_000,
+          },
+        ),
       );
 
       const sale = await db.sale.findFirst({
@@ -217,8 +221,9 @@ export async function correctSaleLine(
       } = parseInput(correctSaleLineSchema, input);
 
       const { tenantId } = ctx;
-      const saleId = await prisma.$transaction(
-        async (tx) => {
+      const saleId = await withTransientRetry(() =>
+        prisma.$transaction(
+          async (tx) => {
           const line = await tx.saleLine.findFirst({
             where: { id: saleLineId, tenantId },
             include: { sale: true },
@@ -290,12 +295,13 @@ export async function correctSaleLine(
           });
 
           return line.saleId;
-        },
-        {
-          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-          maxWait: 10_000,
-          timeout: 30_000,
-        },
+          },
+          {
+            isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+            maxWait: 10_000,
+            timeout: 30_000,
+          },
+        ),
       );
 
       return { saleId };
