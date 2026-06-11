@@ -239,18 +239,22 @@ export async function correctSaleLine(
           const delta = newQuantity - line.quantity;
 
           if (delta > 0) {
-            const batch = await tx.stockBatch.findFirst({
-              where: { id: line.stockBatchId, tenantId },
+            // Atomic check-and-decrement (audit #11): the gte condition in
+            // the WHERE prevents a concurrent dispense from racing this
+            // correction below zero.
+            const updated = await tx.stockBatch.updateMany({
+              where: {
+                id: line.stockBatchId,
+                tenantId,
+                quantityOnHand: { gte: delta },
+              },
+              data: { quantityOnHand: { decrement: delta } },
             });
-            if (!batch || batch.quantityOnHand < delta) {
+            if (updated.count !== 1) {
               throw new InsufficientStockError(
                 "Not enough stock to increase dispensed quantity",
               );
             }
-            await tx.stockBatch.updateMany({
-              where: { id: line.stockBatchId, tenantId },
-              data: { quantityOnHand: { decrement: delta } },
-            });
           } else if (delta < 0) {
             await tx.stockBatch.updateMany({
               where: { id: line.stockBatchId, tenantId },

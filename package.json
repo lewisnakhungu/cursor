@@ -22,6 +22,7 @@
     "db:seed-aliases": "tsx prisma/seed-aliases.ts",
     "db:neon:setup": "tsx prisma/neon-setup.ts",
     "db:fix-warfarin": "tsx prisma/fix-warfarin.ts",
+    "db:add-constraints": "tsx prisma/add-constraints.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
