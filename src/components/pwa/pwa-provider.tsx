@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { openAfyaDB } from "@/lib/offline/db";
+import { isCatalogFresh, populateCatalog } from "@/lib/offline/catalog-cache";
 
 const DISMISS_KEY = "afyasmart-pwa-install-dismissed";
 
@@ -12,12 +14,45 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+/**
+ * PwaProvider — mounts once in the root layout and handles:
+ *
+ *  1. Service worker registration
+ *  2. Deferred install prompt banner
+ *  3. Offline catalog seeding (fetches /api/offline/catalog when online
+ *     and the cached catalog is stale or missing)
+ *  4. SW → client message relay (SYNC_REQUESTED, CATALOG_REFRESH_REQUESTED)
+ */
 export function PwaProvider() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
+  // -----------------------------------------------------------------------
+  // Catalog seeding
+  // -----------------------------------------------------------------------
+  const seedCatalog = useCallback(async () => {
+    if (!navigator.onLine) return;
+    try {
+      const db = await openAfyaDB();
+      if (await isCatalogFresh(db)) return;
+
+      const res = await fetch("/api/offline/catalog");
+      if (!res.ok) return;
+
+      const { medicines } = await res.json();
+      if (Array.isArray(medicines) && medicines.length > 0) {
+        await populateCatalog(db, medicines);
+      }
+    } catch {
+      // Non-critical — catalog will be seeded on next load.
+    }
+  }, []);
+
+  // -----------------------------------------------------------------------
+  // Bootstrap
+  // -----------------------------------------------------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -27,12 +62,35 @@ export function PwaProvider() {
         true;
     setIsStandalone(standalone);
 
+    // Register the service worker.
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
+      navigator.serviceWorker.register("/sw.js").then((reg) => {
+        // Seed the catalog once the SW is active.
+        seedCatalog();
+
+        // Listen for messages relayed by the SW.
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          if (event.data?.type === "CATALOG_REFRESH_REQUESTED") {
+            // Force-refresh by clearing the freshness timestamp.
+            openAfyaDB()
+              .then((db) => db.delete("sync_meta", "catalog_last_synced"))
+              .then(() => seedCatalog());
+          }
+        });
+
+        return reg;
+      }).catch(() => {
         /* optional — install may still work on some browsers */
       });
     }
 
+    // Seed catalog on first mount if online.
+    seedCatalog();
+
+    // Re-seed when the user comes back online.
+    window.addEventListener("online", seedCatalog);
+
+    // Deferred install prompt.
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -40,11 +98,17 @@ export function PwaProvider() {
         setShowBanner(true);
       }
     };
-
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    return () => window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-  }, []);
 
+    return () => {
+      window.removeEventListener("online", seedCatalog);
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+    };
+  }, [seedCatalog]);
+
+  // -----------------------------------------------------------------------
+  // Install banner handlers
+  // -----------------------------------------------------------------------
   const handleInstall = async () => {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
@@ -62,6 +126,9 @@ export function PwaProvider() {
     return null;
   }
 
+  // -----------------------------------------------------------------------
+  // Install banner UI
+  // -----------------------------------------------------------------------
   return (
     <div
       className={cn(
