@@ -9,6 +9,7 @@ import {
   Building2,
   ClipboardList,
   FileText,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -27,6 +28,7 @@ import {
 import { logout } from "@/lib/actions/auth";
 import { getActiveFacilityName } from "@/lib/auth/session-types";
 import { FacilitySwitcher } from "@/components/layout/facility-switcher";
+import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
 
 const MOBILE_HEADER =
   "calc(3.5rem + env(safe-area-inset-top, 0px))" as const;
@@ -195,10 +197,12 @@ function SidebarNav({
 function SessionFooter({
   session,
   onLogout,
+  onChangePassword,
   pending,
 }: {
   session: SessionPayload;
   onLogout: () => void;
+  onChangePassword: () => void;
   pending: boolean;
 }) {
   const roleLabel = session.isPlatformAdmin
@@ -211,9 +215,20 @@ function SessionFooter({
       <p className="truncate text-[11px] text-muted-foreground">{roleLabel}</p>
       <Button
         type="button"
+        variant="ghost"
+        size="sm"
+        className="mt-2 w-full justify-start gap-2"
+        disabled={pending}
+        onClick={onChangePassword}
+      >
+        <KeyRound className="size-4" aria-hidden />
+        Change password
+      </Button>
+      <Button
+        type="button"
         variant="outline"
         size="sm"
-        className="mt-2 w-full gap-2"
+        className="mt-1 w-full gap-2"
         disabled={pending}
         onClick={onLogout}
       >
@@ -244,6 +259,7 @@ export function AppShellClient({
   const pathname = usePathname();
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const navItems = useMemo(
@@ -364,6 +380,10 @@ export function AppShellClient({
         <SessionFooter
           session={session}
           onLogout={handleLogout}
+          onChangePassword={() => {
+            closeMobileNav();
+            setChangePasswordOpen(true);
+          }}
           pending={pending}
         />
       </aside>
@@ -374,9 +394,15 @@ export function AppShellClient({
         <SessionFooter
           session={session}
           onLogout={handleLogout}
+          onChangePassword={() => setChangePasswordOpen(true)}
           pending={pending}
         />
       </aside>
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+      />
 
       <div className="flex min-h-screen flex-col pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pl-[15.5rem] lg:pt-0">
         <div className="flex min-h-screen flex-col">

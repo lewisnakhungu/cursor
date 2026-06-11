@@ -7,28 +7,57 @@ import {
   getSession,
   setSessionCookie,
 } from "@/lib/auth/session";
-import { verifyPassword } from "@/lib/auth/password";
+import {
+  hashPassword,
+  validatePasswordPolicy,
+  verifyPassword,
+} from "@/lib/auth/password";
+import { checkRateLimit, resetRateLimit } from "@/lib/auth/rate-limit";
+import { changePasswordSchema, loginSchema, parseInput } from "@/lib/validation";
+import { headers } from "next/headers";
 import { AppError } from "@/lib/errors";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
 import { requireSession } from "@/lib/auth/session";
 import { getActiveFacilityName } from "@/lib/auth/session-types";
 
+const LOGIN_ATTEMPT_LIMIT = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+
+async function loginRateKey(email: string): Promise<string> {
+  const headerStore = await headers();
+  const ip =
+    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    headerStore.get("x-real-ip") ??
+    "unknown";
+  return `login:${ip}:${email}`;
+}
+
 export async function login(
   email: string,
   password: string,
 ): Promise<ActionResult<{ redirectTo: string }>> {
   return runAction("login", async () => {
-    const normalized = email.trim().toLowerCase();
-    if (!normalized || !password) {
-      throw new AppError("Email and password are required", "VALIDATION");
+    const { email: normalized, password: pass } = parseInput(loginSchema, {
+      email,
+      password,
+    });
+
+    const rateKey = await loginRateKey(normalized);
+    const rate = checkRateLimit(rateKey, LOGIN_ATTEMPT_LIMIT, LOGIN_WINDOW_MS);
+    if (!rate.allowed) {
+      const minutes = Math.max(1, Math.ceil(rate.retryAfterMs / 60_000));
+      throw new AppError(
+        `Too many sign-in attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+        "RATE_LIMITED",
+      );
     }
 
     const user = await prisma.user.findUnique({
       where: { email: normalized },
     });
 
-    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    if (!user || !(await verifyPassword(pass, user.passwordHash))) {
       throw new AppError("Invalid email or password", "UNAUTHORIZED");
     }
 
@@ -42,8 +71,69 @@ export async function login(
 
     await setSessionCookie(session);
 
+    // Only a fully completed sign-in clears the attempt counter.
+    resetRateLimit(rateKey);
+
     const redirectTo = session.isPlatformAdmin ? "/admin" : "/dashboard";
     return { redirectTo };
+  });
+}
+
+/**
+ * Self-service password change (audit P-C1). Requires the current password,
+ * bumps sessionVersion to revoke every other device, then re-issues a fresh
+ * session for this device so the user stays signed in.
+ */
+export async function changeOwnPassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<ActionResult<{ ok: true }>> {
+  const session = await requireSession();
+  return runAction("changeOwnPassword", async () => {
+    const { currentPassword, newPassword } = parseInput(
+      changePasswordSchema,
+      input,
+    );
+
+    const policyError = validatePasswordPolicy(newPassword);
+    if (policyError) {
+      throw new AppError(policyError, "VALIDATION");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+    });
+
+    if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+      throw new AppError("Current password is incorrect", "UNAUTHORIZED");
+    }
+
+    if (await verifyPassword(newPassword, user.passwordHash)) {
+      throw new AppError(
+        "New password must be different from the current one",
+        "VALIDATION",
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: await hashPassword(newPassword),
+        sessionVersion: { increment: 1 },
+      },
+    });
+
+    const fresh = await buildSessionForUser(
+      session.userId,
+      session.activeFacilityId ?? undefined,
+    );
+    if (!fresh) {
+      await clearSessionCookie();
+      throw new AppError("Please sign in again", "UNAUTHORIZED");
+    }
+    await setSessionCookie(fresh);
+
+    return { ok: true };
   });
 }
 
