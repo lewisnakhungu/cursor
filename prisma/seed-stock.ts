@@ -95,7 +95,7 @@ const COMMON_KENYA_GENERICS: readonly string[] = [
   "Sodium valproate (valproic acid)",
   "Naloxone",
   "Flumazenil",
-  "Ww Warfarin",
+  "Warfarin",
   "Clopidogrel",
   "Bendroflumethiazide",
   "Vitamin B complex",
