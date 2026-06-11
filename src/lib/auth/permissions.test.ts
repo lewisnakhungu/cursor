@@ -104,4 +104,18 @@ describe("canAccessPath", () => {
   it("owner can reach the dashboard route", () => {
     expect(canAccessPath(makeSession(), "/dashboard")).toBe(true);
   });
+
+  it("denies unknown routes by default (audit L4)", () => {
+    expect(canAccessPath(makeSession(), "/some-new-route")).toBe(false);
+    expect(
+      canAccessPath(makeSession({ activeRole: "DISPENSER" }), "/internal"),
+    ).toBe(false);
+  });
+
+  it("maps bare /settings to the team permission", () => {
+    expect(canAccessPath(makeSession(), "/settings")).toBe(true);
+    expect(
+      canAccessPath(makeSession({ activeRole: "DISPENSER" }), "/settings"),
+    ).toBe(false);
+  });
 });

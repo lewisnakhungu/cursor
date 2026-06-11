@@ -96,7 +96,7 @@ export function canAccessNav(
 
 export function pathnameToNavId(pathname: string): NavItemId | null {
   if (pathname.startsWith("/admin")) return "admin";
-  if (pathname.startsWith("/settings/team")) return "team";
+  if (pathname.startsWith("/settings")) return "team";
   if (pathname === "/dashboard") return "dashboard";
   if (pathname.startsWith("/receive")) return "receive";
   if (pathname.startsWith("/pos")) return "pos";
@@ -115,6 +115,8 @@ export function canAccessPath(
     return pathname.startsWith("/admin");
   }
   const navId = pathnameToNavId(pathname);
-  if (!navId) return true;
+  // Deny-by-default (audit L4): a new route must be added to the nav
+  // permission map before any role can reach it.
+  if (!navId) return false;
   return canAccessNav(session, navId);
 }
