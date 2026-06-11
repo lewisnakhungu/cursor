@@ -4,11 +4,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireTenantContext } from "@/lib/auth/guards";
 import { AppError } from "@/lib/errors";
-import {
-  isStockUnitCode,
-  stockUnitOptionSupportsPackSize,
-  type StockUnitCode,
-} from "@/lib/stock-unit";
+import type { StockUnitCode } from "@/lib/stock-unit";
 import { decimalToNumber } from "@/lib/money";
 import type {
   ActionResult,
@@ -17,6 +13,7 @@ import type {
   StockBatchRow,
 } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { parseInput, receiveInventorySchema } from "@/lib/validation";
 
 const EXPIRY_WARNING_DAYS = 90;
 const LOW_STOCK_THRESHOLD = 10;
@@ -77,51 +74,13 @@ export async function receiveInventory(
   const ctx = await requireTenantContext("receive.stock");
   return runAction("receiveInventory", async () => {
     const { db } = ctx;
-    if (batchData.quantityOnHand <= 0) {
-      throw new AppError("Quantity must be greater than zero", "VALIDATION");
-    }
+    const data = parseInput(receiveInventorySchema, batchData);
 
-    if (!isStockUnitCode(batchData.stockUnit)) {
-      throw new AppError("Invalid stock counting unit", "VALIDATION");
-    }
-
-    const expiryDate = new Date(batchData.expiryDate);
-    if (Number.isNaN(expiryDate.getTime())) {
-      throw new AppError("Invalid expiry date", "VALIDATION");
-    }
-
-    if (
-      batchData.supplierCost !== undefined &&
-      batchData.supplierCost < 0
-    ) {
-      throw new AppError("Supplier cost cannot be negative", "VALIDATION");
-    }
-
-    if (
-      batchData.retailSalePrice !== undefined &&
-      batchData.retailSalePrice < 0
-    ) {
-      throw new AppError("Retail price cannot be negative", "VALIDATION");
-    }
-
-    let unitsPerPack: number | null = null;
-    if (batchData.unitsPerPack !== undefined) {
-      if (
-        !Number.isInteger(batchData.unitsPerPack) ||
-        batchData.unitsPerPack < 2
-      ) {
-        throw new AppError(
-          "Pack size must be a whole number of 2 or more (e.g. 100 tablets per box)",
-          "VALIDATION",
-        );
-      }
-      unitsPerPack = batchData.unitsPerPack;
-    } else if (stockUnitOptionSupportsPackSize(batchData.stockUnit)) {
-      unitsPerPack = null;
-    }
+    const expiryDate = new Date(data.expiryDate);
+    const unitsPerPack = data.unitsPerPack ?? null;
 
     const medicine = await prisma.medicine.findUnique({
-      where: { id: batchData.medicineId },
+      where: { id: data.medicineId },
       select: { id: true },
     });
 
@@ -131,21 +90,21 @@ export async function receiveInventory(
 
     const batch = await db.stockBatch.create({
       data: {
-        medicineId: batchData.medicineId,
-        batchNumber: batchData.batchNumber?.trim() || null,
-        supplierName: batchData.supplierName?.trim() || null,
-        quantityOnHand: batchData.quantityOnHand,
-        quantityReceived: batchData.quantityOnHand,
+        medicineId: data.medicineId,
+        batchNumber: data.batchNumber?.trim() || null,
+        supplierName: data.supplierName?.trim() || null,
+        quantityOnHand: data.quantityOnHand,
+        quantityReceived: data.quantityOnHand,
         expiryDate,
-        stockUnit: batchData.stockUnit,
+        stockUnit: data.stockUnit,
         unitsPerPack,
         supplierCost:
-          batchData.supplierCost !== undefined
-            ? new Prisma.Decimal(batchData.supplierCost)
+          data.supplierCost !== undefined
+            ? new Prisma.Decimal(data.supplierCost)
             : null,
         retailSalePrice:
-          batchData.retailSalePrice !== undefined
-            ? new Prisma.Decimal(batchData.retailSalePrice)
+          data.retailSalePrice !== undefined
+            ? new Prisma.Decimal(data.retailSalePrice)
             : null,
       },
       select: { id: true },

@@ -8,6 +8,11 @@ import { InsufficientStockError, AppError } from "@/lib/errors";
 import type { StockUnitCode } from "@/lib/stock-unit";
 import type { ActionResult, CartDispenseItem, DispenseResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import {
+  cartDispenseSchema,
+  correctSaleLineSchema,
+  parseInput,
+} from "@/lib/validation";
 
 function startOfToday(): Date {
   const today = new Date();
@@ -23,9 +28,7 @@ export async function dispenseMedicine(
     "dispenseMedicine",
     async () => {
       const { tenantId, db } = ctx;
-      if (cartItems.length === 0) {
-        throw new InsufficientStockError("Cart is empty");
-      }
+      const items = parseInput(cartDispenseSchema, cartItems);
 
       const today = startOfToday();
 
@@ -38,11 +41,7 @@ export async function dispenseMedicine(
           });
           let saleTotal = new Prisma.Decimal(0);
 
-          for (const item of cartItems) {
-            if (item.quantity <= 0) {
-              throw new InsufficientStockError("Invalid quantity in cart");
-            }
-
+          for (const item of items) {
             const medicine = await prisma.medicine.findUnique({
               where: { id: item.medicineId },
               select: {
@@ -162,7 +161,6 @@ export async function dispenseMedicine(
         },
       );
 
-      // findFirst (not findUnique): tenant extension adds tenantId; AND breaks findUnique.
       const sale = await db.sale.findFirst({
         where: { id: saleId },
         include: {
@@ -212,23 +210,17 @@ export async function correctSaleLine(
   return runAction(
     "correctSaleLine",
     async () => {
-      const reason = input.reason.trim();
-      if (reason.length < 3) {
-        throw new AppError(
-          "Correction reason is required (audit trail)",
-          "VALIDATION",
-        );
-      }
-
-      if (input.newQuantity < 0) {
-        throw new AppError("Quantity cannot be negative", "VALIDATION");
-      }
+      const {
+        saleLineId,
+        newQuantity,
+        reason,
+      } = parseInput(correctSaleLineSchema, input);
 
       const { tenantId } = ctx;
       const saleId = await prisma.$transaction(
         async (tx) => {
           const line = await tx.saleLine.findFirst({
-            where: { id: input.saleLineId, tenantId },
+            where: { id: saleLineId, tenantId },
             include: { sale: true },
           });
 
@@ -239,7 +231,7 @@ export async function correctSaleLine(
             );
           }
 
-          const delta = input.newQuantity - line.quantity;
+          const delta = newQuantity - line.quantity;
 
           if (delta > 0) {
             const batch = await tx.stockBatch.findFirst({
@@ -261,7 +253,7 @@ export async function correctSaleLine(
             });
           }
 
-          if (input.newQuantity === 0) {
+          if (newQuantity === 0) {
             await tx.saleLine.updateMany({
               where: { id: line.id, tenantId },
               data: {
@@ -272,11 +264,11 @@ export async function correctSaleLine(
               },
             });
           } else {
-            const lineTotal = line.unitPrice.mul(input.newQuantity);
+            const lineTotal = line.unitPrice.mul(newQuantity);
             await tx.saleLine.updateMany({
               where: { id: line.id, tenantId },
               data: {
-                quantity: input.newQuantity,
+                quantity: newQuantity,
                 lineTotal,
                 correctionNote: reason,
               },
