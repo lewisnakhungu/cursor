@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { normalizeStockUnit, type StockUnitCode } from "@/lib/stock-unit";
 
 export type CartLine = {
@@ -27,65 +28,77 @@ type CartState = {
   cartTotal: () => number;
 };
 
-export const useCartStore = create<CartState>((set, get) => ({
-  lines: [],
-  addLine: (line) =>
-    set((state) => {
-      const quantity = Math.min(line.quantity, line.maxQuantity);
-      const lineTotal = line.unitPrice * quantity;
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
+      lines: [],
+      addLine: (line) =>
+        set((state) => {
+          const quantity = Math.min(line.quantity, line.maxQuantity);
+          const lineTotal = line.unitPrice * quantity;
 
-      const existing = state.lines.find(
-        (entry) => entry.stockBatchId === line.stockBatchId,
-      );
+          const existing = state.lines.find(
+            (entry) => entry.stockBatchId === line.stockBatchId,
+          );
 
-      if (existing) {
-        const mergedQty = Math.min(
-          existing.quantity + quantity,
-          line.maxQuantity,
-        );
-        return {
-          lines: state.lines.map((entry) =>
-            entry.id === existing.id
-              ? {
-                  ...entry,
-                  quantity: mergedQty,
-                  lineTotal: entry.unitPrice * mergedQty,
-                }
-              : entry,
-          ),
-        };
-      }
+          if (existing) {
+            const mergedQty = Math.min(
+              existing.quantity + quantity,
+              line.maxQuantity,
+            );
+            return {
+              lines: state.lines.map((entry) =>
+                entry.id === existing.id
+                  ? {
+                      ...entry,
+                      quantity: mergedQty,
+                      lineTotal: entry.unitPrice * mergedQty,
+                    }
+                  : entry,
+              ),
+            };
+          }
 
-      return {
-        lines: [
-          ...state.lines,
-          {
-            ...line,
-            stockUnit: normalizeStockUnit(line.stockUnit),
-            id: crypto.randomUUID(),
-            quantity,
-            lineTotal,
-          },
-        ],
-      };
+          return {
+            lines: [
+              ...state.lines,
+              {
+                ...line,
+                stockUnit: normalizeStockUnit(line.stockUnit),
+                id: crypto.randomUUID(),
+                quantity,
+                lineTotal,
+              },
+            ],
+          };
+        }),
+      removeLine: (id) =>
+        set((state) => ({
+          lines: state.lines.filter((line) => line.id !== id),
+        })),
+      updateQuantity: (id, quantity) =>
+        set((state) => ({
+          lines: state.lines.map((line) => {
+            if (line.id !== id) return line;
+            const q = Math.max(1, Math.min(quantity, line.maxQuantity));
+            return {
+              ...line,
+              quantity: q,
+              lineTotal: line.unitPrice * q,
+            };
+          }),
+        })),
+      clear: () => set({ lines: [] }),
+      cartTotal: () =>
+        get().lines.reduce((sum, line) => sum + line.lineTotal, 0),
     }),
-  removeLine: (id) =>
-    set((state) => ({
-      lines: state.lines.filter((line) => line.id !== id),
-    })),
-  updateQuantity: (id, quantity) =>
-    set((state) => ({
-      lines: state.lines.map((line) => {
-        if (line.id !== id) return line;
-        const q = Math.max(1, Math.min(quantity, line.maxQuantity));
-        return {
-          ...line,
-          quantity: q,
-          lineTotal: line.unitPrice * q,
-        };
-      }),
-    })),
-  clear: () => set({ lines: [] }),
-  cartTotal: () =>
-    get().lines.reduce((sum, line) => sum + line.lineTotal, 0),
-}));
+    {
+      // Survive accidental refresh mid-sale (audit #10). sessionStorage
+      // keeps carts per-tab and clears when the browser closes, so stale
+      // stock quantities don't linger for days.
+      name: "afyasmart-cart",
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ lines: state.lines }),
+    },
+  ),
+);
