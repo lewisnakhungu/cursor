@@ -12,11 +12,17 @@ function createPrismaClient(): PrismaClient {
     globalForPrisma.pool ??
     new Pool({
       connectionString: process.env.DATABASE_URL,
+      // Serverless-friendly sizing: each function instance keeps few
+      // connections; Neon's pooler multiplexes the rest.
+      max: 5,
+      connectionTimeoutMillis: 10_000,
+      idleTimeoutMillis: 30_000,
+      allowExitOnIdle: true,
     });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.pool = pool;
-  }
+  // Cache in every environment (audit M4): in production a warm serverless
+  // instance can re-evaluate modules and would otherwise leak pools.
+  globalForPrisma.pool = pool;
 
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
@@ -24,6 +30,4 @@ function createPrismaClient(): PrismaClient {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+globalForPrisma.prisma = prisma;
