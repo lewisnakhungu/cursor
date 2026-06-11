@@ -10,7 +10,6 @@
  * auto-aborted to prevent stale dispenses from ever being committed.
  */
 
-import { IDBKeyRange } from "idb";
 import type { AfyaDB } from "@/lib/offline/db";
 import type {
   PendingDispense,

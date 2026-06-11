@@ -36,6 +36,7 @@ import { logout } from "@/lib/actions/auth";
 import { getActiveFacilityName } from "@/lib/auth/session-types";
 import { FacilitySwitcher } from "@/components/layout/facility-switcher";
 import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
+import { SyncStatusBadge } from "@/components/layout/sync-status-badge";
 
 const MOBILE_HEADER =
   "calc(3.5rem + env(safe-area-inset-top, 0px))" as const;
@@ -384,6 +385,9 @@ export function AppShellClient({
           </p>
         </div>
         <FacilitySwitcher session={session} className="shrink-0 max-w-[11rem]" />
+        {session.activeFacilityId && (
+          <SyncStatusBadge tenantId={session.activeFacilityId} />
+        )}
       </header>
 
       {mobileNavOpen && (

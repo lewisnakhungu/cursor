@@ -7,7 +7,6 @@
  * window triggers a background refresh.
  */
 
-import { IDBKeyRange } from "idb";
 import type { AfyaDB } from "@/lib/offline/db";
 import type { OfflineMedicine } from "@/lib/offline/types";
 

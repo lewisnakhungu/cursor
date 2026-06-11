@@ -6,7 +6,6 @@
  * the cache; optimistic decrements are applied immediately on offline dispense.
  */
 
-import { IDBKeyRange } from "idb";
 import type { AfyaDB } from "@/lib/offline/db";
 import type { OfflineStockBatch } from "@/lib/offline/types";
 
