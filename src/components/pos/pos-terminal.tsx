@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartHydrated } from "@/stores/use-cart-hydrated";
 import { getBatchesForMedicine } from "@/lib/actions/catalog";
 import { dispenseMedicine } from "@/lib/actions/dispense";
 import { formatKes } from "@/lib/money";
@@ -113,9 +114,12 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const clearCart = useCartStore((state) => state.clear);
   const cartTotalAmount = useCartStore((state) => state.cartTotal);
+  const cartHydrated = useCartHydrated();
 
-  const cartSummary = summarizeCartByUnit(lines);
-  const cartTotal = cartTotalAmount();
+  // Empty until sessionStorage rehydrates — matches SSR and prevents hydration errors.
+  const displayLines = cartHydrated ? lines : [];
+  const cartSummary = summarizeCartByUnit(displayLines);
+  const cartTotal = cartHydrated ? cartTotalAmount() : 0;
 
   // -------------------------------------------------------------------------
   // Auto-focus search on mount
@@ -378,13 +382,13 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
           variant="secondary"
           className="w-full justify-center sm:w-auto sm:inline-flex"
         >
-          {lines.length} line(s) · {cartSummary} · {formatKes(cartTotal)}
+          {displayLines.length} line(s) · {cartSummary} · {formatKes(cartTotal)}
         </Badge>
         <Button
           size="lg"
           className="min-h-11 w-full px-6 text-base sm:w-auto"
           onClick={handleDispense}
-          disabled={isDispensing || lines.length === 0}
+          disabled={isDispensing || !cartHydrated || lines.length === 0}
         >
           {isDispensing
             ? isOnline
@@ -432,7 +436,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
               <ShoppingCart className="size-4" />
               2 · Dispense cart
             </p>
-            {lines.length > 0 && (
+            {displayLines.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -446,7 +450,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
             )}
           </div>
 
-          {lines.length === 0 ? (
+          {displayLines.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
               <ShoppingCart className="size-10 text-muted-foreground/50" />
               <p className="mt-3 font-medium">Cart is empty</p>
@@ -457,7 +461,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
             </div>
           ) : (
             <ul className="space-y-3">
-              {lines.map((line) => {
+              {displayLines.map((line) => {
                 const unit = normalizeStockUnit(line.stockUnit);
                 return (
                   <li
@@ -539,7 +543,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
             </ul>
           )}
 
-          {lines.length > 0 && (
+          {displayLines.length > 0 && (
             <div className="mt-4 text-right">
               <p className="text-sm text-muted-foreground">{cartSummary}</p>
               <p className="text-lg font-semibold">
