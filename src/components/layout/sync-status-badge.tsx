@@ -15,7 +15,8 @@ import { Wifi, WifiOff, RefreshCw, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNetworkStatus } from "@/lib/offline/use-network-status";
 import { useOfflineDB } from "@/lib/offline/use-offline-db";
-import { pendingCount, abortStaleOperations, markSyncing, markSynced, markFailed, getPendingOperations } from "@/lib/offline/sync-queue";
+import { pendingCount, abortStaleOperations, markSyncing, markSynced, markFailed, markPending, getPendingOperations } from "@/lib/offline/sync-queue";
+import { rollbackDispenseStock } from "@/lib/offline/stock-cache";
 
 type SyncState = "idle" | "pending" | "syncing" | "synced" | "error";
 
@@ -72,9 +73,13 @@ export function SyncStatusBadge({ tenantId }: { tenantId: string }) {
 
       const { results } = await res.json();
       for (const r of results) {
+        const op = pending.find((item) => item.localId === r.localId);
         if (r.success) {
           await markSynced(db, r.localId);
         } else {
+          if (op?.type === "DISPENSE") {
+            await rollbackDispenseStock(db, op);
+          }
           await markFailed(db, r.localId, r.error ?? "Unknown error");
         }
       }
@@ -88,6 +93,9 @@ export function SyncStatusBadge({ tenantId }: { tenantId: string }) {
         setTimeout(() => setSyncState("idle"), 3_000);
       }
     } catch (err) {
+      for (const op of pending) {
+        await markPending(db, op.localId!);
+      }
       setSyncState("error");
       console.error("[SyncStatusBadge] flush error", err);
     }

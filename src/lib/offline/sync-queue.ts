@@ -11,6 +11,7 @@
  */
 
 import type { AfyaDB } from "@/lib/offline/db";
+import { rollbackDispenseStock } from "@/lib/offline/stock-cache";
 import type {
   PendingDispense,
   PendingOperation,
@@ -120,6 +121,10 @@ export async function markSyncing(db: AfyaDB, localId: number): Promise<void> {
   await setStatus(db, localId, "syncing");
 }
 
+export async function markPending(db: AfyaDB, localId: number): Promise<void> {
+  await setStatus(db, localId, "pending");
+}
+
 export async function markSynced(db: AfyaDB, localId: number): Promise<void> {
   await setStatus(db, localId, "synced");
 }
@@ -160,6 +165,9 @@ export async function abortStaleOperations(db: AfyaDB): Promise<void> {
   const all = await db.getAllFromIndex("pending_queue", "byStatus", "pending");
   for (const op of all) {
     if (op.createdAt < cutoff) {
+      if (op.type === "DISPENSE") {
+        await rollbackDispenseStock(db, op);
+      }
       await markFailed(
         db,
         op.localId!,

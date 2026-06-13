@@ -145,3 +145,59 @@ export async function restoreOfflineStock(
   }
   await tx.done;
 }
+
+/** Rolls back optimistic stock decrements for a failed or expired offline dispense. */
+export async function rollbackDispenseStock(
+  db: AfyaDB,
+  op: { tenantId: string; payload: { allocations?: ReadonlyArray<{ batchId: string; take: number }> } },
+): Promise<void> {
+  const allocations = op.payload.allocations;
+  if (!allocations?.length) return;
+  await restoreOfflineStock(db, op.tenantId, allocations);
+}
+
+/**
+ * Fetches active tenant stock from the server when the cache is stale.
+ * Called on POS mount while online.
+ */
+export async function refreshTenantStockIfStale(
+  db: AfyaDB,
+  tenantId: string,
+): Promise<void> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return;
+  if (await isStockFresh(db, tenantId)) return;
+
+  const res = await fetch("/api/offline/stock");
+  if (!res.ok) return;
+
+  const body = (await res.json()) as {
+    batches: Array<{
+      batchId: string;
+      medicineId: string;
+      batchNumber: string | null;
+      quantityOnHand: number;
+      expiryDate: string;
+      retailSalePrice: number | null;
+      stockUnit: OfflineStockBatch["stockUnit"];
+      unitsPerPack: number | null;
+    }>;
+  };
+
+  if (!Array.isArray(body.batches)) return;
+
+  await populateTenantStock(
+    db,
+    tenantId,
+    body.batches.map((b) => ({
+      tenantId,
+      batchId: b.batchId,
+      medicineId: b.medicineId,
+      batchNumber: b.batchNumber,
+      quantityOnHand: b.quantityOnHand,
+      expiryDate: b.expiryDate,
+      retailSalePrice: b.retailSalePrice,
+      stockUnit: b.stockUnit,
+      unitsPerPack: b.unitsPerPack,
+    })),
+  );
+}

@@ -73,6 +73,8 @@ export type PendingDispense = {
       quantity: number;
       stockBatchId?: string;
     }>;
+    /** FEFO allocations applied to the offline stock cache — used to roll back on sync failure. */
+    allocations: ReadonlyArray<{ batchId: string; take: number }>;
     /** Optimistic receipt generated locally before server confirmation. */
     localReceipt: LocalDispenseReceipt;
   };

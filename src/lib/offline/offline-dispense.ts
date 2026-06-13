@@ -139,6 +139,7 @@ export async function dispenseOffline(
   // -------------------------------------------------------------------------
   const queuedId = await enqueueDispense(db, tenantId, {
     cartItems,
+    allocations: allAllocations,
     localReceipt,
   });
 

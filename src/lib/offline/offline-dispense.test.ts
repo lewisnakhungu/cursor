@@ -154,6 +154,15 @@ describe("dispenseOffline", () => {
       { batchId: "batch-1", take: 8 },
       { batchId: "batch-2", take: 2 },
     ]);
-    expect(enqueueDispense).toHaveBeenCalled();
+    expect(enqueueDispense).toHaveBeenCalledWith(
+      mockDb,
+      tenantId,
+      expect.objectContaining({
+        allocations: [
+          { batchId: "batch-1", take: 8 },
+          { batchId: "batch-2", take: 2 },
+        ],
+      }),
+    );
   });
 });
