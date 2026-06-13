@@ -5,7 +5,7 @@ import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { openAfyaDB } from "@/lib/offline/db";
-import { isCatalogFresh, populateCatalog } from "@/lib/offline/catalog-cache";
+import { isCatalogFresh, refreshCatalogIfStale } from "@/lib/offline/catalog-cache";
 
 const DISMISS_KEY = "afyasmart-pwa-install-dismissed";
 
@@ -54,16 +54,9 @@ export function PwaProvider() {
       if (await isCatalogFresh(db)) return;
 
       await registerCatalogRefreshSync();
-
-      const res = await fetch("/api/offline/catalog");
-      if (!res.ok) return;
-
-      const { medicines } = await res.json();
-      if (Array.isArray(medicines) && medicines.length > 0) {
-        await populateCatalog(db, medicines);
-      }
+      await refreshCatalogIfStale(db);
     } catch {
-      // Non-critical — catalog will be seeded on next load.
+      // Non-critical — POS mount will retry while signed in.
     }
   }, [registerCatalogRefreshSync]);
 

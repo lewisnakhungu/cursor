@@ -35,7 +35,11 @@ import { useNetworkStatus } from "@/lib/offline/use-network-status";
 import { useOfflineDB } from "@/lib/offline/use-offline-db";
 import { dispenseOffline } from "@/lib/offline/offline-dispense";
 import { getOfflineBatchesForMedicine, refreshTenantStockIfStale } from "@/lib/offline/stock-cache";
-import { searchOfflineCatalog } from "@/lib/offline/catalog-cache";
+import {
+  catalogSize,
+  refreshCatalogIfStale,
+  searchOfflineCatalog,
+} from "@/lib/offline/catalog-cache";
 import type { OfflineStockBatch } from "@/lib/offline/types";
 
 // ---------------------------------------------------------------------------
@@ -94,6 +98,10 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoadingBatches, startLoadBatches] = useTransition();
   const [isDispensing, startDispense] = useTransition();
+  const [catalogCaching, setCatalogCaching] = useState(false);
+  const [cachedMedicineCount, setCachedMedicineCount] = useState<number | null>(
+    null,
+  );
 
   // Offline state
   const { isOnline } = useNetworkStatus();
@@ -117,14 +125,46 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   }, []);
 
   // -------------------------------------------------------------------------
-  // Bulk-seed offline stock cache while online (5-minute freshness window)
+  // Bulk-seed KEML catalog + tenant stock for offline dispensing while online
   // -------------------------------------------------------------------------
   useEffect(() => {
     if (!db || !isOnline) return;
-    refreshTenantStockIfStale(db, tenantId).catch(() => {
-      /* non-critical — per-medicine cache still works as fallback */
-    });
+
+    let active = true;
+    setCatalogCaching(true);
+
+    Promise.all([
+      refreshCatalogIfStale(db),
+      refreshTenantStockIfStale(db, tenantId),
+    ])
+      .then(async ([catalogRefreshed]) => {
+        if (!active) return;
+        const count = await catalogSize(db);
+        setCachedMedicineCount(count);
+        if (catalogRefreshed && count > 0) {
+          toast.success(`Cached ${count.toLocaleString()} medicines for offline use`, {
+            duration: 4000,
+          });
+        }
+      })
+      .catch(() => {
+        /* per-medicine batch cache still works as fallback for stock */
+      })
+      .finally(() => {
+        if (active) setCatalogCaching(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [db, isOnline, tenantId]);
+
+  useEffect(() => {
+    if (!db || isOnline) return;
+    catalogSize(db).then((count) => {
+      setCachedMedicineCount(count);
+    });
+  }, [db, isOnline]);
 
 
   // -------------------------------------------------------------------------
@@ -311,13 +351,24 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   // -------------------------------------------------------------------------
   return (
     <>
+      {isOnline && catalogCaching && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+          <span>
+            <strong>Preparing offline cache…</strong> Downloading KEML medicines
+            and your stock batches for offline dispensing.
+          </span>
+        </div>
+      )}
+
       {/* Offline mode notice bar */}
       {!isOnline && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           <WifiOff className="size-4 shrink-0" aria-hidden />
           <span>
-            <strong>Offline mode.</strong> Searching and dispensing from cached
-            data. Sales will sync automatically when you reconnect.
+            <strong>Offline mode.</strong>{" "}
+            {cachedMedicineCount && cachedMedicineCount > 0
+              ? `Searching ${cachedMedicineCount.toLocaleString()} cached medicines. Sales sync when you reconnect.`
+              : "No medicine catalog cached yet — connect while signed in on POS first."}
           </span>
         </div>
       )}

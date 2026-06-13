@@ -2,8 +2,8 @@
  * KEML medicine catalog — offline cache helpers.
  *
  * The catalog is tenant-agnostic (shared KEML data), so it is stored once
- * for the whole app.  After the first online visit to the POS page, the
- * catalog is populated from /api/offline/catalog.  A 24-hour staleness
+ * for the whole app.  Populated from /api/offline/catalog on any signed-in
+ * page load (PwaProvider) and proactively on POS mount.  A 24-hour staleness
  * window triggers a background refresh.
  */
 
@@ -69,6 +69,26 @@ export async function populateCatalog(
   }
   await tx.objectStore("sync_meta").put({ key: META_KEY, value: Date.now() });
   await tx.done;
+}
+
+/**
+ * Fetches the full KEML catalog from the server when the cache is stale or
+ * empty. Returns true when a new catalog was written to IndexedDB.
+ */
+export async function refreshCatalogIfStale(db: AfyaDB): Promise<boolean> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) return false;
+  if (await isCatalogFresh(db)) return false;
+
+  const res = await fetch("/api/offline/catalog");
+  if (!res.ok) return false;
+
+  const body = (await res.json()) as { medicines?: OfflineMedicine[] };
+  if (!Array.isArray(body.medicines) || body.medicines.length === 0) {
+    return false;
+  }
+
+  await populateCatalog(db, body.medicines);
+  return true;
 }
 
 // ---------------------------------------------------------------------------
