@@ -28,13 +28,13 @@ import {
   stockUnitPlural,
   summarizeCartByUnit,
 } from "@/lib/stock-unit";
-import type { CatalogMedicine, DispenseResult, StockBatchView } from "@/lib/types";
+import type { CatalogMedicine, StockBatchView } from "@/lib/types";
 
 // Offline layer imports
 import { useNetworkStatus } from "@/lib/offline/use-network-status";
 import { useOfflineDB } from "@/lib/offline/use-offline-db";
 import { dispenseOffline } from "@/lib/offline/offline-dispense";
-import { getOfflineBatchesForMedicine } from "@/lib/offline/stock-cache";
+import { getOfflineBatchesForMedicine, refreshTenantStockIfStale } from "@/lib/offline/stock-cache";
 import { searchOfflineCatalog } from "@/lib/offline/catalog-cache";
 import type { OfflineStockBatch } from "@/lib/offline/types";
 
@@ -115,6 +115,16 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   useEffect(() => {
     searchWrapperRef.current?.querySelector("input")?.focus();
   }, []);
+
+  // -------------------------------------------------------------------------
+  // Bulk-seed offline stock cache while online (5-minute freshness window)
+  // -------------------------------------------------------------------------
+  useEffect(() => {
+    if (!db || !isOnline) return;
+    refreshTenantStockIfStale(db, tenantId).catch(() => {
+      /* non-critical — per-medicine cache still works as fallback */
+    });
+  }, [db, isOnline, tenantId]);
 
 
   // -------------------------------------------------------------------------

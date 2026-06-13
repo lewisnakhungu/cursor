@@ -15,7 +15,6 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { requireSession } from "@/lib/auth/session";
-import { AppError } from "@/lib/errors";
 import { dispenseMedicine } from "@/lib/actions/dispense";
 import { receiveInventory } from "@/lib/actions/inventory";
 import type { SyncRequest, SyncResponse, SyncResultItem } from "@/lib/offline/types";
