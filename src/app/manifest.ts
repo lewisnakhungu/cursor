@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "AfyaSmart-Stock",
     short_name: "AfyaSmart",
     description: "Pharmacy POS, stock receive, and dispense management",
-    start_url: "/",
+    start_url: "/dashboard",
     scope: "/",
     display: "standalone",
     orientation: "any",
