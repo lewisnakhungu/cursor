@@ -68,6 +68,10 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Never intercept local dev — Next.js uses volatile ?v= chunk URLs that
+  // must not be cached with production cache-first semantics.
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return;
+
   // --- Network-only: RSC payloads, Next.js data routes, and API ---
   if (isNetworkOnly(url, request)) return;
 

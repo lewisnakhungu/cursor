@@ -66,22 +66,29 @@ export function PwaProvider() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const isProd = process.env.NODE_ENV === "production";
+
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as Navigator & { standalone?: boolean }).standalone ===
         true;
     setIsStandalone(standalone);
 
-    // Register the service worker.
-    if ("serviceWorker" in navigator) {
+    // In development, unregister any service worker so Next.js dev assets
+    // (volatile ?v= chunk URLs) are never intercepted by cache-first SW logic.
+    if (!isProd && "serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const reg of regs) void reg.unregister();
+      });
+    }
+
+    // Register the service worker (production only).
+    if (isProd && "serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then((reg) => {
-        // Seed the catalog once the SW is active.
         seedCatalog();
 
-        // Listen for messages relayed by the SW.
         navigator.serviceWorker.addEventListener("message", (event) => {
           if (event.data?.type === "CATALOG_REFRESH_REQUESTED") {
-            // Force-refresh by clearing the freshness timestamp.
             openAfyaDB()
               .then((db) => db.delete("sync_meta", "catalog_last_synced"))
               .then(() => seedCatalog());
@@ -94,7 +101,7 @@ export function PwaProvider() {
       });
     }
 
-    // Seed catalog on first mount if online.
+    // Seed catalog on first mount if online (dev + prod).
     seedCatalog();
 
     // Re-seed when the user comes back online.
