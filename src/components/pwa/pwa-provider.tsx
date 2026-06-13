@@ -32,11 +32,28 @@ export function PwaProvider() {
   // -----------------------------------------------------------------------
   // Catalog seeding
   // -----------------------------------------------------------------------
+  const registerCatalogRefreshSync = useCallback(async () => {
+    try {
+      if (!("serviceWorker" in navigator)) return;
+      const reg = await navigator.serviceWorker.ready;
+      if (!("sync" in reg)) return;
+      await (
+        reg as ServiceWorkerRegistration & {
+          sync: { register(tag: string): Promise<void> };
+        }
+      ).sync.register("catalog-refresh");
+    } catch {
+      // Background Sync unsupported — online event still refreshes the catalog.
+    }
+  }, []);
+
   const seedCatalog = useCallback(async () => {
     if (!navigator.onLine) return;
     try {
       const db = await openAfyaDB();
       if (await isCatalogFresh(db)) return;
+
+      await registerCatalogRefreshSync();
 
       const res = await fetch("/api/offline/catalog");
       if (!res.ok) return;
@@ -48,7 +65,7 @@ export function PwaProvider() {
     } catch {
       // Non-critical — catalog will be seeded on next load.
     }
-  }, []);
+  }, [registerCatalogRefreshSync]);
 
   // -----------------------------------------------------------------------
   // Bootstrap
