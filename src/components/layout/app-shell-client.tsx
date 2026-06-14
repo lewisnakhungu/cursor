@@ -38,6 +38,7 @@ import { getActiveFacilityName } from "@/lib/auth/session-types";
 import { FacilitySwitcher } from "@/components/layout/facility-switcher";
 import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
 import { SyncStatusBadge } from "@/components/layout/sync-status-badge";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 
 const MOBILE_HEADER =
   "calc(3.5rem + env(safe-area-inset-top, 0px))" as const;
@@ -439,6 +440,10 @@ export function AppShellClient({
           navItems={navItems}
           onNavigate={closeMobileNav}
         />
+        <p className="px-4 pb-2 text-[11px] text-muted-foreground">
+          Tap <strong className="font-medium text-foreground">More</strong> below
+          for procurement, reports, and settings.
+        </p>
         <SessionFooter
           session={session}
           onLogout={handleLogout}
@@ -449,6 +454,12 @@ export function AppShellClient({
           pending={pending}
         />
       </aside>
+
+      <MobileBottomNav
+        session={session}
+        pathname={pathname}
+        onOpenMenu={() => setMobileNavOpen(true)}
+      />
 
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[15.5rem] flex-col border-r border-border/80 bg-[hsl(var(--sidebar-bg))] shadow-sm lg:flex">
         <SidebarBrand session={session} />
@@ -506,7 +517,7 @@ export function AppShellClient({
             tabIndex={-1}
             className={cn(
               "flex-1 px-4 py-4 sm:px-6 sm:py-6",
-              "pb-[max(1rem,env(safe-area-inset-bottom))]",
+              "pb-[calc(4rem+env(safe-area-inset-bottom,0px))] lg:pb-[max(1rem,env(safe-area-inset-bottom))]",
               wide ? "w-full max-w-[1600px]" : "mx-auto w-full max-w-6xl",
             )}
           >

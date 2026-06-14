@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Keyboard, ShoppingCart, Trash2, WifiOff } from "lucide-react";
+import { Keyboard, ShoppingCart, Trash2, WifiOff, X } from "lucide-react";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { BatchPicker } from "@/components/pos/batch-picker";
 import { DispenseReceipt, type AnyReceipt } from "@/components/pos/dispense-receipt";
@@ -49,6 +49,8 @@ import {
   OfflineStatusDot,
   resolveOfflineDotState,
 } from "@/components/pos/offline-status-dot";
+import { useIsMobileLayout } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Helpers — adapt offline batch to the StockBatchView shape the UI expects
@@ -105,7 +107,7 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
   const [selectedMedicine, setSelectedMedicine] =
     useState<CatalogMedicine | null>(null);
   const [batches, setBatches] = useState<StockBatchView[]>([]);
-  const [batchDialogOpen, setBatchDialogOpen] = useState(false);
+  const [batchPickerOpen, setBatchPickerOpen] = useState(false);
   const [receipt, setReceipt] = useState<AnyReceipt | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoadingBatches, startLoadBatches] = useTransition();
@@ -119,10 +121,23 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
   );
   const [, setCachedBatchCount] = useState<number | null>(null);
   const [cacheAttempt, setCacheAttempt] = useState(0);
+  const [layoutReady, setLayoutReady] = useState(false);
 
   // Offline state
   const { isOnline } = useNetworkStatus();
   const db = useOfflineDB();
+  const isMobile = useIsMobileLayout();
+  const useInlinePicker = layoutReady && isMobile;
+
+  useEffect(() => {
+    setLayoutReady(true);
+  }, []);
+
+  const closeBatchPicker = useCallback(() => {
+    setBatchPickerOpen(false);
+    setSelectedMedicine(null);
+    setBatches([]);
+  }, []);
 
   const lines = useCartStore((state) => state.lines);
   const addLine = useCartStore((state) => state.addLine);
@@ -275,7 +290,7 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
 
           setSelectedMedicine(medicine);
           setBatches(response.data);
-          setBatchDialogOpen(true);
+          setBatchPickerOpen(true);
         } else {
           if (!offlineModeEnabled) {
             toast.error("Offline dispense is disabled — enable it in Facility settings (owner)");
@@ -299,7 +314,7 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
           }
           setSelectedMedicine(medicine);
           setBatches(offlineBatches.map(offlineBatchToView));
-          setBatchDialogOpen(true);
+          setBatchPickerOpen(true);
         }
       });
     },
@@ -358,6 +373,11 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
     toast.success(
       `Added ${formatQuantityWithUnit(quantity, unit, batch.unitsPerPack)} to cart`,
     );
+
+    if (useInlinePicker) {
+      closeBatchPicker();
+      searchWrapperRef.current?.querySelector("input")?.focus();
+    }
   };
 
   // -------------------------------------------------------------------------
@@ -422,7 +442,13 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
   // -------------------------------------------------------------------------
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div
+        className={cn(
+          "space-y-4",
+          isMobile && "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))]",
+        )}
+      >
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <OfflineStatusDot
           state={dotState}
           label={dotLabel}
@@ -432,7 +458,7 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
               : undefined
           }
         />
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="hidden flex-wrap items-center justify-end gap-2 sm:flex">
         <Badge
           variant="secondary"
           className="w-full justify-center sm:w-auto sm:inline-flex"
@@ -486,7 +512,40 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
               </p>
             )}
           </div>
-          <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+
+          {useInlinePicker && batchPickerOpen && selectedMedicine ? (
+            <div className="mt-4 rounded-xl border-2 border-primary/25 bg-background shadow-sm">
+              <div className="flex items-start justify-between gap-2 border-b border-border/60 px-3 py-2.5">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">2 · Batch & quantity</p>
+                  <p className="text-xs text-muted-foreground">
+                    Stays on this page — scroll down to review your cart
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="shrink-0"
+                  onClick={closeBatchPicker}
+                  aria-label="Cancel batch selection"
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+              <div className="p-3">
+                <BatchPicker
+                  compact
+                  medicine={selectedMedicine}
+                  batches={batches}
+                  onAddToCart={addBatchToCart}
+                  disabled={isLoadingBatches}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-4 hidden items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground sm:flex">
             <Keyboard className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
               {isOnline
@@ -500,7 +559,8 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
           <div className="mb-4 flex items-center justify-between">
             <p className="pharmacy-panel-title flex items-center gap-2">
               <ShoppingCart className="size-4" />
-              2 · Dispense cart
+              {useInlinePicker && batchPickerOpen ? "3 · " : "2 · "}
+              Dispense cart
             </p>
             {displayLines.length > 0 && (
               <Button
@@ -532,7 +592,10 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
                 return (
                   <li
                     key={line.id}
-                    className="flex flex-wrap items-center gap-3 rounded-xl border bg-background p-3"
+                    className={cn(
+                      "flex flex-wrap items-center gap-3 rounded-xl border bg-background p-3",
+                      isMobile && "flex-col items-stretch gap-2 p-2.5",
+                    )}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -548,10 +611,12 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
                       <p className="text-xs text-muted-foreground">
                         {line.dosageForm} · {line.strength}
                       </p>
-                      <p className="mt-1 font-mono text-xs text-muted-foreground">
-                        Batch {line.batchNumber ?? "—"} · Exp {line.expiryDate}
-                      </p>
-                      <p className="mt-2 text-sm">
+                      {!isMobile ? (
+                        <p className="mt-1 font-mono text-xs text-muted-foreground">
+                          Batch {line.batchNumber ?? "—"} · Exp {line.expiryDate}
+                        </p>
+                      ) : null}
+                      <p className={cn("text-sm", isMobile ? "mt-1" : "mt-2")}>
                         <span className="font-medium text-primary">
                           {formatQuantityWithUnit(
                             line.quantity,
@@ -568,41 +633,58 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
                         </span>
                       </p>
                     </div>
-                    <div className="flex flex-col items-center gap-1">
-                      <label className="sr-only">
-                        Quantity in {stockUnitPlural(unit, 2)}
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={line.maxQuantity}
-                        value={line.quantity}
-                        disabled={isDispensing}
-                        className="h-12 w-24 text-center text-lg font-semibold"
-                        aria-label={`Quantity in ${stockUnitPlural(unit, 2)}`}
-                        onChange={(e) =>
-                          updateQuantity(
-                            line.id,
-                            Number.parseInt(e.target.value, 10) || 1,
-                          )
-                        }
-                      />
-                      <span className="text-center text-xs font-medium text-muted-foreground">
-                        {stockUnitPlural(unit, line.quantity)}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        max {line.maxQuantity}
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="min-h-10"
-                      disabled={isDispensing}
-                      onClick={() => removeLine(line.id)}
+                    <div
+                      className={cn(
+                        "flex flex-col items-center gap-1",
+                        isMobile &&
+                          "w-full flex-row items-center justify-between gap-2",
+                      )}
                     >
-                      Remove
-                    </Button>
+                      <div className={cn(isMobile && "flex items-center gap-2")}>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={line.maxQuantity}
+                          value={line.quantity}
+                          disabled={isDispensing}
+                          className={cn(
+                            "h-12 w-24 text-center text-lg font-semibold",
+                            isMobile && "h-11 w-20 text-base",
+                          )}
+                          aria-label={`Quantity in ${stockUnitPlural(unit, 2)}`}
+                          inputMode="numeric"
+                          onChange={(e) =>
+                            updateQuantity(
+                              line.id,
+                              Number.parseInt(e.target.value, 10) || 1,
+                            )
+                          }
+                        />
+                        {!isMobile ? (
+                          <>
+                            <span className="text-center text-xs font-medium text-muted-foreground">
+                              {stockUnitPlural(unit, line.quantity)}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              max {line.maxQuantity}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            max {line.maxQuantity}
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn("min-h-10", isMobile && "shrink-0")}
+                        disabled={isDispensing}
+                        onClick={() => removeLine(line.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </li>
                 );
               })}
@@ -619,9 +701,51 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
           )}
         </section>
       </div>
+      </div>
 
-      {/* Batch picker dialog */}
-      <Dialog open={batchDialogOpen} onOpenChange={setBatchDialogOpen}>
+      {isMobile ? (
+        <div
+          className="fixed inset-x-0 z-30 border-t border-border/80 bg-background/95 p-3 backdrop-blur-md lg:hidden"
+          style={{
+            bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px))",
+          }}
+        >
+          <div className="mb-2 flex items-center justify-between gap-2 text-sm">
+            <span className="text-muted-foreground">
+              {displayLines.length} item{displayLines.length === 1 ? "" : "s"}
+            </span>
+            <span className="font-semibold">{formatKes(cartTotal)}</span>
+          </div>
+          <Button
+            size="lg"
+            className="min-h-12 w-full text-base"
+            onClick={handleDispense}
+            disabled={
+              isDispensing ||
+              !cartHydrated ||
+              lines.length === 0 ||
+              (!isOnline && !offlineModeEnabled)
+            }
+          >
+            {isDispensing
+              ? isOnline
+                ? "Dispensing…"
+                : "Saving offline…"
+              : isOnline
+                ? "Complete dispense"
+                : "Complete dispense (offline)"}
+          </Button>
+        </div>
+      ) : null}
+
+      {/* Batch picker dialog — desktop only; mobile uses inline panel */}
+      {!useInlinePicker && layoutReady && (
+      <Dialog
+        open={batchPickerOpen}
+        onOpenChange={(open) => {
+          if (!open) closeBatchPicker();
+        }}
+      >
         <DialogContent className="mx-2 max-h-[90dvh] max-w-[calc(100vw-1rem)] overflow-y-auto sm:mx-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Pick batch & quantity</DialogTitle>
@@ -643,6 +767,7 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
           )}
         </DialogContent>
       </Dialog>
+      )}
 
       {/* Dispense / offline receipt dialog */}
       <DispenseReceipt

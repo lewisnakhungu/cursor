@@ -154,7 +154,8 @@ export function PwaProvider() {
   return (
     <div
       className={cn(
-        "fixed bottom-0 inset-x-0 z-[60] border-t border-border/80 bg-background/95 p-3 shadow-lg backdrop-blur-md",
+        "fixed inset-x-0 z-[60] border-t border-border/80 bg-background/95 p-3 shadow-lg backdrop-blur-md",
+        "bottom-14 lg:bottom-0",
         "pb-[max(0.75rem,env(safe-area-inset-bottom))]",
       )}
       role="region"

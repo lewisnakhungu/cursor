@@ -33,6 +33,8 @@ type BatchPickerProps = {
   batches: StockBatchView[];
   onAddToCart: (batch: StockBatchView, quantity: number) => void;
   disabled?: boolean;
+  /** Tighter layout for inline mobile panel */
+  compact?: boolean;
 };
 
 export function BatchPicker({
@@ -40,6 +42,7 @@ export function BatchPicker({
   batches,
   onAddToCart,
   disabled = false,
+  compact = false,
 }: BatchPickerProps) {
   const [selectedId, setSelectedId] = useState<string | null>(
     batches[0]?.id ?? null,
@@ -73,19 +76,35 @@ export function BatchPicker({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+    <div className={cn("space-y-4", compact && "space-y-3")}>
+      <div
+        className={cn(
+          "rounded-lg border border-primary/20 bg-primary/5 p-3",
+          compact && "p-2.5",
+        )}
+      >
         <p className="font-semibold text-foreground">{medicine.genericName}</p>
         <p className="text-sm text-muted-foreground">
           {medicine.dosageForm} · {medicine.strength}
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Select a batch (FEFO = earliest expiry first), then enter how many to
-          dispense in <strong>that batch&apos;s counting unit</strong>.
-        </p>
+        {!compact ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Select a batch (FEFO = earliest expiry first), then enter how many to
+            dispense in <strong>that batch&apos;s counting unit</strong>.
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Tap a batch, enter qty, then add to cart.
+          </p>
+        )}
       </div>
 
-      <ul className="max-h-64 space-y-2 overflow-y-auto pr-1">
+      <ul
+        className={cn(
+          "space-y-2 overflow-y-auto pr-1",
+          compact ? "max-h-44" : "max-h-64",
+        )}
+      >
         {batches.map((batch, index) => {
           const days = daysUntil(batch.expiryDate);
           const risk = getExpiryRisk(days);
@@ -100,7 +119,8 @@ export function BatchPicker({
                 disabled={disabled}
                 onClick={() => setSelectedId(batch.id)}
                 className={cn(
-                  "flex w-full min-h-[3.25rem] flex-col gap-2 rounded-xl border px-4 py-3 text-left transition-colors",
+                  "flex w-full flex-col gap-2 rounded-xl border px-4 py-3 text-left transition-colors",
+                  compact && "min-h-[2.75rem] gap-1.5 px-3 py-2.5",
                   "hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   isFirst && !isSelected && "border-primary/30 bg-emerald-50/40",
                   isSelected && "border-primary ring-2 ring-primary/30 bg-primary/5",
@@ -146,24 +166,28 @@ export function BatchPicker({
       </ul>
 
       {selected && (
-        <div className="space-y-3 rounded-xl border bg-muted/30 p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold">Dispense from</span>
-            <span className="font-mono text-sm">
-              {selected.batchNumber ?? selected.id.slice(0, 8)}
-            </span>
-            <StockUnitBadge
-              unit={selectedUnit}
-              unitsPerPack={selected.unitsPerPack}
-            />
-          </div>
+        <div
+          className={cn(
+            "space-y-3 rounded-xl border bg-muted/30 p-4",
+            compact && "space-y-2 p-3",
+          )}
+        >
+          {!compact ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold">Dispense from</span>
+              <span className="font-mono text-sm">
+                {selected.batchNumber ?? selected.id.slice(0, 8)}
+              </span>
+              <StockUnitBadge
+                unit={selectedUnit}
+                unitsPerPack={selected.unitsPerPack}
+              />
+            </div>
+          ) : null}
 
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1.5">
-              <label
-                className="text-sm font-medium"
-                htmlFor="pick-qty"
-              >
+          <div className={cn("flex flex-wrap items-end gap-3", compact && "gap-2")}>
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <label className="text-sm font-medium" htmlFor="pick-qty">
                 Quantity ({stockUnitPlural(selectedUnit, 2)})
               </label>
               <Input
@@ -171,9 +195,13 @@ export function BatchPicker({
                 type="number"
                 min={1}
                 max={selected.quantityOnHand}
-                className="h-12 w-32 text-center text-lg font-semibold"
+                className={cn(
+                  "h-12 w-full max-w-[8rem] text-center text-lg font-semibold",
+                  compact && "h-11 max-w-none text-base",
+                )}
                 value={pickQty}
                 disabled={disabled}
+                inputMode="numeric"
                 onChange={(e) => setPickQty(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -195,7 +223,10 @@ export function BatchPicker({
             <Button
               type="button"
               size="lg"
-              className="min-h-12 flex-1 sm:flex-none"
+              className={cn(
+                "min-h-12 flex-1 sm:flex-none",
+                compact && "min-h-11 w-full",
+              )}
               disabled={
                 disabled ||
                 !qtyValid ||
