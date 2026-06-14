@@ -9,12 +9,16 @@ export type CatalogStockAvailability = {
   mixedUnits: boolean;
 };
 
+export type CatalogItemType = "MEDICINE" | "NON_PHARM";
+
 export type CatalogMedicine = {
   id: string;
   genericName: string;
   dosageForm: string;
   strength: string;
   levelOfUse: string | null;
+  itemType: CatalogItemType;
+  category: string | null;
   aliases?: string[];
   matchedBrand?: string | null;
   stock?: CatalogStockAvailability;
@@ -64,6 +68,18 @@ export type ImportedLineItem = {
 /** Server-validated row ready for bulk stock batch insertion. */
 export type ValidatedInventoryItem = ReceiveInventoryInput;
 
+/** Supplier label → catalog row, learned from a successful bulk receive. */
+export type CatalogAliasLearning = {
+  rawName: string;
+  medicineId: string;
+  autoMatchedHigh?: boolean;
+};
+
+export type BulkReceiveInput = {
+  items: ValidatedInventoryItem[];
+  aliasLearnings?: CatalogAliasLearning[];
+};
+
 /** Result of matching a single raw CSV name against the formulary. */
 export type BulkCatalogMatch = {
   rawName: string;
@@ -74,6 +90,7 @@ export type BulkCatalogMatch = {
 
 export type BulkReceiveResult = {
   count: number;
+  aliasesLearned?: number;
 };
 
 export type CartDispenseItem = {
@@ -134,6 +151,14 @@ export type TodaySalesMetrics = {
   unitsSold: number;
   grossRevenue: number;
   voidedLines: number;
+  byItemType: RevenueByItemType;
+};
+
+export type RevenueByItemType = {
+  medicineRevenue: number;
+  nonPharmRevenue: number;
+  medicineUnitsSold: number;
+  nonPharmUnitsSold: number;
 };
 
 export type SaleLineView = {
@@ -142,6 +167,7 @@ export type SaleLineView = {
   genericName: string;
   dosageForm: string;
   strength: string;
+  itemType: CatalogItemType;
   batchNumber: string | null;
   quantity: number;
   stockUnit: StockUnitCode;
@@ -166,6 +192,7 @@ export type TopSellingDrug = {
   genericName: string;
   dosageForm: string;
   strength: string;
+  itemType: CatalogItemType;
   stockUnit: StockUnitCode;
   unitsPerPack: number | null;
   unitsSold: number;
@@ -257,6 +284,8 @@ export type SalesByDayRow = {
   saleCount: number;
   unitsSold: number;
   revenue: number;
+  medicineRevenue: number;
+  nonPharmRevenue: number;
 };
 
 export type SalesReportLineDetail = {
@@ -266,6 +295,7 @@ export type SalesReportLineDetail = {
   genericName: string;
   dosageForm: string;
   strength: string;
+  itemType: CatalogItemType;
   batchNumber: string | null;
   quantity: number;
   stockUnit: StockUnitCode;
@@ -289,6 +319,7 @@ export type SalesReportData = {
     grossRevenue: number;
     voidedLines: number;
     averageSaleValue: number;
+    byItemType: RevenueByItemType;
   };
   salesByDay: SalesByDayRow[];
   topDrugs: TopSellingDrug[];
@@ -302,6 +333,7 @@ export type StockReportRow = {
   genericName: string;
   dosageForm: string;
   strength: string;
+  itemType: CatalogItemType;
   batchNumber: string | null;
   supplierName: string | null;
   quantityOnHand: number;
@@ -323,6 +355,14 @@ export type StockReportData = {
   estimatedRetailValue: number;
   expiringWithin90Count: number;
   lowStockCount: number;
+  byItemType: {
+    medicineBatches: number;
+    nonPharmBatches: number;
+    medicineUnits: number;
+    nonPharmUnits: number;
+    medicineRetailValue: number;
+    nonPharmRetailValue: number;
+  };
   rows: StockReportRow[];
 };
 

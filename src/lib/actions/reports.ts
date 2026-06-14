@@ -8,6 +8,7 @@ import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
   ActionResult,
   ReportPeriodDays,
+  RevenueByItemType,
   SalesByDayRow,
   SalesReportData,
   SalesReportLineDetail,
@@ -16,6 +17,13 @@ import type {
   TopSellingDrug,
 } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import {
+  accumulateRevenueByItemType,
+  emptyRevenueByItemType,
+  finalizeRevenueByItemType,
+  resolveLineItemType,
+} from "@/lib/report-item-type";
+import type { CatalogItemType } from "@/lib/types";
 
 const FACILITY_NAME =
   process.env.NEXT_PUBLIC_FACILITY_NAME ?? "AfyaSmart Facility";
@@ -57,7 +65,13 @@ async function getTopDrugs(
     where: { status: "ACTIVE", createdAt: { gte: from } },
     include: {
       medicine: {
-        select: { id: true, genericName: true, dosageForm: true, strength: true },
+        select: {
+          id: true,
+          genericName: true,
+          dosageForm: true,
+          strength: true,
+          itemType: true,
+        },
       },
     },
   });
@@ -80,6 +94,7 @@ async function getTopDrugs(
         genericName: line.medicine.genericName,
         dosageForm: line.medicine.dosageForm,
         strength: line.medicine.strength,
+        itemType: resolveLineItemType(line),
         stockUnit,
         unitsPerPack: line.unitsPerPack,
         unitsSold: line.quantity,
@@ -101,6 +116,8 @@ function buildSalesByDay(
       status: string;
       quantity: number;
       lineTotal: { toString(): string };
+      itemType: CatalogItemType;
+      medicine?: { itemType: CatalogItemType } | null;
     }>;
   }>,
 ): SalesByDayRow[] {
@@ -116,19 +133,32 @@ function buildSalesByDay(
       saleCount: 0,
       unitsSold: 0,
       revenue: 0,
+      medicineRevenue: 0,
+      nonPharmRevenue: 0,
     };
     row.saleCount += 1;
     for (const line of sale.lines) {
       if (line.status !== "ACTIVE") continue;
+      const revenue = decimalToNumber(line.lineTotal);
       row.unitsSold += line.quantity;
-      row.revenue += decimalToNumber(line.lineTotal);
+      row.revenue += revenue;
+      if (resolveLineItemType(line) === "NON_PHARM") {
+        row.nonPharmRevenue += revenue;
+      } else {
+        row.medicineRevenue += revenue;
+      }
     }
     dayMap.set(key, row);
   }
 
-  return Array.from(dayMap.values()).sort((a, b) =>
-    a.date.localeCompare(b.date),
-  );
+  return Array.from(dayMap.values())
+    .map((row) => ({
+      ...row,
+      revenue: Math.round(row.revenue * 100) / 100,
+      medicineRevenue: Math.round(row.medicineRevenue * 100) / 100,
+      nonPharmRevenue: Math.round(row.nonPharmRevenue * 100) / 100,
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 async function buildLineDetails(
@@ -139,7 +169,10 @@ async function buildLineDetails(
     where: { createdAt: { gte: from } },
     include: {
       lines: {
-        include: { stockBatch: { select: { batchNumber: true } } },
+        include: {
+          medicine: { select: { itemType: true } },
+          stockBatch: { select: { batchNumber: true } },
+        },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -157,6 +190,7 @@ async function buildLineDetails(
         genericName: line.genericName,
         dosageForm: line.dosageForm,
         strength: line.strength,
+        itemType: resolveLineItemType(line),
         batchNumber: line.stockBatch.batchNumber,
         quantity: line.quantity,
         stockUnit: line.stockUnit as StockUnitCode,
@@ -185,12 +219,17 @@ export async function getSalesReport(
 
       const sales = await db.sale.findMany({
         where: { createdAt: { gte: since } },
-        include: { lines: true },
+        include: {
+          lines: {
+            include: { medicine: { select: { itemType: true } } },
+          },
+        },
       });
 
       let unitsSold = 0;
       let grossRevenue = 0;
       let voidedLines = 0;
+      const byItemTypeAcc = emptyRevenueByItemType();
 
       for (const sale of sales) {
         for (const line of sale.lines) {
@@ -198,8 +237,15 @@ export async function getSalesReport(
             voidedLines++;
             continue;
           }
+          const revenue = decimalToNumber(line.lineTotal);
           unitsSold += line.quantity;
-          grossRevenue += decimalToNumber(line.lineTotal);
+          grossRevenue += revenue;
+          accumulateRevenueByItemType(
+            byItemTypeAcc,
+            resolveLineItemType(line),
+            line.quantity,
+            revenue,
+          );
         }
       }
 
@@ -230,6 +276,7 @@ export async function getSalesReport(
           grossRevenue: Math.round(grossRevenue * 100) / 100,
           voidedLines,
           averageSaleValue,
+          byItemType: finalizeRevenueByItemType(byItemTypeAcc),
         },
         salesByDay: buildSalesByDay(sales),
         topDrugs: await getTopDrugs(db, since, 20),
@@ -258,7 +305,12 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
         },
         include: {
           medicine: {
-            select: { genericName: true, dosageForm: true, strength: true },
+            select: {
+              genericName: true,
+              dosageForm: true,
+              strength: true,
+              itemType: true,
+            },
           },
         },
         orderBy: [
@@ -284,6 +336,7 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
           genericName: batch.medicine.genericName,
           dosageForm: batch.medicine.dosageForm,
           strength: batch.medicine.strength,
+          itemType: batch.medicine.itemType,
           batchNumber: batch.batchNumber,
           supplierName: batch.supplierName,
           quantityOnHand: batch.quantityOnHand,
@@ -304,12 +357,34 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
       let estimatedRetailValue = 0;
       let expiringWithin90Count = 0;
       let lowStockCount = 0;
+      const byItemType = {
+        medicineBatches: 0,
+        nonPharmBatches: 0,
+        medicineUnits: 0,
+        nonPharmUnits: 0,
+        medicineRetailValue: 0,
+        nonPharmRetailValue: 0,
+      };
 
       for (const row of rows) {
         totalUnits += row.quantityOnHand;
         if (row.stockValue !== null) estimatedRetailValue += row.stockValue;
         if (row.daysUntilExpiry <= EXPIRY_WARNING_DAYS) expiringWithin90Count++;
         if (row.flags.includes("Low stock")) lowStockCount++;
+
+        if (row.itemType === "NON_PHARM") {
+          byItemType.nonPharmBatches += 1;
+          byItemType.nonPharmUnits += row.quantityOnHand;
+          if (row.stockValue !== null) {
+            byItemType.nonPharmRetailValue += row.stockValue;
+          }
+        } else {
+          byItemType.medicineBatches += 1;
+          byItemType.medicineUnits += row.quantityOnHand;
+          if (row.stockValue !== null) {
+            byItemType.medicineRetailValue += row.stockValue;
+          }
+        }
       }
 
       return {
@@ -321,6 +396,16 @@ export async function getStockReport(): Promise<ActionResult<StockReportData>> {
         estimatedRetailValue: Math.round(estimatedRetailValue * 100) / 100,
         expiringWithin90Count,
         lowStockCount,
+        byItemType: {
+          medicineBatches: byItemType.medicineBatches,
+          nonPharmBatches: byItemType.nonPharmBatches,
+          medicineUnits: byItemType.medicineUnits,
+          nonPharmUnits: byItemType.nonPharmUnits,
+          medicineRetailValue:
+            Math.round(byItemType.medicineRetailValue * 100) / 100,
+          nonPharmRetailValue:
+            Math.round(byItemType.nonPharmRetailValue * 100) / 100,
+        },
         rows,
       };
   },

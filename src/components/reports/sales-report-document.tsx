@@ -7,12 +7,14 @@ import {
   stockUnitMeta,
 } from "@/lib/stock-unit";
 import type { SalesReportData } from "@/lib/types";
+import { itemTypeLabel } from "@/lib/report-item-type";
 import {
   ReportKpiGrid,
   ReportPrintLayout,
   ReportSection,
   ReportTable,
 } from "./report-print-layout";
+import { ReportRevenueByItemType } from "./report-revenue-by-item-type";
 
 function formatPeriodRange(start: string, end: string): string {
   const fmt = (iso: string) =>
@@ -63,27 +65,38 @@ export function SalesReportDocument({ data }: { data: SalesReportData }) {
             Voided / corrected lines in period: {sales.voidedLines}
           </p>
         ) : null}
+        <ReportRevenueByItemType byItemType={sales.byItemType} />
       </ReportSection>
 
       {data.salesByDay.length > 0 && (
         <ReportSection title="Sales by day">
           <ReportTable
-            headers={["Date", "Sales", "Items", "Revenue"]}
+            headers={[
+              "Date",
+              "Sales",
+              "Items",
+              "Revenue",
+              "Medicine",
+              "Non-pharm",
+            ]}
             rows={data.salesByDay.map((d) => [
               d.label,
               String(d.saleCount),
               String(d.unitsSold),
               formatKes(d.revenue),
+              formatKes(d.medicineRevenue),
+              formatKes(d.nonPharmRevenue),
             ])}
           />
         </ReportSection>
       )}
 
       {data.topDrugs.length > 0 && (
-        <ReportSection title="Top selling medicines (by counting unit)">
+        <ReportSection title="Top selling items (by counting unit)">
           <ReportTable
             headers={[
-              "Medicine",
+              "Item",
+              "Type",
               "Formulation",
               "Count as",
               "Qty sold",
@@ -92,6 +105,7 @@ export function SalesReportDocument({ data }: { data: SalesReportData }) {
             ]}
             rows={data.topDrugs.map((d) => [
               d.genericName,
+              itemTypeLabel(d.itemType),
               `${d.dosageForm} · ${d.strength}`,
               stockUnitMeta(d.stockUnit).label,
               String(d.unitsSold),
@@ -107,7 +121,8 @@ export function SalesReportDocument({ data }: { data: SalesReportData }) {
           <ReportTable
             headers={[
               "Date/time",
-              "Medicine",
+              "Type",
+              "Item",
               "Batch",
               "Quantity",
               "Price/unit",
@@ -116,6 +131,7 @@ export function SalesReportDocument({ data }: { data: SalesReportData }) {
             ]}
             rows={data.lineDetails.map((line) => [
               formatSaleAt(line.saleAt),
+              itemTypeLabel(line.itemType),
               `${line.genericName} (${line.dosageForm})`,
               line.batchNumber ?? "—",
               formatQuantityWithUnit(

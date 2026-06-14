@@ -7,6 +7,7 @@ import {
   stockUnitMeta,
 } from "@/lib/stock-unit";
 import type { StockReportData } from "@/lib/types";
+import { itemTypeLabel } from "@/lib/report-item-type";
 import {
   ReportKpiGrid,
   ReportPrintLayout,
@@ -48,12 +49,63 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
             Low stock batches (≤10 in batch unit): {data.lowStockCount}
           </p>
         ) : null}
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-600">
+              {itemTypeLabel("MEDICINE")} stock
+            </p>
+            <ReportKpiGrid
+              items={[
+                {
+                  label: "Batches",
+                  value: String(data.byItemType.medicineBatches),
+                },
+                {
+                  label: "Counted items",
+                  value: String(data.byItemType.medicineUnits),
+                },
+                {
+                  label: "Est. retail value",
+                  value:
+                    data.byItemType.medicineRetailValue > 0
+                      ? formatKes(data.byItemType.medicineRetailValue)
+                      : "—",
+                },
+              ]}
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-600">
+              {itemTypeLabel("NON_PHARM")} stock
+            </p>
+            <ReportKpiGrid
+              items={[
+                {
+                  label: "Batches",
+                  value: String(data.byItemType.nonPharmBatches),
+                },
+                {
+                  label: "Counted items",
+                  value: String(data.byItemType.nonPharmUnits),
+                },
+                {
+                  label: "Est. retail value",
+                  value:
+                    data.byItemType.nonPharmRetailValue > 0
+                      ? formatKes(data.byItemType.nonPharmRetailValue)
+                      : "—",
+                },
+              ]}
+            />
+          </div>
+        </div>
       </ReportSection>
 
       <ReportSection title="Stock on hand (FEFO order)">
         <ReportTable
           headers={[
-            "Medicine",
+            "Type",
+            "Item",
             "Batch",
             "Count as",
             "Qty on hand",
@@ -64,6 +116,7 @@ export function StockReportDocument({ data }: { data: StockReportData }) {
             "Notes",
           ]}
           rows={data.rows.map((r) => [
+            itemTypeLabel(r.itemType),
             `${r.genericName} — ${r.dosageForm} · ${r.strength}`,
             r.batchNumber ?? "—",
             stockUnitMeta(r.stockUnit).label,

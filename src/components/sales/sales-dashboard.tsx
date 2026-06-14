@@ -31,11 +31,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatKes } from "@/lib/money";
+import { itemTypeLabel } from "@/lib/report-item-type";
 import {
   formatPricePerUnitShort,
   formatQuantityWithUnit,
   stockUnitMeta,
 } from "@/lib/stock-unit";
+import { ReportRevenueByItemType } from "@/components/reports/report-revenue-by-item-type";
 import type { SalesDashboardData, SaleLineView } from "@/lib/types";
 
 export function SalesDashboardClient() {
@@ -122,7 +124,7 @@ export function SalesDashboardClient() {
         <StatCard
           label="Today's revenue"
           value={formatKes(data.today.grossRevenue)}
-          hint="Active line totals only"
+          hint={`${itemTypeLabel("MEDICINE")} ${formatKes(data.today.byItemType.medicineRevenue)} · ${itemTypeLabel("NON_PHARM")} ${formatKes(data.today.byItemType.nonPharmRevenue)}`}
           tone="success"
           icon={<TrendingUp className="size-5" />}
         />
@@ -141,10 +143,17 @@ export function SalesDashboardClient() {
         />
       </div>
 
+      <section className="pharmacy-panel mt-4">
+        <ReportRevenueByItemType
+          byItemType={data.today.byItemType}
+          title="Today's revenue split"
+        />
+      </section>
+
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section className="pharmacy-panel">
           <h2 className="mb-4 text-base font-semibold">
-            Top drugs today (by qty, per counting unit)
+            Top items today (by qty, per counting unit)
           </h2>
           {data.topDrugsToday.length === 0 ? (
             <p className="text-sm text-muted-foreground">No sales yet today.</p>
@@ -152,7 +161,8 @@ export function SalesDashboardClient() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Medicine</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Count as</TableHead>
                   <TableHead>Qty sold</TableHead>
                   <TableHead>Revenue</TableHead>
@@ -166,6 +176,9 @@ export function SalesDashboardClient() {
                       <div className="text-xs text-muted-foreground">
                         {drug.dosageForm} · {drug.strength}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {itemTypeLabel(drug.itemType)}
                     </TableCell>
                     <TableCell className="text-sm">
                       {stockUnitMeta(drug.stockUnit).label}
@@ -184,7 +197,7 @@ export function SalesDashboardClient() {
 
         <section className="pharmacy-panel">
           <h2 className="mb-4 text-base font-semibold">
-            Top drugs — last 7 days
+            Top items — last 7 days
           </h2>
           {data.topDrugs7Days.length === 0 ? (
             <p className="text-sm text-muted-foreground">No sales in period.</p>
@@ -192,7 +205,8 @@ export function SalesDashboardClient() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Medicine</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Count as</TableHead>
                   <TableHead>Qty sold</TableHead>
                   <TableHead>Revenue</TableHead>
@@ -206,6 +220,9 @@ export function SalesDashboardClient() {
                       <div className="text-xs text-muted-foreground">
                         {drug.dosageForm} · {drug.strength}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {itemTypeLabel(drug.itemType)}
                     </TableCell>
                     <TableCell className="text-sm">
                       {stockUnitMeta(drug.stockUnit).label}
@@ -252,7 +269,8 @@ export function SalesDashboardClient() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Drug</TableHead>
+                      <TableHead>Item</TableHead>
+                      <TableHead>Type</TableHead>
                       <TableHead>Quantity</TableHead>
                       <TableHead>Price / unit</TableHead>
                       <TableHead>Line total</TableHead>
@@ -273,6 +291,9 @@ export function SalesDashboardClient() {
                               Note: {line.correctionNote}
                             </p>
                           )}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {itemTypeLabel(line.itemType)}
                         </TableCell>
                         <TableCell>
                           {formatQuantityWithUnit(

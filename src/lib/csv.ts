@@ -3,6 +3,7 @@
  * data already loaded — no extra server round trip.
  */
 import type { SalesReportData, StockReportData } from "@/lib/types";
+import { itemTypeLabel } from "@/lib/report-item-type";
 
 export function csvEscape(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -29,6 +30,7 @@ export function stockReportCsv(data: StockReportData): string {
       "Generic name",
       "Dosage form",
       "Strength",
+      "Item type",
       "Batch number",
       "Supplier",
       "Quantity on hand",
@@ -44,6 +46,7 @@ export function stockReportCsv(data: StockReportData): string {
       row.genericName,
       row.dosageForm,
       row.strength,
+      itemTypeLabel(row.itemType),
       row.batchNumber,
       row.supplierName,
       row.quantityOnHand,
@@ -66,6 +69,7 @@ export function salesReportCsv(data: SalesReportData): string {
       "Generic name",
       "Dosage form",
       "Strength",
+      "Item type",
       "Batch number",
       "Quantity",
       "Unit",
@@ -79,6 +83,7 @@ export function salesReportCsv(data: SalesReportData): string {
       line.genericName,
       line.dosageForm,
       line.strength,
+      itemTypeLabel(line.itemType),
       line.batchNumber,
       line.quantity,
       line.stockUnit,

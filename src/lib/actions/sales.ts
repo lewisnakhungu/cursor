@@ -13,6 +13,13 @@ import type {
   TopSellingDrug,
 } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import {
+  accumulateRevenueByItemType,
+  emptyRevenueByItemType,
+  finalizeRevenueByItemType,
+  resolveLineItemType,
+} from "@/lib/report-item-type";
+import type { CatalogItemType } from "@/lib/types";
 
 function startOfToday(): Date {
   const d = new Date();
@@ -37,6 +44,7 @@ function mapSaleLine(
     genericName: string;
     dosageForm: string;
     strength: string;
+    itemType: CatalogItemType;
     quantity: number;
     stockUnit: string;
     unitsPerPack: number | null;
@@ -54,6 +62,7 @@ function mapSaleLine(
     genericName: line.genericName,
     dosageForm: line.dosageForm,
     strength: line.strength,
+    itemType: line.itemType,
     batchNumber: line.stockBatch.batchNumber,
     quantity: line.quantity,
     stockUnit: line.stockUnit as StockUnitCode,
@@ -72,13 +81,18 @@ async function getTodayMetrics(
 ): Promise<TodaySalesMetrics> {
   const sales = await db.sale.findMany({
     where: { createdAt: { gte: from } },
-    include: { lines: true },
+    include: {
+      lines: {
+        include: { medicine: { select: { itemType: true } } },
+      },
+    },
   });
 
   let unitsSold = 0;
   let grossRevenue = 0;
   let lineCount = 0;
   let voidedLines = 0;
+  const byItemTypeAcc = emptyRevenueByItemType();
 
   for (const sale of sales) {
     for (const line of sale.lines) {
@@ -87,8 +101,15 @@ async function getTodayMetrics(
         voidedLines++;
         continue;
       }
+      const revenue = decimalToNumber(line.lineTotal);
       unitsSold += line.quantity;
-      grossRevenue += decimalToNumber(line.lineTotal);
+      grossRevenue += revenue;
+      accumulateRevenueByItemType(
+        byItemTypeAcc,
+        resolveLineItemType(line),
+        line.quantity,
+        revenue,
+      );
     }
   }
 
@@ -98,6 +119,7 @@ async function getTodayMetrics(
     unitsSold,
     grossRevenue,
     voidedLines,
+    byItemType: finalizeRevenueByItemType(byItemTypeAcc),
   };
 }
 
@@ -113,7 +135,13 @@ async function getTopDrugs(
     },
     include: {
       medicine: {
-        select: { id: true, genericName: true, dosageForm: true, strength: true },
+        select: {
+          id: true,
+          genericName: true,
+          dosageForm: true,
+          strength: true,
+          itemType: true,
+        },
       },
     },
   });
@@ -139,6 +167,7 @@ async function getTopDrugs(
         genericName: line.medicine.genericName,
         dosageForm: line.medicine.dosageForm,
         strength: line.medicine.strength,
+        itemType: resolveLineItemType(line),
         stockUnit,
         unitsPerPack: line.unitsPerPack,
         unitsSold: line.quantity,
@@ -157,6 +186,7 @@ async function getTopDrugs(
         genericName,
         dosageForm,
         strength,
+        itemType,
         stockUnit,
         unitsPerPack,
         unitsSold,
@@ -167,6 +197,7 @@ async function getTopDrugs(
         genericName,
         dosageForm,
         strength,
+        itemType,
         stockUnit,
         unitsPerPack,
         unitsSold,
@@ -191,7 +222,10 @@ export async function getSalesDashboard(): Promise<
       where: { createdAt: { gte: todayStart } },
       include: {
         lines: {
-          include: { stockBatch: { select: { batchNumber: true } } },
+          include: {
+            medicine: { select: { itemType: true } },
+            stockBatch: { select: { batchNumber: true } },
+          },
           orderBy: { createdAt: "asc" },
         },
       },
@@ -199,7 +233,12 @@ export async function getSalesDashboard(): Promise<
     });
 
     const todaySales: SaleSummary[] = salesToday.map((sale) => {
-      const lines = sale.lines.map(mapSaleLine);
+      const lines = sale.lines.map((line) =>
+        mapSaleLine({
+          ...line,
+          itemType: resolveLineItemType(line),
+        }),
+      );
       const activeLines = lines.filter((l) => l.status === "ACTIVE");
       return {
         id: sale.id,
