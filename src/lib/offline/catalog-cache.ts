@@ -9,6 +9,8 @@
 
 import type { AfyaDB } from "@/lib/offline/db";
 import type { OfflineMedicine } from "@/lib/offline/types";
+import { fetchWithTimeout } from "@/lib/offline/fetch-with-timeout";
+import { parseJsonResponse } from "@/lib/offline/parse-json-response";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -16,6 +18,9 @@ import type { OfflineMedicine } from "@/lib/offline/types";
 
 const META_KEY = "catalog_last_synced";
 export const CATALOG_STALE_MS = 24 * 60 * 60 * 1000; // 24 hours
+const PUT_CHUNK_SIZE = 500;
+
+let catalogRefreshInFlight: Promise<boolean> | null = null;
 
 // ---------------------------------------------------------------------------
 // Freshness check
@@ -61,14 +66,72 @@ export async function populateCatalog(
   medicines: OfflineMedicine[],
 ): Promise<void> {
   const tx = db.transaction(["catalog_medicines", "sync_meta"], "readwrite");
+  const store = tx.objectStore("catalog_medicines");
 
-  // Clear and re-populate atomically within one transaction.
-  await tx.objectStore("catalog_medicines").clear();
-  for (const m of medicines) {
-    await tx.objectStore("catalog_medicines").put(m);
+  await store.clear();
+  for (let i = 0; i < medicines.length; i += PUT_CHUNK_SIZE) {
+    const chunk = medicines.slice(i, i + PUT_CHUNK_SIZE);
+    await Promise.all(chunk.map((m) => store.put(m)));
   }
   await tx.objectStore("sync_meta").put({ key: META_KEY, value: Date.now() });
   await tx.done;
+}
+
+export type CatalogRefreshResult =
+  | { ok: true; refreshed: boolean; count: number }
+  | { ok: false; error: string; count: number };
+
+/**
+ * Ensures the KEML catalog is in IndexedDB. Single-flight: concurrent callers
+ * share one download/write so PwaProvider + POS cannot deadlock each other.
+ */
+export async function ensureCatalogCached(db: AfyaDB): Promise<CatalogRefreshResult> {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    const count = await catalogSize(db);
+    return count > 0
+      ? { ok: true, refreshed: false, count }
+      : { ok: false, error: "Offline — connect to download the medicine catalog.", count: 0 };
+  }
+
+  if (await isCatalogFresh(db)) {
+    return { ok: true, refreshed: false, count: await catalogSize(db) };
+  }
+
+  if (!catalogRefreshInFlight) {
+    catalogRefreshInFlight = (async () => {
+      try {
+        const res = await fetchWithTimeout("/api/offline/catalog");
+        if (res.status === 401) {
+          throw new Error("Sign in required to cache medicines for offline use.");
+        }
+        if (!res.ok) {
+          throw new Error(`Catalog download failed (${res.status}).`);
+        }
+
+        const body = await parseJsonResponse<{ medicines?: OfflineMedicine[] }>(res);
+        if (!Array.isArray(body.medicines) || body.medicines.length === 0) {
+          throw new Error("Server returned an empty medicine catalog.");
+        }
+
+        await populateCatalog(db, body.medicines);
+        return true;
+      } finally {
+        catalogRefreshInFlight = null;
+      }
+    })();
+  }
+
+  try {
+    const refreshed = await catalogRefreshInFlight;
+    return { ok: true, refreshed, count: await catalogSize(db) };
+  } catch (err) {
+    const count = await catalogSize(db);
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Catalog download failed.",
+      count,
+    };
+  }
 }
 
 /**
@@ -76,19 +139,8 @@ export async function populateCatalog(
  * empty. Returns true when a new catalog was written to IndexedDB.
  */
 export async function refreshCatalogIfStale(db: AfyaDB): Promise<boolean> {
-  if (typeof navigator !== "undefined" && !navigator.onLine) return false;
-  if (await isCatalogFresh(db)) return false;
-
-  const res = await fetch("/api/offline/catalog");
-  if (!res.ok) return false;
-
-  const body = (await res.json()) as { medicines?: OfflineMedicine[] };
-  if (!Array.isArray(body.medicines) || body.medicines.length === 0) {
-    return false;
-  }
-
-  await populateCatalog(db, body.medicines);
-  return true;
+  const result = await ensureCatalogCached(db);
+  return result.ok && result.refreshed;
 }
 
 // ---------------------------------------------------------------------------
@@ -98,9 +150,6 @@ export async function refreshCatalogIfStale(db: AfyaDB): Promise<boolean> {
 /**
  * Searches the offline catalog by prefix on the searchKey index,
  * with an alias fallback full scan.
- *
- * Returns at most 30 results, sorted: in-stock-favouring order is
- * unavailable offline (no live stock data), so results are alphabetical.
  */
 export async function searchOfflineCatalog(
   db: AfyaDB,
@@ -109,7 +158,6 @@ export async function searchOfflineCatalog(
   const normalized = normalizeQuery(query);
   if (normalized.length < 2) return [];
 
-  // Primary: index prefix scan on searchKey.
   const indexResults = await db.getAllFromIndex(
     "catalog_medicines",
     "searchKey",
@@ -121,7 +169,6 @@ export async function searchOfflineCatalog(
     return indexResults;
   }
 
-  // Fallback: full scan for alias matches (~1,500 records — acceptable).
   const all = await db.getAll("catalog_medicines");
   const q = query.toLowerCase();
   return all

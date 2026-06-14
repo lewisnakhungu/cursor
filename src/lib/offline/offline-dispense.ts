@@ -146,19 +146,32 @@ export async function dispenseOffline(
   // -------------------------------------------------------------------------
   // 5. Register Background Sync (best-effort — not all browsers support it)
   // -------------------------------------------------------------------------
-  try {
-    if ("serviceWorker" in navigator) {
-      const reg = await navigator.serviceWorker.ready;
-      if ("sync" in reg) {
-        await (reg as ServiceWorkerRegistration & {
-          sync: { register(tag: string): Promise<void> };
-        }).sync.register("dispense-sync");
-      }
-    }
-  } catch {
-    // Background Sync not supported or blocked — the online event handler
-    // in PwaProvider will trigger a manual flush instead.
-  }
+  await registerDispenseBackgroundSync();
 
   return { ok: true, receipt: localReceipt, queuedId };
+}
+
+/** Best-effort background sync registration — must never block dispense. */
+async function registerDispenseBackgroundSync(): Promise<void> {
+  // Dev intentionally unregisters the SW; `.ready` never resolves there.
+  if (process.env.NODE_ENV !== "production") return;
+  if (!("serviceWorker" in navigator)) return;
+
+  try {
+    const reg = await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Service worker timeout")), 5000),
+      ),
+    ]);
+    if ("sync" in reg) {
+      await (
+        reg as ServiceWorkerRegistration & {
+          sync: { register(tag: string): Promise<void> };
+        }
+      ).sync.register("dispense-sync");
+    }
+  } catch {
+    // Background Sync unsupported or SW not active — sync badge flushes on reconnect.
+  }
 }

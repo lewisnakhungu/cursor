@@ -123,6 +123,20 @@ export function TeamSettings() {
 
   return (
     <div className="space-y-8">
+      <section className="pharmacy-panel max-w-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold">Facility settings</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Offline dispense, risk controls — owner only
+            </p>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/settings/facility">Open facility settings</a>
+          </Button>
+        </div>
+      </section>
+
       <ResetPasswordDialog
         open={resetTarget !== null}
         onOpenChange={(open) => {

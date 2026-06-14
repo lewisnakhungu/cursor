@@ -25,10 +25,18 @@ export function SyncStatusBadge({ tenantId }: { tenantId: string }) {
   const db = useOfflineDB();
   const [count, setCount] = useState(0);
   const [syncState, setSyncState] = useState<SyncState>("idle");
+  const [offlineEnabled, setOfflineEnabled] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/facility/offline-mode")
+      .then((r) => (r.ok ? r.json() : { enabled: false }))
+      .then((body: { enabled?: boolean }) => setOfflineEnabled(Boolean(body.enabled)))
+      .catch(() => setOfflineEnabled(false));
+  }, []);
 
   // Poll the pending count from IDB every 5 seconds.
   useEffect(() => {
-    if (!db) return;
+    if (!offlineEnabled || !db) return;
     let active = true;
 
     async function refresh() {
@@ -45,7 +53,7 @@ export function SyncStatusBadge({ tenantId }: { tenantId: string }) {
       active = false;
       clearInterval(interval);
     };
-  }, [db, tenantId, syncState]);
+  }, [db, tenantId, syncState, offlineEnabled]);
 
   // Flush pending operations when we come back online.
   const flush = useCallback(async () => {
@@ -121,6 +129,8 @@ export function SyncStatusBadge({ tenantId }: { tenantId: string }) {
   // -------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------
+
+  if (!offlineEnabled) return null;
 
   if (isOnline && syncState === "idle" && count === 0) return null;
 

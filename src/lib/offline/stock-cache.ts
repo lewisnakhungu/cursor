@@ -8,12 +8,16 @@
 
 import type { AfyaDB } from "@/lib/offline/db";
 import type { OfflineStockBatch } from "@/lib/offline/types";
+import { fetchWithTimeout } from "@/lib/offline/fetch-with-timeout";
+import { parseJsonResponse } from "@/lib/offline/parse-json-response";
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 export const STOCK_STALE_MS = 5 * 60 * 1000; // 5 minutes
+
+const stockRefreshInFlight = new Map<string, Promise<void>>();
 
 function stockMetaKey(tenantId: string): string {
   return `stock_${tenantId}_last_synced`;
@@ -46,23 +50,19 @@ export async function populateTenantStock(
   tenantId: string,
   batches: OfflineStockBatch[],
 ): Promise<void> {
+  const existing = await db.getAllFromIndex(
+    "tenant_stock",
+    "byMedicine",
+    IDBKeyRange.bound([tenantId], [tenantId, "\uffff", "\uffff"]),
+  );
+
   const tx = db.transaction(["tenant_stock", "sync_meta"], "readwrite");
   const store = tx.objectStore("tenant_stock");
 
-  // Delete existing records for this tenant.
-  let cursor = await store
-    .index("byMedicine")
-    .openCursor(
-      IDBKeyRange.bound([tenantId], [tenantId, "\uffff", "\uffff"]),
-    );
-  while (cursor) {
-    await cursor.delete();
-    cursor = await cursor.continue();
-  }
-
-  for (const b of batches) {
-    await store.put(b);
-  }
+  await Promise.all(
+    existing.map((b) => store.delete([b.tenantId, b.batchId])),
+  );
+  await Promise.all(batches.map((b) => store.put(b)));
 
   await tx
     .objectStore("sync_meta")
@@ -167,37 +167,62 @@ export async function refreshTenantStockIfStale(
   if (typeof navigator !== "undefined" && !navigator.onLine) return;
   if (await isStockFresh(db, tenantId)) return;
 
-  const res = await fetch("/api/offline/stock");
-  if (!res.ok) return;
+  let inFlight = stockRefreshInFlight.get(tenantId);
+  if (!inFlight) {
+    inFlight = (async () => {
+      try {
+        const res = await fetchWithTimeout("/api/offline/stock");
+        if (!res.ok) return;
 
-  const body = (await res.json()) as {
-    batches: Array<{
-      batchId: string;
-      medicineId: string;
-      batchNumber: string | null;
-      quantityOnHand: number;
-      expiryDate: string;
-      retailSalePrice: number | null;
-      stockUnit: OfflineStockBatch["stockUnit"];
-      unitsPerPack: number | null;
-    }>;
-  };
+        const body = await parseJsonResponse<{
+          batches: Array<{
+            batchId: string;
+            medicineId: string;
+            batchNumber: string | null;
+            quantityOnHand: number;
+            expiryDate: string;
+            retailSalePrice: number | null;
+            stockUnit: OfflineStockBatch["stockUnit"];
+            unitsPerPack: number | null;
+          }>;
+        }>(res);
 
-  if (!Array.isArray(body.batches)) return;
+        if (!Array.isArray(body.batches)) return;
 
-  await populateTenantStock(
-    db,
-    tenantId,
-    body.batches.map((b) => ({
-      tenantId,
-      batchId: b.batchId,
-      medicineId: b.medicineId,
-      batchNumber: b.batchNumber,
-      quantityOnHand: b.quantityOnHand,
-      expiryDate: b.expiryDate,
-      retailSalePrice: b.retailSalePrice,
-      stockUnit: b.stockUnit,
-      unitsPerPack: b.unitsPerPack,
-    })),
+        await populateTenantStock(
+          db,
+          tenantId,
+          body.batches.map((b) => ({
+            tenantId,
+            batchId: b.batchId,
+            medicineId: b.medicineId,
+            batchNumber: b.batchNumber,
+            quantityOnHand: b.quantityOnHand,
+            expiryDate: b.expiryDate,
+            retailSalePrice: b.retailSalePrice,
+            stockUnit: b.stockUnit,
+            unitsPerPack: b.unitsPerPack,
+          })),
+        );
+      } finally {
+        stockRefreshInFlight.delete(tenantId);
+      }
+    })();
+    stockRefreshInFlight.set(tenantId, inFlight);
+  }
+
+  await inFlight;
+}
+
+/** Total cached stock batches for one tenant. */
+export async function tenantStockBatchCount(
+  db: AfyaDB,
+  tenantId: string,
+): Promise<number> {
+  const batches = await db.getAllFromIndex(
+    "tenant_stock",
+    "byMedicine",
+    IDBKeyRange.bound([tenantId], [tenantId, "\uffff", "\uffff"]),
   );
+  return batches.length;
 }

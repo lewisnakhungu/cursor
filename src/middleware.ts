@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
 
   if (
     pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/") ||
     pathname.startsWith("/api/auth") ||
     pathname === "/sw.js" ||
     pathname === "/manifest.webmanifest" ||

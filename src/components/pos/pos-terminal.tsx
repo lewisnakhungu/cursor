@@ -35,13 +35,20 @@ import type { CatalogMedicine, StockBatchView } from "@/lib/types";
 import { useNetworkStatus } from "@/lib/offline/use-network-status";
 import { useOfflineDB } from "@/lib/offline/use-offline-db";
 import { dispenseOffline } from "@/lib/offline/offline-dispense";
-import { getOfflineBatchesForMedicine, refreshTenantStockIfStale } from "@/lib/offline/stock-cache";
 import {
-  catalogSize,
-  refreshCatalogIfStale,
+  getOfflineBatchesForMedicine,
+  refreshTenantStockIfStale,
+  tenantStockBatchCount,
+} from "@/lib/offline/stock-cache";
+import {
+  ensureCatalogCached,
   searchOfflineCatalog,
 } from "@/lib/offline/catalog-cache";
 import type { OfflineStockBatch } from "@/lib/offline/types";
+import {
+  OfflineStatusDot,
+  resolveOfflineDotState,
+} from "@/components/pos/offline-status-dot";
 
 // ---------------------------------------------------------------------------
 // Helpers — adapt offline batch to the StockBatchView shape the UI expects
@@ -88,9 +95,11 @@ function offlineMedicineToCatalog(
 type PosTerminalProps = {
   /** Passed from the page so the offline stock cache is tenant-scoped. */
   tenantId: string;
+  /** Owner opt-in from Facility settings — gates cache preload and offline dispense. */
+  offlineModeEnabled: boolean;
 };
 
-export function PosTerminal({ tenantId }: PosTerminalProps) {
+export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) {
   const searchWrapperRef = useRef<HTMLDivElement>(null);
 
   const [selectedMedicine, setSelectedMedicine] =
@@ -101,10 +110,15 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [isLoadingBatches, startLoadBatches] = useTransition();
   const [isDispensing, startDispense] = useTransition();
-  const [catalogCaching, setCatalogCaching] = useState(false);
+  const [cacheStatus, setCacheStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+  const [cacheError, setCacheError] = useState<string | null>(null);
   const [cachedMedicineCount, setCachedMedicineCount] = useState<number | null>(
     null,
   );
+  const [cachedBatchCount, setCachedBatchCount] = useState<number | null>(null);
+  const [cacheAttempt, setCacheAttempt] = useState(0);
 
   // Offline state
   const { isOnline } = useNetworkStatus();
@@ -134,43 +148,82 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   // Bulk-seed KEML catalog + tenant stock for offline dispensing while online
   // -------------------------------------------------------------------------
   useEffect(() => {
-    if (!db || !isOnline) return;
+    if (!db || !isOnline || !offlineModeEnabled) {
+      if (!offlineModeEnabled) {
+        setCacheStatus("idle");
+        setCachedMedicineCount(null);
+        setCachedBatchCount(null);
+      }
+      return;
+    }
 
     let active = true;
-    setCatalogCaching(true);
+    setCacheStatus("loading");
+    setCacheError(null);
 
-    Promise.all([
-      refreshCatalogIfStale(db),
-      refreshTenantStockIfStale(db, tenantId),
-    ])
-      .then(async ([catalogRefreshed]) => {
-        if (!active) return;
-        const count = await catalogSize(db);
-        setCachedMedicineCount(count);
-        if (catalogRefreshed && count > 0) {
-          toast.success(`Cached ${count.toLocaleString()} medicines for offline use`, {
-            duration: 4000,
-          });
-        }
-      })
-      .catch(() => {
-        /* per-medicine batch cache still works as fallback for stock */
-      })
-      .finally(() => {
-        if (active) setCatalogCaching(false);
-      });
+    (async () => {
+      const catalogResult = await ensureCatalogCached(db);
+      if (!active) return;
+
+      if (!catalogResult.ok) {
+        setCachedMedicineCount(catalogResult.count);
+        setCacheStatus("error");
+        setCacheError(catalogResult.error);
+        return;
+      }
+
+      setCachedMedicineCount(catalogResult.count);
+
+      try {
+        await refreshTenantStockIfStale(db, tenantId);
+      } catch {
+        /* stock can still be cached per-medicine while online */
+      }
+
+      if (!active) return;
+
+      const batchCount = await tenantStockBatchCount(db, tenantId);
+      setCachedBatchCount(batchCount);
+      setCacheStatus(catalogResult.count > 0 ? "ready" : "error");
+    })().catch(() => {
+      if (!active) return;
+      setCacheStatus("error");
+      setCacheError("Offline cache failed — check connection and retry.");
+    });
 
     return () => {
       active = false;
     };
-  }, [db, isOnline, tenantId]);
+  }, [db, isOnline, tenantId, cacheAttempt, offlineModeEnabled]);
 
   useEffect(() => {
-    if (!db || isOnline) return;
-    catalogSize(db).then((count) => {
-      setCachedMedicineCount(count);
-    });
-  }, [db, isOnline]);
+    if (!db || isOnline || !offlineModeEnabled) return;
+    void (async () => {
+      const [medCount, batchCount] = await Promise.all([
+        db.count("catalog_medicines"),
+        tenantStockBatchCount(db, tenantId),
+      ]);
+      setCachedMedicineCount(medCount);
+      setCachedBatchCount(batchCount);
+      setCacheStatus(medCount > 0 ? "ready" : "error");
+      if (medCount === 0) {
+        setCacheError("No medicine catalog cached — connect while signed in on POS first.");
+      }
+    })();
+  }, [db, isOnline, tenantId, offlineModeEnabled]);
+
+  const cacheReady =
+    offlineModeEnabled &&
+    cachedMedicineCount != null &&
+    cachedMedicineCount > 0 &&
+    cacheStatus === "ready";
+
+  const { state: dotState, label: dotLabel } = resolveOfflineDotState({
+    isOnline,
+    offlineModeEnabled,
+    cacheReady,
+    cacheLoading: cacheStatus === "loading",
+  });
 
 
   // -------------------------------------------------------------------------
@@ -197,7 +250,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
 
           // While online: opportunistically cache these batches into IDB
           // so they are available offline on the next disconnection.
-          if (db) {
+          if (db && offlineModeEnabled) {
             const offlineBatches: OfflineStockBatch[] = response.data.map(
               (b) => ({
                 tenantId,
@@ -224,6 +277,10 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
           setBatches(response.data);
           setBatchDialogOpen(true);
         } else {
+          if (!offlineModeEnabled) {
+            toast.error("Offline dispense is disabled — enable it in Facility settings (owner)");
+            return;
+          }
           // --- Offline path: read batches from IDB ---
           if (!db) {
             toast.error("Offline cache not ready yet — please wait a moment");
@@ -246,7 +303,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
         }
       });
     },
-    [isOnline, db, tenantId],
+    [isOnline, db, tenantId, offlineModeEnabled],
   );
 
   // -------------------------------------------------------------------------
@@ -313,42 +370,50 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
     }
 
     startDispense(async () => {
-      if (isOnline) {
-        // --- Online path (unchanged) ---
-        const response = await dispenseMedicine(
-          lines.map((line) => ({
-            medicineId: line.medicineId,
-            stockBatchId: line.stockBatchId,
-            quantity: line.quantity,
-          })),
-        );
-        if (!response.success) {
-          toast.error(response.error);
-          return;
+      try {
+        if (isOnline) {
+          // --- Online path (unchanged) ---
+          const response = await dispenseMedicine(
+            lines.map((line) => ({
+              medicineId: line.medicineId,
+              stockBatchId: line.stockBatchId,
+              quantity: line.quantity,
+            })),
+          );
+          if (!response.success) {
+            toast.error(response.error);
+            return;
+          }
+          clearCart();
+          setReceipt(response.data);
+          setReceiptOpen(true);
+          toast.success("Dispense complete");
+        } else {
+          if (!offlineModeEnabled) {
+            toast.error("Offline dispense is disabled — owner can enable it in Facility settings");
+            return;
+          }
+          // --- Offline path ---
+          if (!db) {
+            toast.error("Offline cache not ready — try again in a moment");
+            return;
+          }
+          const result = await dispenseOffline(db, tenantId, lines);
+          if (!result.ok) {
+            toast.error(result.error);
+            return;
+          }
+          clearCart();
+          setReceipt(result.receipt);
+          setReceiptOpen(true);
+          toast.success("Sale saved offline — will sync when online", {
+            duration: 5000,
+          });
         }
-        clearCart();
-        setReceipt(response.data);
-        setReceiptOpen(true);
-        toast.success("Dispense complete");
-      } else {
-        // --- Offline path ---
-        if (!db) {
-          toast.error("Offline cache not ready — try again in a moment");
-          return;
-        }
-        const result = await dispenseOffline(db, tenantId, lines);
-        if (!result.ok) {
-          toast.error(result.error);
-          return;
-        }
-        clearCart();
-        setReceipt(result.receipt);
-        setReceiptOpen(true);
-        toast.success("Sale saved offline — will sync when online", {
-          duration: 5000,
-        });
+        searchWrapperRef.current?.querySelector("input")?.focus();
+      } catch {
+        toast.error("Dispense failed — try again.");
       }
-      searchWrapperRef.current?.querySelector("input")?.focus();
     });
   };
 
@@ -357,29 +422,17 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
   // -------------------------------------------------------------------------
   return (
     <>
-      {isOnline && catalogCaching && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
-          <span>
-            <strong>Preparing offline cache…</strong> Downloading KEML medicines
-            and your stock batches for offline dispensing.
-          </span>
-        </div>
-      )}
-
-      {/* Offline mode notice bar */}
-      {!isOnline && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          <WifiOff className="size-4 shrink-0" aria-hidden />
-          <span>
-            <strong>Offline mode.</strong>{" "}
-            {cachedMedicineCount && cachedMedicineCount > 0
-              ? `Searching ${cachedMedicineCount.toLocaleString()} cached medicines. Sales sync when you reconnect.`
-              : "No medicine catalog cached yet — connect while signed in on POS first."}
-          </span>
-        </div>
-      )}
-
-      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <OfflineStatusDot
+          state={dotState}
+          label={dotLabel}
+          onRetry={
+            offlineModeEnabled && isOnline && cacheStatus === "error"
+              ? () => setCacheAttempt((n) => n + 1)
+              : undefined
+          }
+        />
+        <div className="flex flex-wrap items-center justify-end gap-2">
         <Badge
           variant="secondary"
           className="w-full justify-center sm:w-auto sm:inline-flex"
@@ -390,7 +443,12 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
           size="lg"
           className="min-h-11 w-full px-6 text-base sm:w-auto"
           onClick={handleDispense}
-          disabled={isDispensing || !cartHydrated || lines.length === 0}
+          disabled={
+            isDispensing ||
+            !cartHydrated ||
+            lines.length === 0 ||
+            (!isOnline && !offlineModeEnabled)
+          }
         >
           {isDispensing
             ? isOnline
@@ -400,6 +458,7 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
             ? "Complete dispense"
             : "Complete dispense (offline)"}
         </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
@@ -413,13 +472,18 @@ export function PosTerminal({ tenantId }: PosTerminalProps) {
                 onSelect={openBatchPicker}
                 disabled={isDispensing}
               />
-            ) : (
+            ) : offlineModeEnabled ? (
               /* Offline search: same UI shell, reads IDB instead of server */
               <OfflineCatalogSearch
                 onSelect={openBatchPicker}
                 disabled={isDispensing || !db}
                 search={handleOfflineCatalogSearch}
               />
+            ) : (
+              <p className="rounded-lg border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
+                Offline dispense is disabled. The facility owner can enable it under
+                Settings → Facility.
+              </p>
             )}
           </div>
           <div className="mt-4 flex items-start gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">

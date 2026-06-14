@@ -8,17 +8,24 @@ import { useCartStore } from "@/stores/cart-store";
  * Use this to avoid SSR/client mismatches on cart totals and line counts.
  */
 export function useCartHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(() =>
-    useCartStore.persist.hasHydrated(),
-  );
+  const persist = useCartStore.persist;
+
+  const [hydrated, setHydrated] = useState(() => {
+    if (!persist?.hasHydrated) return true;
+    return persist.hasHydrated();
+  });
 
   useEffect(() => {
-    if (useCartStore.persist.hasHydrated()) {
+    if (!persist?.onFinishHydration) {
       setHydrated(true);
       return;
     }
-    return useCartStore.persist.onFinishHydration(() => setHydrated(true));
-  }, []);
+    if (persist.hasHydrated()) {
+      setHydrated(true);
+      return;
+    }
+    return persist.onFinishHydration(() => setHydrated(true));
+  }, [persist]);
 
   return hydrated;
 }

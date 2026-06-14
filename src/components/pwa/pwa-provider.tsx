@@ -5,7 +5,7 @@ import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { openAfyaDB } from "@/lib/offline/db";
-import { isCatalogFresh, refreshCatalogIfStale } from "@/lib/offline/catalog-cache";
+import { isCatalogFresh, ensureCatalogCached } from "@/lib/offline/catalog-cache";
 
 const DISMISS_KEY = "afyasmart-pwa-install-dismissed";
 
@@ -50,13 +50,18 @@ export function PwaProvider() {
   const seedCatalog = useCallback(async () => {
     if (!navigator.onLine) return;
     try {
+      const modeRes = await fetch("/api/facility/offline-mode");
+      if (!modeRes.ok) return;
+      const { enabled } = (await modeRes.json()) as { enabled?: boolean };
+      if (!enabled) return;
+
       const db = await openAfyaDB();
       if (await isCatalogFresh(db)) return;
 
       await registerCatalogRefreshSync();
-      await refreshCatalogIfStale(db);
+      await ensureCatalogCached(db);
     } catch {
-      // Non-critical — POS mount will retry while signed in.
+      // POS shows explicit cache status when the user opens dispense.
     }
   }, [registerCatalogRefreshSync]);
 
