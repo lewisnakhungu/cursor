@@ -37,3 +37,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# generated catalog audit artifacts (export from local/Neon DB)
+/data/catalog-full-export.json
+/data/audit-reports/

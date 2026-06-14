@@ -12,12 +12,22 @@
 import { execSync } from "node:child_process";
 import { config } from "dotenv";
 
-config({ path: ".env.local" });
-config({ path: ".env" });
+if (!process.env.DATABASE_URL) {
+  config({ path: ".env.local" });
+  config({ path: ".env" });
+}
+
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  throw new Error("DATABASE_URL is required");
+}
+
+const withUrl = `${dbUrl}${dbUrl.includes("?") ? "&" : "?"}connect_timeout=60`;
+const childEnv = { ...process.env, DATABASE_URL: withUrl, SEED_CHUNK_SIZE: "100" };
 
 function run(label: string, cmd: string): void {
   console.log(`\n▶ ${label}`);
-  execSync(cmd, { stdio: "inherit", env: process.env });
+  execSync(cmd, { stdio: "inherit", env: childEnv });
 }
 
 run("KEML 2023 formulary", "npm run db:seed");
