@@ -86,7 +86,7 @@ A **Kenya pharmacy POS** that:
 | FEFO | `FOR UPDATE` + expiry ordering + tenant filter in dispense SQL |
 | Observability | Sentry with action + tenant tags |
 | Build | `npm run build` passes |
-| Docs | `DOCUMENTATION.md`, `ARCHITECTURE.md`, `FRONTEND.md`, this file |
+| Docs | `docs/DOCUMENTATION.md`, `docs/ARCHITECTURE.md`, `docs/FRONTEND.md`, this file |
 
 ---
 

@@ -76,11 +76,14 @@ flowchart TB
 
 ```
 afyasmart-app/
-├── DOCUMENTATION.md           ← Master reference (this file)
-├── ARCHITECTURE.md            ← FEFO, transactions, tenancy
-├── ACHIEVEMENTS.md            ← Executive summary
-├── FRONTEND.md                ← UI components & routes
 ├── README.md                  ← Quick start
+├── CHANGELOG.md               ← Release history
+├── docs/
+│   ├── DOCUMENTATION.md       ← Master reference (this file)
+│   ├── ARCHITECTURE.md        ← FEFO, transactions, tenancy
+│   ├── ACHIEVEMENTS.md        ← Executive summary
+│   ├── FRONTEND.md            ← UI components & routes
+│   └── catalog-ingestion.md   ← Hybrid / KEMSA pipeline
 ├── data/                      ← KEML + alias JSON
 ├── prisma/
 │   ├── schema.prisma
@@ -508,8 +511,11 @@ rm -rf .next && npm run dev
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO, transactions, tenancy, auth design |
 | [`FRONTEND.md`](./FRONTEND.md) | Components, routes, UI decisions |
 | [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive deliverables summary |
-| [`README.md`](./README.md) | Quick start |
-| [`.cursorrules`](./.cursorrules) | Dev standards |
+| [`catalog-ingestion.md`](./catalog-ingestion.md) | Hybrid / KEMSA catalog pipeline |
+| [`bulk-delivery-import.md`](./bulk-delivery-import.md) | Bulk delivery receive |
+| [`README.md`](../README.md) | Quick start |
+| [`CHANGELOG.md`](../CHANGELOG.md) | Release history |
+| [`.cursorrules`](../.cursorrules) | Dev standards |
 
 ---
 

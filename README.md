@@ -1,17 +1,28 @@
-# AfyaSmart-Stock POS
+# AfyaSmart-Stock
 
-Pharmacy system for Kenya: **KEML catalog**, **multi-facility stock**, **role-based login**, **FEFO dispense**, **insights & reports**.
+Multi-tenant pharmacy POS and stock management for Kenyan health facilities — KEML catalog, FEFO dispense, offline PWA, and facility reports.
 
-**Project root** (git + Vercel). Run all commands from this folder.
+**Live:** [cursor-topaz-zeta.vercel.app](https://cursor-topaz-zeta.vercel.app) · **Stack:** Next.js · Prisma · PostgreSQL (Neon) · Vercel
+
+## Features
+
+- KEML + KEMSA + brand-alias catalog search (medicine and non-pharm items)
+- Multi-facility tenancy with role-based access (platform admin, owner, deputy, dispenser)
+- Receive stock, FEFO dispense, sales audit, printable reports
+- Offline-capable PWA for connectivity blackouts
+- Bulk delivery import (CSV / Excel)
 
 ## Documentation
 
 | Doc | Description |
 |-----|-------------|
-| [`DOCUMENTATION.md`](./DOCUMENTATION.md) | **Master reference** — everything built |
-| [`ACHIEVEMENTS.md`](./ACHIEVEMENTS.md) | Executive summary |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | FEFO, multi-tenancy, auth |
-| [`FRONTEND.md`](./FRONTEND.md) | UI, routes, components |
+| [`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md) | Master reference — everything built |
+| [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | FEFO, multi-tenancy, auth, transactions |
+| [`docs/FRONTEND.md`](./docs/FRONTEND.md) | UI, routes, components |
+| [`docs/ACHIEVEMENTS.md`](./docs/ACHIEVEMENTS.md) | Executive summary |
+| [`CHANGELOG.md`](./CHANGELOG.md) | Release history |
+
+More guides: [`docs/catalog-ingestion.md`](./docs/catalog-ingestion.md) · [`docs/bulk-delivery-import.md`](./docs/bulk-delivery-import.md)
 
 ## Quick start
 
@@ -56,7 +67,7 @@ Open http://localhost:3000/login
 |-----|---------|
 | `/login` | Sign in |
 | `/admin` | Platform admin (facilities, owner password reset) |
-| `/` | Dashboard (expiry, stock) |
+| `/dashboard` | Dashboard (expiry, stock) |
 | `/receive` | Receive inventory |
 | `/pos` | Dispense — stock-aware search |
 | `/sales` | Sales & audit corrections |
@@ -76,8 +87,7 @@ Open http://localhost:3000/login
 | `npm run db:seed-tenants` | Demo facilities |
 | `npm run db:seed-auth` | Super user + demo owners |
 | `npm run db:seed-stock` | Sample stock |
-| `npm run db:migrate-multitenant` | Backfill tenantId on existing rows |
-| `npm run db:neon:multitenant` | Neon brownfield tenant setup |
+| `npm run db:neon:seed-kemsa` | KEMSA aliases on Neon (production) |
 
 ## Key paths
 
@@ -87,6 +97,7 @@ src/lib/auth/          # session, permissions, guards
 src/lib/prisma-tenant.ts
 src/lib/actions/
 src/middleware.ts
+docs/                  # architecture & guides
 ```
 
 ## Standards

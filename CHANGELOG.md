@@ -77,7 +77,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   - Sync API (`POST /api/offline/sync`) with server-authoritative conflict resolution.
   - Sync status badge in app shell.
 - Unit tests for offline dispense logic.
-- PWA architecture documented in `DOCUMENTATION.md` §18.
+- PWA architecture documented in `docs/DOCUMENTATION.md` §18.
 
 ### Fixed
 - Service worker asset caching and stale-while-revalidate for `/_next/static/*`.
@@ -110,7 +110,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **Testing & docs**
   - Vitest toolchain.
   - Unit tests for RBAC, stock units, and cart store.
-  - Security and product audit report (`AUDIT_REPORT.md`).
+  - Security and product audit report (`docs/AUDIT_REPORT.md`).
   - Sentry build vars and contact email documented in `.env.example`.
 - **Database**
   - `db:fix-warfarin` script to repair KEML typo in existing databases.

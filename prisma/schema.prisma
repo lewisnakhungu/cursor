@@ -1,4 +1,4 @@
-// AfyaSmart-Stock — see ARCHITECTURE.md at repo root
+// AfyaSmart-Stock — see docs/ARCHITECTURE.md
 
 generator client {
   provider = "prisma-client"

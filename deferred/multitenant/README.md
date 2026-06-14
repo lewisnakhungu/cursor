@@ -1,6 +1,6 @@
 # Multi-tenant work (historical)
 
-**Shipped in the active app.** See [`DOCUMENTATION.md`](../DOCUMENTATION.md) §6 Multi-tenancy and [`ARCHITECTURE.md`](../ARCHITECTURE.md) §7.
+**Shipped in the active app.** See [`DOCUMENTATION.md`](../../docs/DOCUMENTATION.md) §6 Multi-tenancy and [`ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) §7.
 
 Active code:
 
