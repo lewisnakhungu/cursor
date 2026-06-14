@@ -42,7 +42,7 @@ next-env.d.ts
 /data/catalog-full-export.json
 /data/audit-reports/
 
-# AI / Cursor (local prompts and rules — do not publish)
+# AI assistant local config (prompts/rules — do not publish)
 .cursorrules
 .cursor/
 AGENTS.md

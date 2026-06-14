@@ -2,7 +2,7 @@
 
 Multi-tenant pharmacy POS and stock management for Kenyan health facilities — KEML catalog, FEFO dispense, offline PWA, and facility reports.
 
-**Live:** [cursor-topaz-zeta.vercel.app](https://cursor-topaz-zeta.vercel.app) · **Stack:** Next.js · Prisma · PostgreSQL (Neon) · Vercel
+**Live:** [afyasmart-stock.vercel.app](https://afyasmart-stock.vercel.app) · **Stack:** Next.js · Prisma · PostgreSQL (Neon) · Vercel
 
 ## Features
 

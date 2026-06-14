@@ -217,5 +217,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 | 0.6.0 | 2026-06-13 | PWA reliability and offline POS polish |
 | 0.7.0 | 2026-06-14 | Bulk receive + catalog pipeline + itemType reports |
 
-[Unreleased]: https://github.com/lewisnakhungu/cursor/compare/main...HEAD
-[0.7.0]: https://github.com/lewisnakhungu/cursor/commits/main
+[Unreleased]: https://github.com/lewisnakhungu/afyasmart-stock/compare/main...HEAD
+[0.7.0]: https://github.com/lewisnakhungu/afyasmart-stock/releases/tag/v0.7.0

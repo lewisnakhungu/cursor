@@ -1,7 +1,7 @@
 # AfyaSmart-Stock — Comprehensive Codebase Audit
 
 **Date:** June 11, 2026  
-**Application:** [AfyaSmart-Stock](file:///home/loki/dev/cursor/afyasmart-app) — KEML-powered, multi-tenant pharmacy POS for Kenya  
+**Application:** AfyaSmart-Stock — KEML-powered, multi-tenant pharmacy POS for Kenya  
 **Stack:** Next.js 14 (App Router) · TypeScript · Prisma 7 · PostgreSQL (Neon) · Vercel  
 **Version:** 0.1.0 (MVP)
 
@@ -25,8 +25,8 @@ AfyaSmart-Stock is a well-architected MVP for pharmacy point-of-sale and invento
 ### 🔴 CRITICAL Findings
 
 #### C1. Production Database Credentials in Repository
-- **File:** [.env](file:///home/loki/dev/cursor/afyasmart-app/.env#L5)
-- **Issue:** The Neon production database URL with full password (`npg_[REDACTED]`) is present in [.env](file:///home/loki/dev/cursor/afyasmart-app/.env). While [.gitignore](file:///home/loki/dev/cursor/afyasmart-app/.gitignore) does list `.env`, if this file was ever committed before the gitignore was updated, the credential is **permanently in git history**.
+- **File:** [.env](../.env#L5)
+- **Issue:** The Neon production database URL with full password (`npg_[REDACTED]`) is present in [.env](../.env). While [.gitignore](../.gitignore) does list `.env`, if this file was ever committed before the gitignore was updated, the credential is **permanently in git history**.
 - **Impact:** Anyone with repo access could have full read/write to the production database.
 - **Fix:**
   1. **Verify immediately:** `git log -- .env` to check if ever tracked
@@ -35,7 +35,7 @@ AfyaSmart-Stock is a well-architected MVP for pharmacy point-of-sale and invento
   4. Move all secrets to Vercel environment variables only
 
 #### C2. No Rate Limiting on Login
-- **File:** [auth.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/actions) (login action)
+- **File:** [auth.ts](../src/lib/actions) (login action)
 - **Issue:** The login endpoint has **zero rate limiting, no account lockout, no CAPTCHA**. No usage of `rateLimit` found anywhere in the codebase.
 - **Impact:** Brute-force attacks against pharmacy staff accounts are trivially easy.
 - **Fix:** Implement `@upstash/ratelimit` or similar on the login action.
@@ -43,41 +43,41 @@ AfyaSmart-Stock is a well-architected MVP for pharmacy point-of-sale and invento
 ### 🟠 HIGH Findings
 
 #### H1. 7-Day JWT with No Revocation Mechanism
-- **Files:** [jwt.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/auth) · [session.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/auth)
+- **Files:** [jwt.ts](../src/lib/auth) · [session.ts](../src/lib/auth)
 - **Issue:** Session JWT has a 7-day TTL (`SESSION_MAX_AGE_SEC = 60 * 60 * 24 * 7`). No token blocklist, no refresh token pattern. Password resets don't invalidate existing sessions.
 - **Risk:** A fired pharmacy employee retains access for up to 7 days. A compromised account cannot be force-logged-out.
 - **Recommendation:** Reduce TTL to 8–24 hours. Implement a server-side session version check or token blocklist on critical actions.
 
 #### H2. Tenant Isolation Bypassed by `findUnique`
-- **File:** [prisma-tenant.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/prisma-tenant.ts#L23-L35)
+- **File:** [prisma-tenant.ts](../src/lib/prisma-tenant.ts#L23-L35)
 - **Issue:** The tenant-scoped Prisma extension intercepts `findMany`, `findFirst`, `update`, `delete`, `count`, etc. — but **`findUnique` is NOT in the `scopedWhereOps` set**. A code comment warns developers to "Use findFirst (not findUnique)" but this is a convention-based guard, not an enforced one.
 - **Impact:** Any developer accidentally using `findUnique` on a tenant-scoped model (StockBatch, Sale, SaleLine) will **bypass tenant isolation** and can access another tenant's data.
 - **Fix:** Either add `findUnique` to `scopedWhereOps` or make the extension throw on `findUnique` for scoped models.
 
 #### H3. Tenant Client Cache Memory Leak
-- **File:** [prisma-tenant.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/prisma-tenant.ts#L115)
+- **File:** [prisma-tenant.ts](../src/lib/prisma-tenant.ts#L115)
 - **Issue:** `const tenantClientCache = new Map<...>()` grows unboundedly. No LRU eviction, no max size, no TTL. In a long-running server with many tenants, this is a memory leak.
 - **Fix:** Use an LRU cache (e.g., `lru-cache`) with a max size of ~100 entries.
 
 #### H4. No Input Schema Validation (No Zod/Yup)
-- **Files:** All files in [actions/](file:///home/loki/dev/cursor/afyasmart-app/src/lib/actions)
+- **Files:** All files in [actions/](../src/lib/actions)
 - **Issue:** Server actions do manual `if (!field)` checks instead of using a schema validation library. Complex inputs like `CartDispenseItem[]` in dispense are trusted at runtime.
 - **Risk:** Negative quantities, unexpected types, or malformed inputs could slip through.
 - **Recommendation:** Adopt Zod for all server action inputs with strict schemas.
 
 #### H5. No Negative Stock Guard
-- **File:** [schema.prisma](file:///home/loki/dev/cursor/afyasmart-app/prisma/schema.prisma#L119)
+- **File:** [schema.prisma](../prisma/schema.prisma#L119)
 - **Issue:** `StockBatch.quantityOnHand` is a plain `Int` with no check constraint (`>= 0`). Prisma doesn't support native CHECK constraints, but no application-level guard exists either. A bug in dispense logic could create **negative phantom inventory**.
 - **Fix:** Add `@check(quantityOnHand >= 0)` via raw SQL migration AND add application-level assertion in the dispense transaction.
 
 #### H6. `addTeamMember` Overwrites Existing User's Password
-- **File:** [team.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/actions) (addTeamMember action)
+- **File:** [team.ts](../src/lib/actions) (addTeamMember action)
 - **Issue:** `tx.user.upsert()` in addTeamMember will **update passwordHash** of an existing user. If User A exists in Facility 1 and Facility 2's owner adds them as staff, Facility 2's owner can overwrite User A's password without consent.
 - **Impact:** Cross-tenant password compromise.
 - **Fix:** Check if user exists first; if so, skip password update or require the existing user's consent.
 
 #### H7. Expected Errors (`AppError`) Reported to Sentry as Exceptions
-- **File:** [utils.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/actions) (runAction wrapper)
+- **File:** [utils.ts](../src/lib/actions) (runAction wrapper)
 - **Issue:** `Sentry.captureException(error)` is called for ALL errors including `AppError` (validation errors, auth errors, insufficient stock). These are expected business conditions, not exceptional.
 - **Impact:** Sentry alert noise. Real exceptions get buried under validation "errors."
 - **Fix:** Only call `Sentry.captureException` for non-`AppError` instances.
@@ -86,12 +86,12 @@ AfyaSmart-Stock is a well-architected MVP for pharmacy point-of-sale and invento
 
 | ID | Finding | File(s) |
 |----|---------|---------|
-| M1 | **No security headers** — No CSP, X-Frame-Options, HSTS, X-Content-Type-Options | [next.config.mjs](file:///home/loki/dev/cursor/afyasmart-app/next.config.mjs) |
-| M2 | **Weak password policy** — min 8 chars only, no complexity requirements | [password-policy.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/auth) |
-| M3 | **No connection pool configuration** — `new Pool()` with default 10 max, no timeouts | [prisma.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/prisma.ts) |
-| M4 | **Production pool not cached on globalThis** — potential connection leak on module re-imports | [prisma.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/prisma.ts#L17-L19) |
+| M1 | **No security headers** — No CSP, X-Frame-Options, HSTS, X-Content-Type-Options | [next.config.mjs](../next.config.mjs) |
+| M2 | **Weak password policy** — min 8 chars only, no complexity requirements | [password-policy.ts](../src/lib/auth) |
+| M3 | **No connection pool configuration** — `new Pool()` with default 10 max, no timeouts | [prisma.ts](../src/lib/prisma.ts) |
+| M4 | **Production pool not cached on globalThis** — potential connection leak on module re-imports | [prisma.ts](../src/lib/prisma.ts#L17-L19) |
 | M5 | **Dispense uses base `prisma` not tenant `db`** — manual tenantId injection is error-prone for future devs | Dispense action |
-| M6 | **Raw error messages passed to client** — `getErrorMessage()` falls through to `error.message` for generic `Error`, could leak Prisma internals | [errors.ts](file:///home/loki/dev/cursor/afyasmart-app/src/lib/errors.ts#L42-L46) |
+| M6 | **Raw error messages passed to client** — `getErrorMessage()` falls through to `error.message` for generic `Error`, could leak Prisma internals | [errors.ts](../src/lib/errors.ts#L42-L46) |
 | M7 | **No serialization retry on dispense** — concurrent `Serializable` transactions fail without auto-retry | Dispense action |
 
 ### 🟢 LOW Findings
@@ -216,17 +216,17 @@ gantt
 - A transient network error on `/sales` will show the same generic page as a crash on `/pos`.
 
 #### QA-H2. Cart State Lost on Page Refresh
-- **File:** [cart-store.ts](file:///home/loki/dev/cursor/afyasmart-app/src/stores)
+- **File:** [cart-store.ts](../src/stores)
 - Zustand store has no `persist` middleware. An accidental page refresh clears the entire POS cart mid-transaction.
 - **Fix:** Add `persist` with `localStorage` backend.
 
 #### QA-H3. Admin/Team Form Inputs Missing `<label>` Elements
-- **Files:** [admin-console.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/admin), [team-settings.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/settings)
+- **Files:** [admin-console.tsx](../src/components/admin), [team-settings.tsx](../src/components/settings)
 - All 5 inputs in "Add facility" form and 3 inputs in "Add staff" form use only `placeholder` — no associated `<label>` elements. Screen readers won't announce what each field is for.
 - Role `<select>` elements also lack labels.
 
 #### QA-H4. Login Errors Only Shown as Toast Notifications
-- **File:** [login-form.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/auth)
+- **File:** [login-form.tsx](../src/components/auth)
 - Failed login shows error only via Sonner toast. Screen reader users, or users who miss the transient toast, won't see the error near the field.
 
 #### QA-H5. No Rate Limiting on Login
@@ -237,13 +237,13 @@ gantt
 | ID | Finding | Location |
 |----|---------|----------|
 | QA-M1 | No `loading.tsx` skeleton screens on any routes | All `src/app/*/` routes |
-| QA-M2 | No skip-to-content link for keyboard users | [app-shell-client.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/layout) |
-| QA-M3 | No focus trap on mobile nav drawer | [app-shell-client.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/layout) |
-| QA-M4 | Admin "Add facility" doesn't validate password policy client-side | [admin-console.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/admin) |
-| QA-M5 | Sales correction reason labeled "(required)" but no client-side check | [sales-dashboard.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/sales) |
-| QA-M6 | Dark mode configured but not implemented — dead `darkMode: ["class"]` | [tailwind.config.ts](file:///home/loki/dev/cursor/afyasmart-app/tailwind.config.ts) |
-| QA-M7 | `/settings` route would 404 — no redirect to `/settings/team` | [settings/](file:///home/loki/dev/cursor/afyasmart-app/src/app/settings) |
-| QA-M8 | Contact email falls back to `hello@afyasmart.local` placeholder if env not set | [landing-page.tsx](file:///home/loki/dev/cursor/afyasmart-app/src/components/marketing) |
+| QA-M2 | No skip-to-content link for keyboard users | [app-shell-client.tsx](../src/components/layout) |
+| QA-M3 | No focus trap on mobile nav drawer | [app-shell-client.tsx](../src/components/layout) |
+| QA-M4 | Admin "Add facility" doesn't validate password policy client-side | [admin-console.tsx](../src/components/admin) |
+| QA-M5 | Sales correction reason labeled "(required)" but no client-side check | [sales-dashboard.tsx](../src/components/sales) |
+| QA-M6 | Dark mode configured but not implemented — dead `darkMode: ["class"]` | [tailwind.config.ts](../tailwind.config.ts) |
+| QA-M7 | `/settings` route would 404 — no redirect to `/settings/team` | [settings/](../src/app/settings) |
+| QA-M8 | Contact email falls back to `hello@afyasmart.local` placeholder if env not set | [landing-page.tsx](../src/components/marketing) |
 
 ### 🟢 LOW Findings
 
@@ -366,10 +366,10 @@ gantt
 
 | ID | Issue | Files | Severity |
 |----|-------|-------|----------|
-| D1 | **"Ww Warfarin" typo systemic across ALL data files** — appears in KEML JSON, CSV, aliases, and index | All files in [data/](file:///home/loki/dev/cursor/afyasmart-app/data) | MEDIUM |
-| D2 | **Duplicate generics in seed-stock** — "Glucose" and "Zinc sulphate" appear twice | [seed-stock.ts](file:///home/loki/dev/cursor/afyasmart-app/prisma/seed-stock.ts) | LOW |
-| D3 | **All demo stock uses `stockUnit: "TABLET"`** — incorrect for IVs, creams, inhalers | [seed-stock.ts](file:///home/loki/dev/cursor/afyasmart-app/prisma/seed-stock.ts) | LOW |
-| D4 | **`clean_index_names.json` is dead data** — not seeded, not referenced | [data/](file:///home/loki/dev/cursor/afyasmart-app/data) | LOW |
+| D1 | **"Ww Warfarin" typo systemic across ALL data files** — appears in KEML JSON, CSV, aliases, and index | All files in [data/](../data) | MEDIUM |
+| D2 | **Duplicate generics in seed-stock** — "Glucose" and "Zinc sulphate" appear twice | [seed-stock.ts](../prisma/seed-stock.ts) | LOW |
+| D3 | **All demo stock uses `stockUnit: "TABLET"`** — incorrect for IVs, creams, inhalers | [seed-stock.ts](../prisma/seed-stock.ts) | LOW |
+| D4 | **`clean_index_names.json` is dead data** — not seeded, not referenced | [data/](../data) | LOW |
 
 ### Schema Integrity Gaps
 
