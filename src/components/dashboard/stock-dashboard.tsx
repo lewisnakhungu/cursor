@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Package, PackageOpen, Timer } from "lucide-react";
 import { getExpiringStock } from "@/lib/actions/inventory";
+import { ProcurementDashboardCta } from "@/components/procurement/procurement-dashboard-cta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/ui/stat-card";
@@ -45,6 +46,7 @@ export async function StockDashboard() {
 
   return (
     <div className="space-y-6">
+      <ProcurementDashboardCta />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Active batches"

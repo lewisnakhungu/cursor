@@ -20,6 +20,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  PackageSearch,
   PackagePlus,
   ShoppingCart,
   Users,
@@ -70,6 +71,13 @@ const ALL_NAV: NavEntry[] = [
     label: "Receive",
     icon: PackagePlus,
     description: "Restock batches",
+  },
+  {
+    navId: "procurement",
+    href: "/procurement",
+    label: "Procurement",
+    icon: PackageSearch,
+    description: "Reorder lists & print",
   },
   {
     navId: "pos",

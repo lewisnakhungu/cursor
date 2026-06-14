@@ -2,7 +2,7 @@
  * CSV export helpers (audit PM-M4). Client-side generation from report
  * data already loaded — no extra server round trip.
  */
-import type { SalesReportData, StockReportData } from "@/lib/types";
+import type { SalesReportData, StockReportData, ProcurementReportData } from "@/lib/types";
 import { itemTypeLabel } from "@/lib/report-item-type";
 
 export function csvEscape(value: unknown): string {
@@ -90,6 +90,43 @@ export function salesReportCsv(data: SalesReportData): string {
       line.unitPrice,
       line.lineTotal,
       line.status,
+    ]),
+  );
+}
+
+export function procurementOrderCsv(data: ProcurementReportData): string {
+  return toCsv(
+    [
+      "Reference",
+      "Generic name",
+      "Dosage form",
+      "Strength",
+      "ABC class",
+      "On hand",
+      "Reorder point",
+      "Days of stock left",
+      "Suggested qty",
+      "Order qty",
+      "Unit",
+      "Priority",
+      "Reason",
+      "Notes",
+    ],
+    data.lines.map((line) => [
+      data.reference,
+      line.genericName,
+      line.dosageForm,
+      line.strength,
+      line.sourceMeta?.abcClass ?? "",
+      line.sourceMeta?.currentStock ?? "",
+      line.sourceMeta?.reorderPoint ?? "",
+      line.sourceMeta?.daysOfStockLeft ?? "",
+      line.suggestedQty,
+      line.orderedQty,
+      line.stockUnit,
+      line.priority,
+      line.reason,
+      line.notes ?? "",
     ]),
   );
 }
