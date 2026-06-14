@@ -78,40 +78,98 @@ enum StockUnit {
   UNIT
 }
 
+/// Pharmaceutical vs medical consumables/diagnostics (hybrid catalog extension).
+enum CatalogItemType {
+  MEDICINE
+  NON_PHARM
+}
+
+/// Where a catalog alias originated (ingestion pipeline or user learning).
+enum AliasSource {
+  KEML
+  BRAND_SEED
+  HYBRID
+  KEMSA
+  USER_CONFIRMED
+  IMPORT_LEARNED
+}
+
+enum AliasStatus {
+  ACTIVE
+  PENDING
+  REVOKED
+}
+
+enum AliasProposalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Medicine {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   genericName String
-  dosageForm  String   @default("")
-  strength    String   @default("")
-  searchKey   String   @unique
+  dosageForm  String           @default("")
+  strength    String           @default("")
+  searchKey   String           @unique
+  itemType    CatalogItemType  @default(MEDICINE)
+  category    String?
   kemlCode    String?
   levelOfUse  String?
   chapter     String?
   section     String?
   kemlPage    Int?
-  isStub      Boolean  @default(false)
+  isStub      Boolean          @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   stockBatches StockBatch[]
   saleLines    SaleLine[]
   aliases      MedicineAlias[]
+  aliasProposals CatalogAliasProposal[]
 
   @@index([genericName])
   @@index([isStub])
+  @@index([itemType])
   @@map("medicines")
 }
 
 model MedicineAlias {
-  id         String   @id @default(cuid())
+  id         String      @id @default(cuid())
   name       String
   medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  source     AliasSource @default(BRAND_SEED)
+  status     AliasStatus @default(ACTIVE)
+  /** Facility that taught this alias; null = global seed data */
+  tenantId   String?
+  learnedAt  DateTime?
+  medicine   Medicine    @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
 
   @@unique([medicineId, name])
   @@index([name])
+  @@index([status])
+  @@index([source])
   @@map("medicine_aliases")
+}
+
+/// Supplier name → catalog mapping awaiting platform review (conflicts or low confidence).
+model CatalogAliasProposal {
+  id           String              @id @default(cuid())
+  rawName      String
+  medicineId   String
+  tenantId     String
+  proposedById String?
+  status       AliasProposalStatus @default(PENDING)
+  note         String?
+  createdAt    DateTime            @default(now())
+  reviewedAt   DateTime?
+  reviewedById String?
+  medicine     Medicine            @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([rawName])
+  @@map("catalog_alias_proposals")
 }
 
 model StockBatch {
@@ -169,6 +227,7 @@ model SaleLine {
   genericName    String
   dosageForm     String
   strength       String
+  itemType       CatalogItemType  @default(MEDICINE)
   stockUnit      StockUnit      @default(UNIT)
   unitsPerPack   Int?
   createdAt      DateTime       @default(now())
@@ -183,5 +242,6 @@ model SaleLine {
   @@index([saleId])
   @@index([medicineId])
   @@index([status])
+  @@index([itemType])
   @@map("sale_lines")
 }

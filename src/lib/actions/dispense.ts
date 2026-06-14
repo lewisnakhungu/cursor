@@ -52,6 +52,7 @@ export async function dispenseMedicine(
                 genericName: true,
                 dosageForm: true,
                 strength: true,
+                itemType: true,
               },
             });
 
@@ -133,6 +134,7 @@ export async function dispenseMedicine(
                   genericName: medicine.genericName,
                   dosageForm: medicine.dosageForm,
                   strength: medicine.strength,
+                  itemType: medicine.itemType,
                   stockUnit: batch.stockUnit,
                   unitsPerPack: batch.unitsPerPack,
                 },
