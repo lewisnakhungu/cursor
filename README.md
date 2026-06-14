@@ -98,8 +98,9 @@ src/lib/prisma-tenant.ts
 src/lib/actions/
 src/middleware.ts
 docs/                  # architecture & guides
+config/                # vitest and other tool configs
 ```
 
 ## Standards
 
-See [`.cursorrules`](./.cursorrules): tenant-scoped stock/sales, auth on server actions, Prisma transactions for dispense, Sentry on errors.
+Tenant-scoped stock/sales, auth on server actions, Prisma transactions for dispense, Sentry on errors — see [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).

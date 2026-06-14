@@ -41,3 +41,20 @@ next-env.d.ts
 # generated catalog audit artifacts (export from local/Neon DB)
 /data/catalog-full-export.json
 /data/audit-reports/
+
+# AI / Cursor (local prompts and rules — do not publish)
+.cursorrules
+.cursor/
+AGENTS.md
+.github/copilot-instructions.md
+.aider*
+.continue/
+*.prompt.md
+
+# Python
+__pycache__/
+*.py[cod]
+
+# generated KEMSA scrape artifacts
+/data/kemsa/PRODUCT_LIST.pdf
+/data/kemsa/kemsa-reconciliation-report.json

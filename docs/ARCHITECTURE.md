@@ -165,7 +165,7 @@ Stub filter: `dosageForm === 'As per KEML listing'` OR `strength === 'As per cli
 
 ## 6. Observability
 
-- `@sentry/nextjs` — `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
+- `@sentry/nextjs` — `sentry.client.config.ts` (browser), `src/instrumentation.ts` (server/edge)
 - `next.config` wrapped with `withSentryConfig`
 - Server Actions: `Sentry.captureException(error)` in catch blocks
 

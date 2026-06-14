@@ -515,7 +515,6 @@ rm -rf .next && npm run dev
 | [`bulk-delivery-import.md`](./bulk-delivery-import.md) | Bulk delivery receive |
 | [`README.md`](../README.md) | Quick start |
 | [`CHANGELOG.md`](../CHANGELOG.md) | Release history |
-| [`.cursorrules`](../.cursorrules) | Dev standards |
 
 ---
 

@@ -36,8 +36,7 @@ npx create-next-app@14 afyasmart-app \
 | File | Role |
 |------|------|
 | `sentry.client.config.ts` | Browser SDK init (`NEXT_PUBLIC_SENTRY_DSN`) |
-| `sentry.server.config.ts` | Node / Server Actions |
-| `sentry.edge.config.ts` | Edge runtime |
+| `src/instrumentation.ts` | Server and Edge SDK init |
 | `src/instrumentation.ts` | Loads server/edge configs per runtime |
 | `src/app/global-error.tsx` | `Sentry.captureException` on React root errors |
 | `next.config.mjs` | `withSentryConfig` wrapper |

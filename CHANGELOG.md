@@ -170,7 +170,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Neon transaction timeout in multitenant backfill script.
 
 ### Changed
-- Multi-tenant auth, stock units, and Neon setup documented in `DOCUMENTATION.md`.
+- Multi-tenant auth, stock units, and Neon setup documented in `docs/DOCUMENTATION.md`.
 
 ---
 
