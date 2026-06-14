@@ -58,6 +58,8 @@ export async function GET(): Promise<NextResponse> {
         dosageForm: m.dosageForm,
         strength: m.strength,
         levelOfUse: m.levelOfUse,
+        itemType: m.itemType,
+        category: m.category,
         aliases: aliasNames,
         searchKey: buildSearchKey(m.genericName, aliasNames),
       };

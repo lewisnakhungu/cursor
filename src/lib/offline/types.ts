@@ -20,6 +20,8 @@ export type OfflineMedicine = {
   dosageForm: string;
   strength: string;
   levelOfUse: string | null;
+  itemType: "MEDICINE" | "NON_PHARM";
+  category: string | null;
   /** Pre-normalised, space-joined search string (genericName + aliases). */
   searchKey: string;
   aliases: string[];

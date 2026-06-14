@@ -167,6 +167,8 @@ export async function searchCatalog(
           dosageForm: medicine.dosageForm,
           strength: medicine.strength,
           levelOfUse: medicine.levelOfUse,
+          itemType: medicine.itemType,
+          category: medicine.category,
           aliases: aliasNames,
           matchedBrand: resolveMatchedBrand(
             query,
@@ -203,6 +205,8 @@ type MedicineWithAliases = {
   dosageForm: string;
   strength: string;
   levelOfUse: string | null;
+  itemType: "MEDICINE" | "NON_PHARM";
+  category: string | null;
   searchKey: string;
   aliases: Array<{ name: string }>;
 };
@@ -251,6 +255,8 @@ function toCatalogMedicine(
     dosageForm: medicine.dosageForm,
     strength: medicine.strength,
     levelOfUse: medicine.levelOfUse,
+    itemType: medicine.itemType,
+    category: medicine.category,
     aliases: aliasNames,
     matchedBrand: resolveMatchedBrand(rawName, medicine.genericName, aliasNames),
   };
@@ -283,6 +289,8 @@ export async function bulkMatchCatalog(
           dosageForm: true,
           strength: true,
           levelOfUse: true,
+          itemType: true,
+          category: true,
           searchKey: true,
           aliases: { select: { name: true } },
         },

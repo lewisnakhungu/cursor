@@ -65,6 +65,11 @@ function CatalogResultRow({ medicine }: { medicine: CatalogMedicine }) {
             Brand: {medicine.matchedBrand}
           </Badge>
         ) : null}
+        {medicine.itemType === "NON_PHARM" ? (
+          <Badge variant="outline" className="text-[10px] font-normal">
+            Non-pharm
+          </Badge>
+        ) : null}
       </div>
       {formulation ? (
         <span className="text-xs text-muted-foreground">{formulation}</span>

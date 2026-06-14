@@ -72,8 +72,8 @@ function offlineMedicineToCatalog(
     dosageForm: m.dosageForm,
     strength: m.strength,
     levelOfUse: m.levelOfUse,
-    itemType: "MEDICINE",
-    category: null,
+    itemType: m.itemType,
+    category: m.category,
     aliases: m.aliases,
     matchedBrand: null,
     // No live stock data offline — the batch picker will resolve real counts
