@@ -8,12 +8,18 @@ import type { StockUnitCode } from "@/lib/stock-unit";
 import { decimalToNumber } from "@/lib/money";
 import type {
   ActionResult,
+  BulkReceiveResult,
   ExpiringStockReport,
   ReceiveInventoryInput,
   StockBatchRow,
+  ValidatedInventoryItem,
 } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
-import { parseInput, receiveInventorySchema } from "@/lib/validation";
+import {
+  bulkReceiveInventorySchema,
+  parseInput,
+  receiveInventorySchema,
+} from "@/lib/validation";
 
 const EXPIRY_WARNING_DAYS = 90;
 const LOW_STOCK_THRESHOLD = 10;
@@ -112,6 +118,61 @@ export async function receiveInventory(
 
     return { batchId: batch.id };
   }, { tenantId: ctx.tenantId });
+}
+
+export async function receiveBulkInventory(
+  items: ValidatedInventoryItem[],
+): Promise<ActionResult<BulkReceiveResult>> {
+  const ctx = await requireTenantContext("receive.stock");
+  return runAction(
+    "receiveBulkInventory",
+    async () => {
+      const { db } = ctx;
+      const validated = parseInput(bulkReceiveInventorySchema, items);
+
+      const medicineIds = Array.from(
+        new Set(validated.map((item) => item.medicineId)),
+      );
+      const found = await prisma.medicine.count({
+        where: { id: { in: medicineIds }, isStub: false },
+      });
+      if (found !== medicineIds.length) {
+        throw new AppError(
+          "One or more medicines were not found in the catalog",
+          "NOT_FOUND",
+        );
+      }
+
+      await db.$transaction(async (tx) => {
+        for (const data of validated) {
+          const expiryDate = new Date(data.expiryDate);
+          await tx.stockBatch.create({
+            data: {
+              medicineId: data.medicineId,
+              batchNumber: data.batchNumber?.trim() || null,
+              supplierName: data.supplierName?.trim() || null,
+              quantityOnHand: data.quantityOnHand,
+              quantityReceived: data.quantityOnHand,
+              expiryDate,
+              stockUnit: data.stockUnit,
+              unitsPerPack: data.unitsPerPack ?? null,
+              supplierCost:
+                data.supplierCost !== undefined
+                  ? new Prisma.Decimal(data.supplierCost)
+                  : null,
+              retailSalePrice:
+                data.retailSalePrice !== undefined
+                  ? new Prisma.Decimal(data.retailSalePrice)
+                  : null,
+            },
+          });
+        }
+      });
+
+      return { count: validated.length };
+    },
+    { tenantId: ctx.tenantId },
+  );
 }
 
 export async function getExpiringStock(): Promise<

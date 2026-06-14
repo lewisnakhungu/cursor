@@ -86,3 +86,8 @@ export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required").max(200),
   newPassword: z.string().max(200),
 });
+
+export const bulkReceiveInventorySchema = z
+  .array(receiveInventorySchema)
+  .min(1, "At least one line is required")
+  .max(100, "Maximum 100 lines per bulk import");
