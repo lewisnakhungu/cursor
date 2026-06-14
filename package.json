@@ -29,6 +29,7 @@
     "audit:kemsa:apply": "PYTHONPATH=scripts python3 -m catalog_audit.reconcile_kemsa --apply-hybrid",
     "scrape:kemsa": "tsx prisma/scrape-kemsa-catalog.ts",
     "db:seed-catalog": "tsx prisma/seed-catalog-all.ts",
+    "db:neon:catalog": "tsx prisma/neon-catalog-refresh.ts",
     "db:neon:setup": "tsx prisma/neon-setup.ts",
     "db:fix-warfarin": "tsx prisma/fix-warfarin.ts",
     "db:backfill-sale-line-item-type": "tsx prisma/backfill-sale-line-item-type.ts",

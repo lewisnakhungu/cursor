@@ -792,6 +792,14 @@
     "aliases": ["Entamizole", "Metrogyl-F", "Dilomed-M"]
   },
   {
+    "generic_name": "Diclofenac Potassium",
+    "aliases": ["Cataflam", "Defenac", "Diclomax", "Diclo-P", "Divon", "Diclomol", "Voltfast", "Fenac Plus"]
+  },
+  {
+    "generic_name": "Diclofenac Sodium",
+    "aliases": ["Voltaren", "Voveran", "Olfen", "Diclomax", "Difene", "Dicloflex", "Diclogel", "Volini", "Omnigel", "Rhoxal", "Solaraze"]
+  },
+  {
     "generic_name": "Diphenhydramine",
     "aliases": ["Benadryl", "Histalix", "Diphen-Cough"]
   },
@@ -893,7 +901,7 @@
   },
   {
     "generic_name": "Erythromycin",
-    "aliases": ["Erythrocin", "Erythro-Cosmos", "Ery-Lab", "Eromycin"]
+    "aliases": ["Erythrocin", "Erythro-Cosmos", "Ery-Lab", "Eromycin", "Erymax", "Erythroped", "Ilosone", "Ilotycin", "E.E.S."]
   },
   {
     "generic_name": "Erythropoetin (alfa or beta) stimulating agents",
@@ -1274,6 +1282,10 @@
   {
     "generic_name": "Imipenem + Cilastatin",
     "aliases": ["Primaxin Injection", "Cilaspen", "Iminem"]
+  },
+  {
+    "generic_name": "Indomethacin",
+    "aliases": ["Indocid", "Cindomet", "Indosha", "Indowin", "Rehumacin", "Dinlacin", "Indopac", "Indomethacin-Cosmos", "Dometcap"]
   },
   {
     "generic_name": "Indapamide",
