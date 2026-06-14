@@ -46,6 +46,36 @@ export type ReceiveInventoryInput = {
   unitsPerPack?: number;
 };
 
+/** Confidence assigned when matching a CSV product name to KEML. */
+export type MatchConfidence = "HIGH" | "LOW" | "NONE";
+
+/** One parsed row from a bulk delivery spreadsheet before user review. */
+export type ImportedLineItem = {
+  rawName: string;
+  quantity: number;
+  batchNumber?: string;
+  expiryDate?: string;
+  supplierCost?: number;
+  retailPrice?: number;
+  matchedMedicineId: string | null;
+  matchConfidence: MatchConfidence;
+};
+
+/** Server-validated row ready for bulk stock batch insertion. */
+export type ValidatedInventoryItem = ReceiveInventoryInput;
+
+/** Result of matching a single raw CSV name against the formulary. */
+export type BulkCatalogMatch = {
+  rawName: string;
+  medicineId: string | null;
+  matchConfidence: MatchConfidence;
+  medicine: CatalogMedicine | null;
+};
+
+export type BulkReceiveResult = {
+  count: number;
+};
+
 export type CartDispenseItem = {
   medicineId: string;
   quantity: number;
