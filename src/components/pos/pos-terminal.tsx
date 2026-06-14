@@ -113,11 +113,11 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
   const [cacheStatus, setCacheStatus] = useState<
     "idle" | "loading" | "ready" | "error"
   >("idle");
-  const [cacheError, setCacheError] = useState<string | null>(null);
+  const [, setCacheError] = useState<string | null>(null);
   const [cachedMedicineCount, setCachedMedicineCount] = useState<number | null>(
     null,
   );
-  const [cachedBatchCount, setCachedBatchCount] = useState<number | null>(null);
+  const [, setCachedBatchCount] = useState<number | null>(null);
   const [cacheAttempt, setCacheAttempt] = useState(0);
 
   // Offline state

@@ -15,6 +15,7 @@ import type {
   ValidatedInventoryItem,
 } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { recordProcurementReceipt } from "@/lib/actions/procurement";
 import {
   bulkReceiveInventorySchema,
   parseInput,
@@ -112,9 +113,19 @@ export async function receiveInventory(
           data.retailSalePrice !== undefined
             ? new Prisma.Decimal(data.retailSalePrice)
             : null,
+        procurementOrderId: data.procurementOrderId ?? null,
+        procurementLineId: data.procurementLineId ?? null,
       },
       select: { id: true },
     });
+
+    if (data.procurementLineId) {
+      await recordProcurementReceipt(
+        db,
+        data.procurementLineId,
+        data.quantityOnHand,
+      );
+    }
 
     return { batchId: batch.id };
   }, { tenantId: ctx.tenantId });

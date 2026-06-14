@@ -73,6 +73,8 @@ export const receiveInventorySchema = z.object({
     .number()
     .min(0, "Retail price cannot be negative")
     .optional(),
+  procurementOrderId: id.optional(),
+  procurementLineId: id.optional(),
 });
 
 export const addTeamMemberSchema = z.object({

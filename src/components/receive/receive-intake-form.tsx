@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CheckCircle2, ClipboardList, Package } from "lucide-react";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
@@ -10,6 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { receiveInventory } from "@/lib/actions/inventory";
 import {
+  getProcurementOrder,
+  listOpenProcurementOrders,
+} from "@/lib/actions/procurement";
+import {
   formatPricePerUnitLabel,
   stockUnitMeta,
   stockUnitOptionSupportsPackSize,
@@ -17,11 +21,17 @@ import {
   suggestStockUnitFromDosageForm,
   type StockUnitCode,
 } from "@/lib/stock-unit";
-import type { CatalogMedicine } from "@/lib/types";
+import type { CatalogMedicine, ProcurementOrderLineView } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function ReceiveIntakeForm() {
   const [selected, setSelected] = useState<CatalogMedicine | null>(null);
+  const [openOrders, setOpenOrders] = useState<
+    Array<{ id: string; reference: string; status: string }>
+  >([]);
+  const [procurementOrderId, setProcurementOrderId] = useState("");
+  const [procurementLineId, setProcurementLineId] = useState("");
+  const [orderLines, setOrderLines] = useState<ProcurementOrderLineView[]>([]);
   const [batchNumber, setBatchNumber] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [stockUnit, setStockUnit] = useState<StockUnitCode>("UNIT");
@@ -32,11 +42,55 @@ export function ReceiveIntakeForm() {
   const [retailSalePrice, setRetailSalePrice] = useState("");
   const [isSubmitting, startSubmit] = useTransition();
 
+  const loadOpenOrders = useCallback(() => {
+    startSubmit(async () => {
+      const response = await listOpenProcurementOrders();
+      if (response.success) setOpenOrders(response.data);
+    });
+  }, []);
+
   useEffect(() => {
-    if (selected) {
+    loadOpenOrders();
+  }, [loadOpenOrders]);
+
+  useEffect(() => {
+    if (!procurementOrderId) {
+      setOrderLines([]);
+      setProcurementLineId("");
+      return;
+    }
+    let cancelled = false;
+    void getProcurementOrder(procurementOrderId).then((response) => {
+      if (cancelled) return;
+      if (!response.success) {
+        toast.error(response.error);
+        return;
+      }
+      setOrderLines(
+        response.data.lines.filter((l) => l.receivedQty < l.orderedQty),
+      );
+      if (response.data.supplierName) {
+        setSupplierName((prev) => prev || response.data.supplierName || "");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [procurementOrderId]);
+
+  useEffect(() => {
+    if (!selected) {
+      setProcurementLineId("");
+      return;
+    }
+    const match = orderLines.find((l) => l.medicineId === selected.id);
+    setProcurementLineId(match?.id ?? "");
+    if (match) {
+      setStockUnit(match.stockUnit);
+    } else {
       setStockUnit(suggestStockUnitFromDosageForm(selected.dosageForm));
     }
-  }, [selected]);
+  }, [selected, orderLines]);
 
   const resetForm = () => {
     setBatchNumber("");
@@ -105,6 +159,8 @@ export function ReceiveIntakeForm() {
         unitsPerPack: packSize,
         supplierCost: cost,
         retailSalePrice: retail,
+        procurementOrderId: procurementOrderId || undefined,
+        procurementLineId: procurementLineId || undefined,
       });
 
       if (!response.success) {
@@ -115,6 +171,15 @@ export function ReceiveIntakeForm() {
       toast.success(`Batch received · ${response.data.batchId.slice(0, 8)}…`);
       resetForm();
       setSelected(null);
+      if (procurementOrderId) {
+        const refresh = await getProcurementOrder(procurementOrderId);
+        if (refresh.success) {
+          setOrderLines(
+            refresh.data.lines.filter((l) => l.receivedQty < l.orderedQty),
+          );
+        }
+        loadOpenOrders();
+      }
     });
   };
 
@@ -171,6 +236,43 @@ export function ReceiveIntakeForm() {
             Batch, unit of measure & pricing
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {openOrders.length > 0 ? (
+              <div className="space-y-2 rounded-lg border bg-muted/20 p-3">
+                <label className="text-sm font-medium" htmlFor="procurement-order">
+                  Receiving against order (optional)
+                </label>
+                <select
+                  id="procurement-order"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={procurementOrderId}
+                  onChange={(e) => setProcurementOrderId(e.target.value)}
+                  disabled={isSubmitting}
+                >
+                  <option value="">No linked order</option>
+                  {openOrders.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.reference} ({o.status.replace("_", " ").toLowerCase()})
+                    </option>
+                  ))}
+                </select>
+                {procurementLineId && selected ? (
+                  <p className="text-xs text-emerald-700">
+                    Linked to order line for {selected.genericName}
+                  </p>
+                ) : null}
+                {procurementOrderId && orderLines.length > 0 ? (
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {orderLines.slice(0, 4).map((line) => (
+                      <li key={line.id}>
+                        {line.genericName}: {line.receivedQty}/{line.orderedQty}{" "}
+                        {stockUnitMeta(line.stockUnit).label} pending
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
               <strong className="text-foreground">Counting rule:</strong> quantity,
               supplier cost, and retail price all refer to the same unit (e.g. per
