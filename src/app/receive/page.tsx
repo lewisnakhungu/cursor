@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/layout/app-shell";
-import { ReceiveIntakeForm } from "@/components/receive/receive-intake-form";
+import { ReceiveWorkspace } from "@/components/receive/receive-workspace";
 
 export default function ReceivePage() {
   return (
@@ -7,7 +7,7 @@ export default function ReceivePage() {
       title="Receive inventory"
       subtitle="Count stock in tablets, boxes, etc. — qty and prices use the same unit"
     >
-      <ReceiveIntakeForm />
+      <ReceiveWorkspace />
     </AppShell>
   );
 }
