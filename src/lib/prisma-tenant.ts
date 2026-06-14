@@ -26,6 +26,10 @@ function createTenantClient(tenantId: string) {
       stockBatch: tenantModelExtension(tenantId),
       sale: tenantModelExtension(tenantId),
       saleLine: tenantModelExtension(tenantId),
+      procurementOrder: tenantModelExtension(tenantId),
+      procurementOrderLine: tenantModelExtension(tenantId),
+      medicineReorderPolicy: tenantModelExtension(tenantId),
+      supplier: tenantModelExtension(tenantId),
     },
   });
 }

@@ -12,7 +12,8 @@ export type AppPermission =
   | "dispense.sale"
   | "sales.view"
   | "insights.view"
-  | "reports.view";
+  | "reports.view"
+  | "procurement.manage";
 
 const ROLE_PERMISSIONS: Record<TenantRole, ReadonlySet<AppPermission>> = {
   OWNER: new Set<AppPermission>([
@@ -23,6 +24,7 @@ const ROLE_PERMISSIONS: Record<TenantRole, ReadonlySet<AppPermission>> = {
     "sales.view",
     "insights.view",
     "reports.view",
+    "procurement.manage",
   ]),
   DEPUTY: new Set<AppPermission>([
     "dashboard.view",
@@ -31,6 +33,7 @@ const ROLE_PERMISSIONS: Record<TenantRole, ReadonlySet<AppPermission>> = {
     "sales.view",
     "insights.view",
     "reports.view",
+    "procurement.manage",
   ]),
   DISPENSER: new Set<AppPermission>(["dashboard.view", "dispense.sale"]),
 };
@@ -69,6 +72,7 @@ export type NavItemId =
   | "sales"
   | "insights"
   | "reports"
+  | "procurement"
   | "team"
   | "admin";
 
@@ -79,6 +83,7 @@ const NAV_PERMISSION: Record<NavItemId, AppPermission | "platform.admin"> = {
   sales: "sales.view",
   insights: "insights.view",
   reports: "reports.view",
+  procurement: "procurement.manage",
   team: "facility.manage_team",
   admin: "platform.admin",
 };
@@ -103,6 +108,7 @@ export function pathnameToNavId(pathname: string): NavItemId | null {
   if (pathname.startsWith("/sales")) return "sales";
   if (pathname.startsWith("/insights")) return "insights";
   if (pathname.startsWith("/reports")) return "reports";
+  if (pathname.startsWith("/procurement")) return "procurement";
   return null;
 }
 

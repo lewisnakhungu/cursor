@@ -78,6 +78,7 @@ describe("canAccessNav", () => {
     const owner = makeSession();
     expect(canAccessNav(owner, "team")).toBe(true);
     expect(canAccessNav(owner, "reports")).toBe(true);
+    expect(canAccessNav(owner, "procurement")).toBe(true);
     expect(canAccessNav(owner, "admin")).toBe(false);
   });
 });
@@ -99,6 +100,7 @@ describe("canAccessPath", () => {
     const dispenser = makeSession({ activeRole: "DISPENSER" });
     expect(canAccessPath(dispenser, "/pos")).toBe(true);
     expect(canAccessPath(dispenser, "/receive")).toBe(false);
+    expect(canAccessPath(dispenser, "/procurement")).toBe(false);
     expect(canAccessPath(dispenser, "/settings/team")).toBe(false);
   });
 

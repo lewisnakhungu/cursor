@@ -48,6 +48,8 @@ export type ReceiveInventoryInput = {
   retailSalePrice?: number;
   stockUnit: StockUnitCode;
   unitsPerPack?: number;
+  procurementOrderId?: string;
+  procurementLineId?: string;
 };
 
 /** Confidence assigned when matching a CSV product name to KEML. */
@@ -369,3 +371,136 @@ export type StockReportData = {
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string; code?: string };
+
+export type ProcurementOrderStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "PARTIALLY_RECEIVED"
+  | "CLOSED";
+
+export type ProcurementLineReason = "LOW_STOCK" | "MANUAL" | "NEW_ITEM";
+
+export type ProcurementLineSourceMeta = {
+  currentStock: number;
+  reorderPoint: number;
+  targetLevel: number;
+  avgDailySales: number;
+  daysOfStockLeft: number | null;
+  abcClass?: "A" | "B" | "C";
+};
+
+export type ProcurementExpiryWatchRow = {
+  batchId: string;
+  medicineId: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  batchNumber: string | null;
+  quantityOnHand: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  expiryDate: string;
+  daysUntilExpiry: number;
+};
+
+export type ProcurementOrderLineView = {
+  id: string;
+  medicineId: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  suggestedQty: number;
+  orderedQty: number;
+  receivedQty: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  reason: ProcurementLineReason;
+  priority: string;
+  notes: string | null;
+  sourceMeta: ProcurementLineSourceMeta | null;
+  sortOrder: number;
+};
+
+export type ProcurementOrderSummary = {
+  id: string;
+  reference: string;
+  status: ProcurementOrderStatus;
+  lineCount: number;
+  supplierName: string | null;
+  createdAt: string;
+  submittedAt: string | null;
+};
+
+export type ProcurementOrderDetail = {
+  id: string;
+  reference: string;
+  status: ProcurementOrderStatus;
+  notes: string | null;
+  supplierName: string | null;
+  supplierId: string | null;
+  createdById: string;
+  approvedById: string | null;
+  createdAt: string;
+  submittedAt: string | null;
+  facilityName: string;
+  lines: ProcurementOrderLineView[];
+  expiryWatch: ProcurementExpiryWatchRow[];
+};
+
+export type ProcurementReportData = {
+  reportTitle: string;
+  reference: string;
+  status: ProcurementOrderStatus;
+  facilityName: string;
+  generatedAt: string;
+  supplierName: string | null;
+  notes: string | null;
+  lineCount: number;
+  lines: ProcurementOrderLineView[];
+  expiryWatch: ProcurementExpiryWatchRow[];
+};
+
+export type ProcurementReorderCount = {
+  itemsNeedingReorder: number;
+  draftOrders: number;
+};
+
+export type ReorderPolicyView = {
+  id: string;
+  medicineId: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  reorderPoint: number | null;
+  targetLevel: number | null;
+  leadTimeDays: number;
+  safetyStockDays: number;
+};
+
+export type SupplierView = {
+  id: string;
+  name: string;
+  contact: string | null;
+  notes: string | null;
+  isDefault: boolean;
+};
+
+export type ProcurementVarianceRow = {
+  reference: string;
+  orderId: string;
+  status: ProcurementOrderStatus;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  orderedQty: number;
+  receivedQty: number;
+  variance: number;
+  stockUnit: StockUnitCode;
+  submittedAt: string | null;
+};
+
+export type ProcurementVarianceReport = {
+  facilityName: string;
+  generatedAt: string;
+  rows: ProcurementVarianceRow[];
+};

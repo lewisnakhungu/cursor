@@ -14,6 +14,19 @@ enum SaleLineStatus {
   VOIDED
 }
 
+enum ProcurementOrderStatus {
+  DRAFT
+  SUBMITTED
+  PARTIALLY_RECEIVED
+  CLOSED
+}
+
+enum ProcurementLineReason {
+  LOW_STOCK
+  MANUAL
+  NEW_ITEM
+}
+
 enum TenantRole {
   OWNER
   DEPUTY
@@ -28,10 +41,13 @@ model Tenant {
   /// Owner opt-in: preload catalog/stock and allow offline dispense (see /settings/facility).
   offlineModeEnabled  Boolean      @default(false)
   createdAt           DateTime     @default(now())
-  batches     StockBatch[]
-  sales       Sale[]
-  saleLines   SaleLine[]
-  memberships Membership[]
+  batches             StockBatch[]
+  sales               Sale[]
+  saleLines           SaleLine[]
+  memberships         Membership[]
+  procurementOrders   ProcurementOrder[]
+  reorderPolicies     MedicineReorderPolicy[]
+  suppliers           Supplier[]
 
   @@map("tenants")
 }
@@ -125,10 +141,12 @@ model Medicine {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  stockBatches StockBatch[]
-  saleLines    SaleLine[]
-  aliases      MedicineAlias[]
-  aliasProposals CatalogAliasProposal[]
+  stockBatches         StockBatch[]
+  saleLines            SaleLine[]
+  aliases              MedicineAlias[]
+  aliasProposals       CatalogAliasProposal[]
+  procurementLines     ProcurementOrderLine[]
+  reorderPolicies      MedicineReorderPolicy[]
 
   @@index([genericName])
   @@index([isStub])
@@ -187,15 +205,20 @@ model StockBatch {
   retailSalePrice  Decimal?  @db.Decimal(12, 2)
   stockUnit        StockUnit @default(UNIT)
   unitsPerPack     Int?
-  receivedAt       DateTime  @default(now())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  receivedAt           DateTime  @default(now())
+  procurementOrderId   String?
+  procurementLineId    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  medicine  Medicine   @relation(fields: [medicineId], references: [id], onDelete: Restrict)
-  saleLines SaleLine[]
+  tenant            Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  medicine          Medicine              @relation(fields: [medicineId], references: [id], onDelete: Restrict)
+  saleLines         SaleLine[]
+  procurementOrder  ProcurementOrder?     @relation(fields: [procurementOrderId], references: [id], onDelete: SetNull)
+  procurementLine   ProcurementOrderLine? @relation(fields: [procurementLineId], references: [id], onDelete: SetNull)
 
   @@index([tenantId, medicineId, expiryDate])
+  @@index([procurementOrderId])
   @@index([medicineId, expiryDate])
   @@index([expiryDate])
   @@index([receivedAt])
@@ -246,4 +269,88 @@ model SaleLine {
   @@index([status])
   @@index([itemType])
   @@map("sale_lines")
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  contact   String?
+  notes     String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  tenant Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders ProcurementOrder[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("suppliers")
+}
+
+model MedicineReorderPolicy {
+  id              String @id @default(cuid())
+  tenantId        String
+  medicineId      String
+  reorderPoint    Int?
+  targetLevel     Int?
+  leadTimeDays    Int    @default(14)
+  safetyStockDays Int    @default(3)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  medicine Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, medicineId])
+  @@index([tenantId])
+  @@map("medicine_reorder_policies")
+}
+
+model ProcurementOrder {
+  id           String                   @id @default(cuid())
+  tenantId     String
+  reference    String
+  status       ProcurementOrderStatus   @default(DRAFT)
+  notes        String?
+  supplierName String?
+  supplierId   String?
+  createdById  String
+  approvedById String?
+  expiryWatch  Json?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  submittedAt  DateTime?
+
+  tenant     Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  supplier   Supplier?              @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  lines      ProcurementOrderLine[]
+  stockBatches StockBatch[]
+
+  @@unique([tenantId, reference])
+  @@index([tenantId, status, createdAt])
+  @@map("procurement_orders")
+}
+
+model ProcurementOrderLine {
+  id           String                @id @default(cuid())
+  tenantId     String
+  orderId      String
+  medicineId   String
+  suggestedQty Int
+  orderedQty   Int
+  receivedQty  Int                   @default(0)
+  stockUnit    StockUnit
+  unitsPerPack Int?
+  reason       ProcurementLineReason
+  priority     String                @default("NORMAL")
+  notes        String?
+  sourceMeta   Json?
+  sortOrder    Int                   @default(0)
+
+  order        ProcurementOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicine     Medicine         @relation(fields: [medicineId], references: [id], onDelete: Restrict)
+  stockBatches StockBatch[]
+
+  @@index([orderId])
+  @@index([tenantId, medicineId])
+  @@map("procurement_order_lines")
 }
