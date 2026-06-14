@@ -2,10 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireTenantContext } from "@/lib/auth/guards";
+import { AppError } from "@/lib/errors";
 import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 import type {
   ActionResult,
+  BulkCatalogMatch,
   CatalogMedicine,
+  MatchConfidence,
   StockBatchView,
 } from "@/lib/types";
 import {
@@ -188,6 +191,131 @@ export async function searchCatalog(
         return `${a.dosageForm} ${a.strength}`.localeCompare(
           `${b.dosageForm} ${b.strength}`,
         );
+      });
+    },
+    { tenantId: ctx.tenantId },
+  );
+}
+
+type MedicineWithAliases = {
+  id: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  levelOfUse: string | null;
+  searchKey: string;
+  aliases: Array<{ name: string }>;
+};
+
+function scoreCatalogMatch(rawName: string, medicine: MedicineWithAliases): number {
+  const q = rawName.trim().toLowerCase();
+  const normalized = normalizeQuery(rawName);
+  if (!normalized || q.length < 2) return 0;
+
+  const generic = medicine.genericName.toLowerCase();
+  const { searchKey } = medicine;
+
+  if (generic === q) return 100;
+  if (medicine.aliases.some((a) => a.name.toLowerCase() === q)) return 100;
+  if (searchKey === normalized) return 100;
+
+  if (searchKey.startsWith(normalized)) return 70;
+  if (generic.startsWith(q)) return 65;
+
+  if (searchKey.includes(normalized)) return 40;
+  if (generic.includes(q)) return 35;
+  if (medicine.aliases.some((a) => a.name.toLowerCase().includes(q))) return 35;
+
+  const tokens = normalized.split(" ").filter((t) => t.length >= 2);
+  if (tokens.length > 0 && tokens.every((t) => searchKey.includes(t))) {
+    return 30;
+  }
+
+  return 0;
+}
+
+function confidenceFromScore(score: number): MatchConfidence {
+  if (score >= 100) return "HIGH";
+  if (score >= 30) return "LOW";
+  return "NONE";
+}
+
+function toCatalogMedicine(
+  medicine: MedicineWithAliases,
+  rawName: string,
+): CatalogMedicine {
+  const aliasNames = medicine.aliases.map((a) => a.name);
+  return {
+    id: medicine.id,
+    genericName: medicine.genericName,
+    dosageForm: medicine.dosageForm,
+    strength: medicine.strength,
+    levelOfUse: medicine.levelOfUse,
+    aliases: aliasNames,
+    matchedBrand: resolveMatchedBrand(rawName, medicine.genericName, aliasNames),
+  };
+}
+
+/**
+ * Matches many CSV product names against KEML + aliases in one read-only pass.
+ * Loads the formulary once and scores in memory for speed.
+ */
+export async function bulkMatchCatalog(
+  rawNames: string[],
+): Promise<ActionResult<BulkCatalogMatch[]>> {
+  const ctx = await requireTenantContext("receive.stock");
+  return runAction(
+    "bulkMatchCatalog",
+    async () => {
+      if (rawNames.length === 0) return [];
+      if (rawNames.length > 100) {
+        throw new AppError(
+          "Maximum 100 names per bulk match request",
+          "VALIDATION",
+        );
+      }
+
+      const catalog = await prisma.medicine.findMany({
+        where: { isStub: false },
+        select: {
+          id: true,
+          genericName: true,
+          dosageForm: true,
+          strength: true,
+          levelOfUse: true,
+          searchKey: true,
+          aliases: { select: { name: true } },
+        },
+      });
+
+      return rawNames.map((rawName) => {
+        let best: MedicineWithAliases | null = null;
+        let bestScore = 0;
+
+        for (const medicine of catalog) {
+          const score = scoreCatalogMatch(rawName, medicine);
+          if (score > bestScore) {
+            bestScore = score;
+            best = medicine;
+          }
+        }
+
+        const matchConfidence = confidenceFromScore(bestScore);
+        if (!best || matchConfidence === "NONE") {
+          return {
+            rawName,
+            medicineId: null,
+            matchConfidence: "NONE" as const,
+            medicine: null,
+          };
+        }
+
+        return {
+          rawName,
+          medicineId: best.id,
+          matchConfidence,
+          medicine: toCatalogMedicine(best, rawName),
+        };
       });
     },
     { tenantId: ctx.tenantId },
