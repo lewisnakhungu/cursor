@@ -5,7 +5,7 @@ export default function ProcurementPage() {
   return (
     <AppShell
       title="Procurement"
-      subtitle="Generate reorder lists, edit quantities, and print requisitions"
+      subtitle="Generate reorder lists, import partner files, and print requisitions"
     >
       <ProcurementWorkspace />
     </AppShell>

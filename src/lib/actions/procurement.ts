@@ -8,6 +8,8 @@ import { runAction } from "@/lib/actions/utils";
 import { parseInput } from "@/lib/validation";
 import {
   addProcurementLineSchema,
+  bulkImportProcurementLinesSchema,
+  createProcurementDraftSchema,
   generateReorderDraftSchema,
   submitProcurementOrderSchema,
   updateProcurementOrderSchema,
@@ -528,6 +530,123 @@ export async function generateReorderDraft(
       });
 
       return { orderId: order.id };
+    },
+    { tenantId: ctx.tenantId },
+  );
+}
+
+export async function createProcurementDraft(
+  input?: { notes?: string; supplierName?: string; supplierId?: string },
+): Promise<ActionResult<{ orderId: string }>> {
+  const ctx = await requireTenantContext("procurement.manage");
+  return runAction(
+    "createProcurementDraft",
+    async () => {
+      const data = parseInput(createProcurementDraftSchema, input ?? {});
+      const { db, session } = ctx;
+
+      const { batches } = await loadReorderContext(db);
+      const expiryWatch = buildExpiryWatch(batches);
+      const reference = await nextReference(db);
+
+      const order = await db.procurementOrder.create({
+        data: {
+          reference,
+          notes: data.notes ?? null,
+          supplierName: data.supplierName ?? null,
+          supplierId: data.supplierId ?? null,
+          createdById: session.userId,
+          expiryWatch: expiryWatch as unknown as Prisma.InputJsonValue,
+        },
+        select: { id: true },
+      });
+
+      return { orderId: order.id };
+    },
+    { tenantId: ctx.tenantId },
+  );
+}
+
+export async function bulkImportProcurementLines(input: {
+  orderId: string;
+  lines: Array<{
+    medicineId: string;
+    orderedQty: number;
+    stockUnit: StockUnitCode;
+    unitsPerPack?: number | null;
+    rawName?: string;
+  }>;
+}): Promise<ActionResult<{ added: number; skipped: number; orderId: string }>> {
+  const ctx = await requireTenantContext("procurement.manage");
+  return runAction(
+    "bulkImportProcurementLines",
+    async () => {
+      const data = parseInput(bulkImportProcurementLinesSchema, input);
+      const order = await ctx.db.procurementOrder.findUnique({
+        where: { id: data.orderId },
+        select: {
+          status: true,
+          _count: { select: { lines: true } },
+        },
+      });
+      if (!order) {
+        throw new AppError("Procurement order not found", "NOT_FOUND");
+      }
+      if (order.status !== "DRAFT") {
+        throw new AppError("Only draft orders can be edited", "FORBIDDEN");
+      }
+
+      const medicineIds = data.lines.map((l) => l.medicineId);
+      const found = await prisma.medicine.count({
+        where: { id: { in: medicineIds }, isStub: false },
+      });
+      if (found !== new Set(medicineIds).size) {
+        throw new AppError(
+          "One or more medicines were not found in the catalog",
+          "NOT_FOUND",
+        );
+      }
+
+      const existing = await ctx.db.procurementOrderLine.findMany({
+        where: { orderId: data.orderId },
+        select: { medicineId: true },
+      });
+      const existingIds = new Set(existing.map((l) => l.medicineId));
+
+      let sortOrder = order._count.lines;
+      let added = 0;
+      let skipped = 0;
+
+      for (const line of data.lines) {
+        if (existingIds.has(line.medicineId)) {
+          skipped++;
+          continue;
+        }
+        existingIds.add(line.medicineId);
+        await ctx.db.procurementOrderLine.create({
+          data: {
+            orderId: data.orderId,
+            medicineId: line.medicineId,
+            suggestedQty: 0,
+            orderedQty: line.orderedQty,
+            stockUnit: line.stockUnit,
+            unitsPerPack: line.unitsPerPack ?? null,
+            reason: "MANUAL",
+            notes: line.rawName ? `Imported: ${line.rawName}` : "Imported from partner list",
+            sortOrder: sortOrder++,
+          },
+        });
+        added++;
+      }
+
+      if (added === 0 && skipped > 0) {
+        throw new AppError(
+          "All imported medicines are already on this order",
+          "VALIDATION",
+        );
+      }
+
+      return { added, skipped, orderId: data.orderId };
     },
     { tenantId: ctx.tenantId },
   );

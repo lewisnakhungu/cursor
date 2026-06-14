@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { ProcurementOrderDocument } from "@/components/procurement/procurement-order-document";
+import { ProcurementImportForm } from "@/components/procurement/procurement-import-form";
 import { ReorderPolicyPanel } from "@/components/procurement/reorder-policy-panel";
 import { SupplierManager } from "@/components/procurement/supplier-manager";
 import { ProcurementVariancePanel } from "@/components/procurement/procurement-variance-panel";
@@ -401,10 +402,20 @@ export function ProcurementWorkspace() {
               ) : (
                 <p className="mt-4 text-sm text-muted-foreground">
                   No orders yet. Generate a reorder list from current stock and
-                  sales velocity.
+                  sales velocity, or import a partner CSV / Excel / photo below.
                 </p>
               )}
             </section>
+
+            <ProcurementImportForm
+              orderId={active?.id ?? null}
+              orderIsDraft={active?.status === "DRAFT"}
+              onImported={(orderId) => {
+                reloadOrders();
+                loadOrder(orderId);
+              }}
+              disabled={loading}
+            />
 
             {active ? (
               <section className="pharmacy-panel space-y-4">

@@ -54,6 +54,32 @@ export const submitProcurementOrderSchema = z.object({
   orderId: id,
 });
 
+export const bulkImportProcurementLinesSchema = z.object({
+  orderId: id,
+  lines: z
+    .array(
+      z.object({
+        medicineId: id,
+        orderedQty: z
+          .number()
+          .int()
+          .positive("Quantity must be greater than zero")
+          .max(1_000_000),
+        stockUnit: z.enum(STOCK_UNIT_VALUES),
+        unitsPerPack: z.number().int().min(2).max(100_000).nullable().optional(),
+        rawName: z.string().trim().max(200).optional(),
+      }),
+    )
+    .min(1, "At least one line is required")
+    .max(100, "Maximum 100 lines per import"),
+});
+
+export const createProcurementDraftSchema = z.object({
+  notes: z.string().trim().max(2000).optional(),
+  supplierName: z.string().trim().max(200).optional(),
+  supplierId: id.optional(),
+});
+
 export const upsertReorderPolicySchema = z.object({
   medicineId: id,
   reorderPoint: z.number().int().min(0).max(1_000_000).nullable().optional(),
