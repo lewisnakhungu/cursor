@@ -8,7 +8,6 @@ import type { StockUnitCode } from "@/lib/stock-unit";
 import type {
   ActionResult,
   ReportPeriodDays,
-  RevenueByItemType,
   SalesByDayRow,
   SalesReportData,
   SalesReportLineDetail,
