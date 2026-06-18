@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireFacilityOwner, requireSession } from "@/lib/auth/guards";
+import { requireFacilityOwner } from "@/lib/auth/guards";
+import { requireSession } from "@/lib/auth/session";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
 

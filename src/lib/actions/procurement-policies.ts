@@ -77,6 +77,7 @@ export async function upsertReorderPolicy(
           },
         },
         create: {
+          tenantId: ctx.tenantId,
           medicineId: data.medicineId,
           reorderPoint: data.reorderPoint ?? null,
           targetLevel: data.targetLevel ?? null,

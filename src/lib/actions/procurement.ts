@@ -39,6 +39,7 @@ import type {
   ProcurementReorderCount,
 } from "@/lib/types";
 import { getActiveFacilityName } from "@/lib/auth/session-types";
+import type { TenantPrismaClient } from "@/lib/prisma-tenant";
 
 const FACILITY_NAME =
   process.env.NEXT_PUBLIC_FACILITY_NAME ?? "AfyaSmart Facility";
@@ -60,9 +61,7 @@ function daysUntilExpiry(expiryDate: Date): number {
   return Math.ceil((expiryDate.getTime() - startOfToday().getTime()) / msPerDay);
 }
 
-async function nextReference(
-  db: { procurementOrder: { count: (args: unknown) => Promise<number> } },
-): Promise<string> {
+async function nextReference(db: TenantPrismaClient): Promise<string> {
   const today = startOfToday();
   const datePart = today.toISOString().slice(0, 10).replace(/-/g, "");
   const count = await db.procurementOrder.count({
@@ -146,17 +145,7 @@ type StockRow = {
   };
 };
 
-async function loadReorderContext(db: {
-  stockBatch: { findMany: (args: unknown) => Promise<StockRow[]> };
-  saleLine: { findMany: (args: unknown) => Promise<Array<{ medicineId: string; quantity: number }>> };
-  medicineReorderPolicy: { findMany: (args: unknown) => Promise<Array<{
-    medicineId: string;
-    reorderPoint: number | null;
-    targetLevel: number | null;
-    leadTimeDays: number;
-    safetyStockDays: number;
-  }>> };
-}) {
+async function loadReorderContext(db: TenantPrismaClient) {
   const today = startOfToday();
   const salesFrom = daysAgo(SALES_LOOKBACK_DAYS);
   const sales90From = daysAgo(90);
@@ -280,8 +269,8 @@ function buildSuggestedLines(
   sourceMeta: LineSourceMeta;
 }> {
   const medicineIds = new Set([
-    ...stockByMedicine.keys(),
-    ...sold30.keys(),
+    ...Array.from(stockByMedicine.keys()),
+    ...Array.from(sold30.keys()),
   ]);
 
   const lines: Array<{
@@ -292,7 +281,7 @@ function buildSuggestedLines(
     sourceMeta: LineSourceMeta;
   }> = [];
 
-  for (const medicineId of medicineIds) {
+  for (const medicineId of Array.from(medicineIds)) {
     const stock = stockByMedicine.get(medicineId);
     const currentStock = stock?.qty ?? 0;
     const unitsSold = sold30.get(medicineId) ?? 0;
@@ -355,8 +344,11 @@ function countNeedingReorder(
   >,
 ): number {
   let count = 0;
-  const medicineIds = new Set([...stockByMedicine.keys(), ...sold30.keys()]);
-  for (const medicineId of medicineIds) {
+  const medicineIds = new Set([
+    ...Array.from(stockByMedicine.keys()),
+    ...Array.from(sold30.keys()),
+  ]);
+  for (const medicineId of Array.from(medicineIds)) {
     const currentStock = stockByMedicine.get(medicineId)?.qty ?? 0;
     const unitsSold = sold30.get(medicineId) ?? 0;
     const avgDaily = computeAvgDailySales(unitsSold);
@@ -491,7 +483,7 @@ export async function generateReorderDraft(
     "generateReorderDraft",
     async () => {
       const data = parseInput(generateReorderDraftSchema, input ?? {});
-      const { db, session } = ctx;
+      const { db, session, tenantId } = ctx;
 
       const { batches, stockByMedicine, sold30, policyByMedicine, abcMap } =
         await loadReorderContext(db);
@@ -507,6 +499,7 @@ export async function generateReorderDraft(
 
       const order = await db.procurementOrder.create({
         data: {
+          tenantId,
           reference,
           notes: data.notes ?? null,
           supplierName: data.supplierName ?? null,
@@ -515,6 +508,7 @@ export async function generateReorderDraft(
           expiryWatch: expiryWatch as unknown as Prisma.InputJsonValue,
           lines: {
             create: suggestions.map((s, index) => ({
+              tenantId,
               medicineId: s.medicineId,
               suggestedQty: s.suggestedQty,
               orderedQty: s.suggestedQty,
@@ -543,7 +537,7 @@ export async function createProcurementDraft(
     "createProcurementDraft",
     async () => {
       const data = parseInput(createProcurementDraftSchema, input ?? {});
-      const { db, session } = ctx;
+      const { db, session, tenantId } = ctx;
 
       const { batches } = await loadReorderContext(db);
       const expiryWatch = buildExpiryWatch(batches);
@@ -551,6 +545,7 @@ export async function createProcurementDraft(
 
       const order = await db.procurementOrder.create({
         data: {
+          tenantId,
           reference,
           notes: data.notes ?? null,
           supplierName: data.supplierName ?? null,
@@ -625,6 +620,7 @@ export async function bulkImportProcurementLines(input: {
         existingIds.add(line.medicineId);
         await ctx.db.procurementOrderLine.create({
           data: {
+            tenantId: ctx.tenantId,
             orderId: data.orderId,
             medicineId: line.medicineId,
             suggestedQty: 0,
@@ -761,6 +757,7 @@ export async function addProcurementLine(
 
       const line = await ctx.db.procurementOrderLine.create({
         data: {
+          tenantId: ctx.tenantId,
           orderId: data.orderId,
           medicineId: data.medicineId,
           suggestedQty: 0,
@@ -909,24 +906,7 @@ export async function listOpenProcurementOrders(): Promise<
 }
 
 export async function recordProcurementReceipt(
-  db: {
-    procurementOrderLine: {
-      findUnique: (args: unknown) => Promise<{
-        id: string;
-        orderId: string;
-        receivedQty: number;
-        orderedQty: number;
-      } | null>;
-      update: (args: unknown) => Promise<unknown>;
-    };
-    procurementOrder: {
-      findUnique: (args: unknown) => Promise<{
-        id: string;
-        lines: Array<{ orderedQty: number; receivedQty: number }>;
-      } | null>;
-      update: (args: unknown) => Promise<unknown>;
-    };
-  },
+  db: TenantPrismaClient,
   procurementLineId: string,
   quantityReceived: number,
 ): Promise<void> {

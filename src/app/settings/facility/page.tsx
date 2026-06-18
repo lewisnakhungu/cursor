@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { FacilitySettingsPanel } from "@/components/settings/facility-settings";
 import { getFacilitySettings } from "@/lib/actions/facility-settings";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default async function FacilitySettingsPage() {
   const res = await getFacilitySettings();
@@ -15,9 +16,12 @@ export default async function FacilitySettingsPage() {
       subtitle="Owner-only — offline mode and operational risk"
     >
       <div className="mb-6 flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/settings/team">← Team & access</Link>
-        </Button>
+        <Link
+          href="/settings/team"
+          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+        >
+          ← Team & access
+        </Link>
       </div>
       <FacilitySettingsPanel initial={res.data} />
     </AppShell>

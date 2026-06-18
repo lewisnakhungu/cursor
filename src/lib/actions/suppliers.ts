@@ -53,6 +53,7 @@ export async function createSupplier(
 
       const supplier = await ctx.db.supplier.create({
         data: {
+          tenantId: ctx.tenantId,
           name: data.name,
           contact: data.contact ?? null,
           notes: data.notes ?? null,

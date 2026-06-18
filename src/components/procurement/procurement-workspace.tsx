@@ -53,6 +53,7 @@ import type {
   CatalogMedicine,
   ProcurementOrderDetail,
   ProcurementOrderSummary,
+  ProcurementReportData,
   SupplierView,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -80,11 +81,7 @@ export function ProcurementWorkspace() {
   const [tab, setTab] = useState<TabId>("orders");
   const [orders, setOrders] = useState<ProcurementOrderSummary[]>([]);
   const [active, setActive] = useState<ProcurementOrderDetail | null>(null);
-  const [report, setReport] = useState<
-    Awaited<ReturnType<typeof getProcurementReport>> extends { success: true; data: infer D }
-      ? D | null
-      : null
-  >(null);
+  const [report, setReport] = useState<ProcurementReportData | null>(null);
   const [suppliers, setSuppliers] = useState<SupplierView[]>([]);
   const [notes, setNotes] = useState("");
   const [supplierName, setSupplierName] = useState("");

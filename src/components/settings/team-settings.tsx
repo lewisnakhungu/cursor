@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import {
   addTeamMember,
@@ -10,7 +11,7 @@ import {
   type TeamMemberView,
 } from "@/lib/actions/team";
 import { ResetPasswordDialog } from "@/components/auth/reset-password-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import {
@@ -131,9 +132,12 @@ export function TeamSettings() {
               Offline dispense, risk controls — owner only
             </p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <a href="/settings/facility">Open facility settings</a>
-          </Button>
+          <Link
+            href="/settings/facility"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Open facility settings
+          </Link>
         </div>
       </section>
 
