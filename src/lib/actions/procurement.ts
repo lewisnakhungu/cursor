@@ -40,9 +40,9 @@ import type {
 } from "@/lib/types";
 import { getActiveFacilityName } from "@/lib/auth/session-types";
 import type { TenantPrismaClient } from "@/lib/prisma-tenant";
+import { getDefaultFacilityLabel } from "@/lib/brand";
 
-const FACILITY_NAME =
-  process.env.NEXT_PUBLIC_FACILITY_NAME ?? "AfyaSmart Facility";
+const FACILITY_NAME = getDefaultFacilityLabel();
 
 function startOfToday(): Date {
   const d = new Date();

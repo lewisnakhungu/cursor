@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { Button } from "@/components/ui/button";
-import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
+import { AfyaStockLogo } from "@/components/brand/afyastock-logo";
 
 export default function RouteError({
   error,
@@ -18,7 +18,7 @@ export default function RouteError({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <AfyaSmartLogo size={48} />
+      <AfyaStockLogo size={48} />
       <h1 className="text-xl font-semibold">Something went wrong</h1>
       <p className="max-w-md text-sm text-muted-foreground">
         The error has been reported automatically. Your stock and sales data

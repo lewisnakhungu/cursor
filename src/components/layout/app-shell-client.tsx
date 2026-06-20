@@ -10,7 +10,8 @@ import {
   useState,
   useTransition,
 } from "react";
-import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
+import { AfyaStockLogo } from "@/components/brand/afyastock-logo";
+import { BRAND_NAME, getDefaultFacilityLabel } from "@/lib/brand";
 import {
   BarChart3,
   Building2,
@@ -134,11 +135,11 @@ function SidebarBrand({
     >
       <div className="flex items-center gap-2">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <AfyaSmartLogo size={28} variant="onPrimary" />
+          <AfyaStockLogo size={28} variant="onPrimary" />
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold leading-tight">
-            AfyaSmart-Stock
+            {BRAND_NAME}
           </p>
           {!compact && (
             <p className="truncate text-[11px] text-muted-foreground">
@@ -285,7 +286,7 @@ export function AppShellClient({
   );
 
   const facilityLabel =
-    getActiveFacilityName(session) ?? "AfyaSmart Facility";
+    getActiveFacilityName(session) ?? getDefaultFacilityLabel();
 
   const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
 
@@ -387,7 +388,7 @@ export function AppShellClient({
         </Button>
         <div className="min-w-0 flex-1 pe-2">
           <p className="truncate text-sm font-semibold leading-tight">
-            {title ?? activeNav?.label ?? "AfyaSmart-Stock"}
+            {title ?? activeNav?.label ?? BRAND_NAME}
           </p>
           <p className="truncate text-[11px] text-muted-foreground">
             {subtitle ?? facilityLabel}

@@ -19,9 +19,7 @@ import {
 } from "@/lib/stock-unit";
 import type { DispenseResult } from "@/lib/types";
 import type { LocalDispenseReceipt } from "@/lib/offline/types";
-
-const FACILITY_NAME =
-  process.env.NEXT_PUBLIC_FACILITY_NAME ?? "AfyaSmart Facility";
+import { BRAND_NAME, getDefaultFacilityLabel } from "@/lib/brand";
 
 /**
  * DispenseReceipt accepts either:
@@ -219,9 +217,9 @@ function ReceiptShell({
   return (
     <>
       <p className="text-center text-sm font-bold uppercase tracking-wider">
-        {FACILITY_NAME}
+        {getDefaultFacilityLabel()}
       </p>
-      <p className="mt-1 text-center text-xs">AfyaSmart-Stock POS</p>
+      <p className="mt-1 text-center text-xs">{BRAND_NAME} POS</p>
       <p className="mt-2 border-b border-dashed border-black pb-2 text-center text-xs">
         {isOffline ? "OFFLINE DISPENSE RECEIPT" : "DISPENSE RECEIPT"}
       </p>

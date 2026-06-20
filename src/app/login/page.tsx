@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
+import { AfyaStockLogo } from "@/components/brand/afyastock-logo";
 import { LoginForm } from "@/components/auth/login-form";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default function LoginPage() {
   return (
@@ -8,10 +9,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-xl border border-border/80 bg-background p-6 shadow-sm sm:p-8">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 flex size-14 items-center justify-center">
-            <AfyaSmartLogo size={56} />
+            <AfyaStockLogo size={56} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            AfyaSmart-Stock
+            {BRAND_NAME}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Sign in to your facility account

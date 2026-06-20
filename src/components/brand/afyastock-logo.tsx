@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-type AfyaSmartLogoProps = {
+type AfyaStockLogoProps = {
   size?: number;
   className?: string;
   /** Show on primary-colored backgrounds (sidebar tile). */
@@ -8,13 +8,13 @@ type AfyaSmartLogoProps = {
 };
 
 /**
- * AfyaSmart mark: rounded tile + medical cross + pill dot (pharmacy stock).
+ * AfyaStock mark: rounded tile + medical cross + pill dot (pharmacy stock).
  */
-export function AfyaSmartLogo({
+export function AfyaStockLogo({
   size = 36,
   className,
   variant = "default",
-}: AfyaSmartLogoProps) {
+}: AfyaStockLogoProps) {
   const tileFill =
     variant === "onPrimary" ? "currentColor" : "hsl(158 64% 32%)";
   const markFill =

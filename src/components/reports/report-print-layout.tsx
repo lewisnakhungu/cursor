@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { BRAND_NAME } from "@/lib/brand";
 
 type ReportPrintLayoutProps = {
   title: string;
@@ -43,7 +44,7 @@ export function ReportPrintLayout({
       </header>
       <div className="report-print-body mt-6 space-y-6">{children}</div>
       <footer className="report-print-footer mt-8 border-t border-neutral-300 pt-3 text-center text-[10px] text-neutral-600">
-        AfyaSmart-Stock · Confidential pharmacy report · {formatGenerated(generatedAt)}
+        {BRAND_NAME} · Confidential pharmacy report · {formatGenerated(generatedAt)}
       </footer>
     </div>
   );

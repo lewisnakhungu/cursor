@@ -29,7 +29,7 @@ export function downloadProcurementCsvTemplate(): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "afyasmart-procurement-template.csv";
+  anchor.download = "afyastock-procurement-template.csv";
   anchor.click();
   URL.revokeObjectURL(url);
 }
@@ -39,7 +39,7 @@ export function downloadProcurementExcelTemplate(): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "afyasmart-procurement-template.xlsx";
+  anchor.download = "afyastock-procurement-template.xlsx";
   anchor.click();
   URL.revokeObjectURL(url);
 }

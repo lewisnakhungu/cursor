@@ -9,12 +9,12 @@ import {
   Timer,
   Users,
 } from "lucide-react";
-import { AfyaSmartLogo } from "@/components/brand/afyasmart-logo";
+import { AfyaStockLogo } from "@/components/brand/afyastock-logo";
 import { buttonVariants } from "@/components/ui/button";
+import { BRAND_DOMAIN, BRAND_NAME, getContactEmail } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
-const CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@afyasmart.local";
+const CONTACT_EMAIL = getContactEmail();
 
 const FEATURES = [
   {
@@ -62,16 +62,16 @@ const STEPS = [
 ] as const;
 
 export function LandingPage() {
-  const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("AfyaSmart-Stock demo request")}`;
+  const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`${BRAND_NAME} demo request`)}`;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--shell-bg))]">
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
-            <AfyaSmartLogo size={36} />
+            <AfyaStockLogo size={36} />
             <span className="truncate text-sm font-semibold tracking-tight">
-              AfyaSmart-Stock
+              {BRAND_NAME}
             </span>
           </Link>
           <nav className="flex shrink-0 items-center gap-2">
@@ -104,7 +104,7 @@ export function LandingPage() {
               Know what you have, sell what is safe, trace every dispense
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-              AfyaSmart-Stock connects KEML-aligned medicines to real batch
+              {BRAND_NAME} connects KEML-aligned medicines to real batch
               stock, FEFO dispensing, and facility-level reporting — so owners
               and staff stop guessing between the shelf and the till.
             </p>
@@ -239,8 +239,14 @@ export function LandingPage() {
 
       <footer className="border-t border-border/60 bg-background px-4 py-8 sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
-          <p>© {new Date().getFullYear()} AfyaSmart-Stock. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.</p>
           <div className="flex gap-4">
+            <a
+              href={`https://${BRAND_DOMAIN}`}
+              className="hover:text-foreground"
+            >
+              {BRAND_DOMAIN}
+            </a>
             <Link href="/login" className="hover:text-foreground">
               Staff login
             </Link>

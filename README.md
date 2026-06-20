@@ -1,8 +1,8 @@
-# AfyaSmart-Stock
+# AfyaStock
 
 Multi-tenant pharmacy POS and stock management for Kenyan health facilities — KEML catalog, FEFO dispense, offline PWA, and facility reports.
 
-**Live:** [afyasmart-stock.vercel.app](https://afyasmart-stock.vercel.app) · **Stack:** Next.js · Prisma · PostgreSQL (Neon) · Vercel
+**Live:** [afyastock.com](https://afyastock.com) · **Stack:** Next.js · Prisma · PostgreSQL (Neon) · Vercel
 
 ## Features
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { PwaProvider } from "@/components/pwa/pwa-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { BRAND_NAME, BRAND_URL } from "@/lib/brand";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -17,12 +18,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AfyaSmart-Stock",
+  metadataBase: new URL(BRAND_URL),
+  title: BRAND_NAME,
   description: "Pharmacy POS and stock management",
-  applicationName: "AfyaSmart-Stock",
+  applicationName: BRAND_NAME,
   appleWebApp: {
     capable: true,
-    title: "AfyaSmart",
+    title: BRAND_NAME,
     statusBarStyle: "default",
   },
   formatDetection: {

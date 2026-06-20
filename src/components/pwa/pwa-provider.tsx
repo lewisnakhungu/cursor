@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { BRAND_NAME } from "@/lib/brand";
 import { openAfyaDB } from "@/lib/offline/db";
 import { isCatalogFresh, ensureCatalogCached } from "@/lib/offline/catalog-cache";
 
@@ -163,7 +164,7 @@ export function PwaProvider() {
     >
       <div className="mx-auto flex max-w-lg flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 pe-2">
-          <p className="text-sm font-semibold">Install AfyaSmart-Stock</p>
+          <p className="text-sm font-semibold">Install {BRAND_NAME}</p>
           <p className="text-xs text-muted-foreground">
             Add to your home screen for quick dispense and stock access.
           </p>

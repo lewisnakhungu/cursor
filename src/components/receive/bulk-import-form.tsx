@@ -317,7 +317,7 @@ export function BulkImportForm() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "afyasmart-receive-template.csv";
+    anchor.download = "afyastock-receive-template.csv";
     anchor.click();
     URL.revokeObjectURL(url);
   };
@@ -327,7 +327,7 @@ export function BulkImportForm() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "afyasmart-receive-template.xlsx";
+    anchor.download = "afyastock-receive-template.xlsx";
     anchor.click();
     URL.revokeObjectURL(url);
   };

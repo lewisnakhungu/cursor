@@ -23,9 +23,9 @@ import {
   resolveLineItemType,
 } from "@/lib/report-item-type";
 import type { CatalogItemType } from "@/lib/types";
+import { getDefaultFacilityLabel } from "@/lib/brand";
 
-const FACILITY_NAME =
-  process.env.NEXT_PUBLIC_FACILITY_NAME ?? "AfyaSmart Facility";
+const FACILITY_NAME = getDefaultFacilityLabel();
 
 const EXPIRY_WARNING_DAYS = 90;
 const LOW_STOCK_THRESHOLD = 10;
