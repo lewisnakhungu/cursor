@@ -5,6 +5,7 @@ import { requireFacilityOwner } from "@/lib/auth/guards";
 import { requireSession } from "@/lib/auth/session";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { AppError } from "@/lib/errors";
 
 export type FacilitySettingsView = {
   facilityName: string;
@@ -32,6 +33,17 @@ export async function setOfflineModeEnabled(
 ): Promise<ActionResult<{ offlineModeEnabled: boolean }>> {
   const session = await requireFacilityOwner();
   return runAction("setOfflineModeEnabled", async () => {
+    const existing = await prisma.tenant.findUnique({
+      where: { id: session.activeFacilityId! },
+      select: { offlineModeAllowed: true },
+    });
+    if (enabled && !existing?.offlineModeAllowed) {
+      throw new AppError(
+        "Offline mode is not permitted by your subscription plan. Contact support to enable it.",
+        "FORBIDDEN",
+      );
+    }
+
     const tenant = await prisma.tenant.update({
       where: { id: session.activeFacilityId! },
       data: { offlineModeEnabled: enabled },
@@ -48,7 +60,8 @@ export async function isOfflineModeEnabledForSession(): Promise<boolean> {
 
   const tenant = await prisma.tenant.findUnique({
     where: { id: session.activeFacilityId },
-    select: { offlineModeEnabled: true },
+    select: { offlineModeEnabled: true, offlineModeAllowed: true, status: true },
   });
-  return tenant?.offlineModeEnabled ?? false;
+  if (!tenant || tenant.status !== "ACTIVE") return false;
+  return tenant.offlineModeAllowed && tenant.offlineModeEnabled;
 }

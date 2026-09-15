@@ -54,7 +54,8 @@ export async function buildSessionForUser(
     where: { id: userId },
     include: {
       memberships: {
-        include: { tenant: { select: { id: true, name: true } } },
+        where: { tenant: { status: "ACTIVE" } },
+        include: { tenant: { select: { id: true, name: true, status: true } } },
         orderBy: { tenant: { name: "asc" } },
       },
     },

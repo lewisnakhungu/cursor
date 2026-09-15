@@ -10,11 +10,20 @@ import { decimalToNumber } from "@/lib/money";
 import { AppError } from "@/lib/errors";
 import type { ActionResult } from "@/lib/types";
 import { runAction } from "@/lib/actions/utils";
+import { provisionTenantSchema } from "@/lib/tenant-schema-provision";
+import { tenantSchemaName } from "@/lib/tenant-schema";
 
 export type FacilityListItem = {
   id: string;
   name: string;
   slug: string;
+  status: "ACTIVE" | "SUSPENDED" | "DELETED";
+  suspendedReason: string | null;
+  suspendedAt: string | null;
+  offlineModeAllowed: boolean;
+  reportsEnabled: boolean;
+  procurementEnabled: boolean;
+  maxStaffAccounts: number;
   createdAt: string;
   ownerEmail: string | null;
   ownerName: string | null;
@@ -77,6 +86,13 @@ export async function listFacilities(): Promise<
           id: tenant.id,
           name: tenant.name,
           slug: tenant.slug,
+          status: tenant.status,
+          suspendedReason: tenant.suspendedReason,
+          suspendedAt: tenant.suspendedAt?.toISOString() ?? null,
+          offlineModeAllowed: tenant.offlineModeAllowed,
+          reportsEnabled: tenant.reportsEnabled,
+          procurementEnabled: tenant.procurementEnabled,
+          maxStaffAccounts: tenant.maxStaffAccounts,
           createdAt: tenant.createdAt.toISOString(),
           ownerEmail: owner?.email ?? null,
           ownerName: owner?.name ?? null,
@@ -166,6 +182,9 @@ export async function createFacility(input: {
         return facility;
       });
 
+      // Provision isolated PostgreSQL schema for the new facility
+      await provisionTenantSchema(tenant.id);
+
       return { tenantId: tenant.id };
     },
     { tenantId: session.userId },
@@ -208,6 +227,174 @@ export async function resetFacilityOwnerPassword(input: {
       });
 
       return { ok: true };
+    },
+    { tenantId: session.userId },
+  );
+}
+
+export async function suspendFacility(input: {
+  tenantId: string;
+  reason?: string;
+}): Promise<ActionResult<{ ok: true }>> {
+  const session = await requirePlatformAdmin();
+  return runAction(
+    "suspendFacility",
+    async () => {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: input.tenantId },
+        select: { id: true, name: true, status: true },
+      });
+      if (!tenant) throw new AppError("Facility not found", "NOT_FOUND");
+      if (tenant.status === "SUSPENDED") {
+        throw new AppError("Facility is already suspended", "VALIDATION");
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.tenant.update({
+          where: { id: input.tenantId },
+          data: {
+            status: "SUSPENDED",
+            suspendedReason: input.reason?.trim() || "Suspended by administrator",
+            suspendedAt: new Date(),
+          },
+        });
+
+        // Invalidate all active sessions for staff of this facility
+        const memberships = await tx.membership.findMany({
+          where: { tenantId: input.tenantId },
+          select: { userId: true },
+        });
+        if (memberships.length > 0) {
+          await tx.user.updateMany({
+            where: { id: { in: memberships.map((m) => m.userId) } },
+            data: { sessionVersion: { increment: 1 } },
+          });
+        }
+      });
+
+      return { ok: true as const };
+    },
+    { tenantId: session.userId },
+  );
+}
+
+export async function unsuspendFacility(input: {
+  tenantId: string;
+}): Promise<ActionResult<{ ok: true }>> {
+  const session = await requirePlatformAdmin();
+  return runAction(
+    "unsuspendFacility",
+    async () => {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: input.tenantId },
+        select: { id: true, status: true },
+      });
+      if (!tenant) throw new AppError("Facility not found", "NOT_FOUND");
+
+      await prisma.tenant.update({
+        where: { id: input.tenantId },
+        data: {
+          status: "ACTIVE",
+          suspendedReason: null,
+          suspendedAt: null,
+        },
+      });
+
+      return { ok: true as const };
+    },
+    { tenantId: session.userId },
+  );
+}
+
+export async function deleteFacility(input: {
+  tenantId: string;
+  force?: boolean;
+}): Promise<ActionResult<{ ok: true; action: "SOFT_DELETED" | "PURGED" }>> {
+  const session = await requirePlatformAdmin();
+  return runAction(
+    "deleteFacility",
+    async () => {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: input.tenantId },
+        include: {
+          _count: { select: { batches: true, sales: true } },
+        },
+      });
+      if (!tenant) throw new AppError("Facility not found", "NOT_FOUND");
+
+      const hasData = tenant._count.batches > 0 || tenant._count.sales > 0;
+
+      // Soft-delete if facility has operational data and force is false (healthcare compliance preservation)
+      if (hasData && !input.force) {
+        await prisma.$transaction(async (tx) => {
+          await tx.tenant.update({
+            where: { id: input.tenantId },
+            data: {
+              status: "DELETED",
+              slug: `deleted_${Date.now()}_${tenant.slug}`,
+              suspendedReason: "Account deleted / archived",
+              suspendedAt: new Date(),
+            },
+          });
+
+          // Invalidate user sessions
+          const memberships = await tx.membership.findMany({
+            where: { tenantId: input.tenantId },
+            select: { userId: true },
+          });
+          if (memberships.length > 0) {
+            await tx.user.updateMany({
+              where: { id: { in: memberships.map((m) => m.userId) } },
+              data: { sessionVersion: { increment: 1 } },
+            });
+          }
+        });
+
+        return { ok: true as const, action: "SOFT_DELETED" };
+      }
+
+      // Hard purge if empty or explicitly forced
+      const schema = tenantSchemaName(input.tenantId);
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schema.replace(/"/g, '""')}" CASCADE`);
+        await tx.$executeRaw`DELETE FROM public.tenant_schema_registry WHERE tenant_id = ${input.tenantId}`.catch(() => {});
+        await tx.tenant.delete({ where: { id: input.tenantId } });
+      });
+
+      return { ok: true as const, action: "PURGED" };
+    },
+    { tenantId: session.userId },
+  );
+}
+
+export async function updateFacilityFeatures(input: {
+  tenantId: string;
+  offlineModeAllowed?: boolean;
+  reportsEnabled?: boolean;
+  procurementEnabled?: boolean;
+  maxStaffAccounts?: number;
+}): Promise<ActionResult<{ ok: true }>> {
+  const session = await requirePlatformAdmin();
+  return runAction(
+    "updateFacilityFeatures",
+    async () => {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: input.tenantId },
+        select: { id: true },
+      });
+      if (!tenant) throw new AppError("Facility not found", "NOT_FOUND");
+
+      await prisma.tenant.update({
+        where: { id: input.tenantId },
+        data: {
+          ...(input.offlineModeAllowed !== undefined ? { offlineModeAllowed: input.offlineModeAllowed } : {}),
+          ...(input.reportsEnabled !== undefined ? { reportsEnabled: input.reportsEnabled } : {}),
+          ...(input.procurementEnabled !== undefined ? { procurementEnabled: input.procurementEnabled } : {}),
+          ...(input.maxStaffAccounts !== undefined ? { maxStaffAccounts: Math.max(1, input.maxStaffAccounts) } : {}),
+        },
+      });
+
+      return { ok: true as const };
     },
     { tenantId: session.userId },
   );

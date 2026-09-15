@@ -51,9 +51,15 @@ export async function listTeamMembers(): Promise<
         createdAt: m.createdAt.toISOString(),
       }));
 
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: session.activeFacilityId! },
+        select: { maxStaffAccounts: true },
+      });
+      const maxStaff = tenant?.maxStaffAccounts ?? MAX_FACILITY_STAFF;
+
       return {
         members,
-        slotsRemaining: Math.max(0, MAX_FACILITY_STAFF - members.length),
+        slotsRemaining: Math.max(0, maxStaff - members.length),
       };
     },
     { tenantId: session.activeFacilityId! },
@@ -85,9 +91,15 @@ export async function addTeamMember(input: {
         },
       });
 
-      if (staffCount >= MAX_FACILITY_STAFF) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: session.activeFacilityId! },
+        select: { maxStaffAccounts: true },
+      });
+      const maxStaff = tenant?.maxStaffAccounts ?? MAX_FACILITY_STAFF;
+
+      if (staffCount >= maxStaff) {
         throw new AppError(
-          `Maximum ${MAX_FACILITY_STAFF} staff accounts (deputy + dispensers)`,
+          `Maximum ${maxStaff} staff accounts (deputy + dispensers) reached for your plan`,
           "VALIDATION",
         );
       }
