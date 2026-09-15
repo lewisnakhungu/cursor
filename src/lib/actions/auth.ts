@@ -63,6 +63,29 @@ export async function login(
 
     const session = await buildSessionForUser(user.id);
     if (!session) {
+      const inactiveMembership = await prisma.membership.findFirst({
+        where: { userId: user.id },
+        include: {
+          tenant: { select: { status: true, suspendedReason: true } },
+        },
+      });
+
+      if (inactiveMembership?.tenant.status === "SUSPENDED") {
+        throw new AppError(
+          inactiveMembership.tenant.suspendedReason
+            ? `Facility suspended: ${inactiveMembership.tenant.suspendedReason}`
+            : "This facility account is suspended. Contact support.",
+          "FORBIDDEN",
+        );
+      }
+
+      if (inactiveMembership?.tenant.status === "DELETED") {
+        throw new AppError(
+          "This facility account has been deactivated.",
+          "FORBIDDEN",
+        );
+      }
+
       throw new AppError(
         "Account is not assigned to a facility. Contact your administrator.",
         "FORBIDDEN",
