@@ -1,13 +1,13 @@
 import { AppShell } from "@/components/layout/app-shell";
-import { StockDashboard } from "@/components/dashboard/stock-dashboard";
+import { BankingHub } from "@/components/dashboard/banking-hub";
 
 export default function DashboardPage() {
   return (
     <AppShell
-      title="Operations dashboard"
-      subtitle="Real-time expiry risk, low stock, and FEFO pull order"
+      title="Chemist Operations Hub"
+      subtitle="Point of sale, stock tracking, and pharmacy ledger"
     >
-      <StockDashboard />
+      <BankingHub />
     </AppShell>
   );
 }
