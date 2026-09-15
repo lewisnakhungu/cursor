@@ -10,7 +10,7 @@ Multi-tenant pharmacy POS and stock management for Kenyan health facilities — 
 - Multi-facility tenancy with role-based access (platform admin, owner, deputy, dispenser)
 - Receive stock, FEFO dispense, sales audit, printable reports
 - Offline-capable PWA for connectivity blackouts
-- Bulk delivery import (CSV / Excel)
+- Bulk delivery import (CSV / Excel / photo OCR)
 
 ## Documentation
 
@@ -22,7 +22,7 @@ Multi-tenant pharmacy POS and stock management for Kenyan health facilities — 
 | [`docs/ACHIEVEMENTS.md`](./docs/ACHIEVEMENTS.md) | Executive summary |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Release history |
 
-More guides: [`docs/catalog-ingestion.md`](./docs/catalog-ingestion.md) · [`docs/bulk-delivery-import.md`](./docs/bulk-delivery-import.md)
+More guides: [`docs/catalog-ingestion.md`](./docs/catalog-ingestion.md) · [`docs/bulk-delivery-import.md`](./docs/bulk-delivery-import.md) · [`docs/ocr-photo-import.md`](./docs/ocr-photo-import.md)
 
 ## Quick start
 

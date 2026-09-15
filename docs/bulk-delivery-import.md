@@ -330,6 +330,8 @@ Used for paste, OCR output, and spreadsheet row fallback.
 
 ### 6.5 OCR path
 
+See **[`docs/ocr-photo-import.md`](./ocr-photo-import.md)** for a standalone guide (user flow, printed vs handwritten, privacy, tips).
+
 ```typescript
 export async function scanPrintedListImage(file: File): Promise<string> {
   const { createWorker } = await import("tesseract.js");  // lazy load
