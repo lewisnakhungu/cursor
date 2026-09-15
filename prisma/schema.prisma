@@ -33,11 +33,25 @@ enum TenantRole {
   DISPENSER
 }
 
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
 /// Health facility / pharmacy — operational data is scoped by tenantId.
 model Tenant {
   id                  String       @id @default(cuid())
   name                String
   slug                String       @unique
+  status              TenantStatus @default(ACTIVE)
+  suspendedReason     String?
+  suspendedAt         DateTime?
+  /// SaaS provider feature switches & tier limits
+  offlineModeAllowed  Boolean      @default(true)
+  reportsEnabled      Boolean      @default(true)
+  procurementEnabled  Boolean      @default(true)
+  maxStaffAccounts    Int          @default(3)
   /// Owner opt-in: preload catalog/stock and allow offline dispense (see /settings/facility).
   offlineModeEnabled  Boolean      @default(false)
   createdAt           DateTime     @default(now())
@@ -48,6 +62,7 @@ model Tenant {
   procurementOrders   ProcurementOrder[]
   reorderPolicies     MedicineReorderPolicy[]
   suppliers           Supplier[]
+  stockMovements      StockMovement[]
 
   @@map("tenants")
 }
@@ -65,6 +80,8 @@ model User {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   memberships     Membership[]
+  salesDispensed  Sale[]           @relation("SalesDispensed")
+  stockMovements  StockMovement[]  @relation("StockMovements")
 
   @@map("users")
 }
@@ -194,7 +211,7 @@ model CatalogAliasProposal {
 
 model StockBatch {
   id               String    @id @default(cuid())
-  tenantId         String    @default("default")
+  tenantId         String
   medicineId       String
   batchNumber      String?
   supplierName     String?
@@ -208,6 +225,8 @@ model StockBatch {
   receivedAt           DateTime  @default(now())
   procurementOrderId   String?
   procurementLineId    String?
+  /** User who received this batch into inventory (audit trail). */
+  receivedById         String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
@@ -216,6 +235,7 @@ model StockBatch {
   saleLines         SaleLine[]
   procurementOrder  ProcurementOrder?     @relation(fields: [procurementOrderId], references: [id], onDelete: SetNull)
   procurementLine   ProcurementOrderLine? @relation(fields: [procurementLineId], references: [id], onDelete: SetNull)
+  stockMovements    StockMovement[]
 
   @@index([tenantId, medicineId, expiryDate])
   @@index([procurementOrderId])
@@ -226,12 +246,15 @@ model StockBatch {
 }
 
 model Sale {
-  id          String     @id @default(cuid())
-  tenantId    String     @default("default")
-  createdAt   DateTime   @default(now())
-  totalAmount Decimal    @default(0) @db.Decimal(14, 2)
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  lines       SaleLine[]
+  id             String     @id @default(cuid())
+  tenantId       String
+  createdAt      DateTime   @default(now())
+  totalAmount    Decimal    @default(0) @db.Decimal(14, 2)
+  /** Staff member who performed this dispense (audit trail). */
+  dispensedById  String?
+  tenant         Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  dispensedBy    User?      @relation("SalesDispensed", fields: [dispensedById], references: [id])
+  lines          SaleLine[]
 
   @@index([tenantId, createdAt])
   @@index([createdAt])
@@ -240,7 +263,7 @@ model Sale {
 
 model SaleLine {
   id             String         @id @default(cuid())
-  tenantId       String         @default("default")
+  tenantId       String
   saleId         String
   medicineId     String
   stockBatchId   String
@@ -249,6 +272,8 @@ model SaleLine {
   lineTotal      Decimal        @default(0) @db.Decimal(12, 2)
   status         SaleLineStatus @default(ACTIVE)
   correctionNote String?
+  /** User who corrected/voided this line (null if never corrected). */
+  correctedById  String?
   genericName    String
   dosageForm     String
   strength       String
@@ -353,4 +378,37 @@ model ProcurementOrderLine {
   @@index([orderId])
   @@index([tenantId, medicineId])
   @@map("procurement_order_lines")
+}
+
+/// Append-only event types for the inventory audit ledger.
+enum StockMovementType {
+  RECEIVE
+  DISPENSE
+  CORRECTION_INCREASE
+  CORRECTION_DECREASE
+  VOIDED_RETURN
+}
+
+/// Immutable audit ledger — every inventory change is an append-only event.
+/// Protected by a database trigger that blocks UPDATE and DELETE.
+model StockMovement {
+  id             String            @id @default(cuid())
+  tenantId       String
+  stockBatchId   String
+  type           StockMovementType
+  quantityDelta  Int               /// Signed (+receive, -dispense)
+  balanceAfter   Int               /// Reconciled balance at point of entry
+  referenceType  String            /// e.g. "SALE", "PROCUREMENT", "CORRECTION"
+  referenceId    String?           /// saleLineId, procurementLineId, etc.
+  reason         String?
+  performedById  String            /// Strict authenticated User ID
+  createdAt      DateTime          @default(now())
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  stockBatch     StockBatch        @relation(fields: [stockBatchId], references: [id], onDelete: Restrict)
+  performedBy    User              @relation("StockMovements", fields: [performedById], references: [id])
+
+  @@index([tenantId, stockBatchId, createdAt])
+  @@index([performedById, createdAt])
+  @@map("stock_movements")
 }
