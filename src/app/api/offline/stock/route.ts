@@ -9,7 +9,7 @@
 
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/prisma-tenant";
 import type { StockUnitCode } from "@/lib/stock-unit";
 
 export async function GET(): Promise<NextResponse> {
@@ -32,7 +32,8 @@ export async function GET(): Promise<NextResponse> {
   today.setHours(0, 0, 0, 0);
 
   try {
-    const batches = await prisma.stockBatch.findMany({
+    const db = getTenantPrisma(tenantId);
+    const batches = await db.stockBatch.findMany({
       where: {
         tenantId,
         quantityOnHand: { gt: 0 },

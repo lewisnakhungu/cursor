@@ -14,6 +14,7 @@ import {
   correctSaleLineSchema,
   parseInput,
 } from "@/lib/validation";
+import { tenantSchemaName } from "@/lib/tenant-schema";
 
 function startOfToday(): Date {
   const today = new Date();
@@ -39,8 +40,13 @@ export async function dispenseMedicine(
       const saleId = await withTransientRetry(() =>
         prisma.$transaction(
           async (tx) => {
+            // Set search_path so raw SQL resolves to tenant schema (audit fix)
+            const _schema = tenantSchemaName(tenantId);
+            await tx.$executeRawUnsafe(
+              `SET LOCAL search_path TO "${_schema.replace(/"/g, '""')}", public`,
+            );
           const sale = await tx.sale.create({
-            data: { tenantId, totalAmount: 0 },
+            data: { tenantId, totalAmount: 0, dispensedById: ctx.session.userId },
           });
           let saleTotal = new Prisma.Decimal(0);
 
@@ -272,6 +278,7 @@ export async function correctSaleLine(
                 quantity: 0,
                 lineTotal: 0,
                 correctionNote: reason,
+                correctedById: ctx.session.userId,
               },
             });
           } else {
@@ -282,6 +289,7 @@ export async function correctSaleLine(
                 quantity: newQuantity,
                 lineTotal,
                 correctionNote: reason,
+                correctedById: ctx.session.userId,
               },
             });
           }

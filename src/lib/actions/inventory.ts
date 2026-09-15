@@ -97,6 +97,7 @@ export async function receiveInventory(
 
     const batch = await db.stockBatch.create({
       data: {
+        tenantId: ctx.tenantId,
         medicineId: data.medicineId,
         batchNumber: data.batchNumber?.trim() || null,
         supplierName: data.supplierName?.trim() || null,
@@ -115,6 +116,7 @@ export async function receiveInventory(
             : null,
         procurementOrderId: data.procurementOrderId ?? null,
         procurementLineId: data.procurementLineId ?? null,
+        receivedById: ctx.session.userId,
       },
       select: { id: true },
     });
@@ -154,11 +156,12 @@ export async function receiveBulkInventory(
         );
       }
 
-      await db.$transaction(async (tx) => {
+      await ctx.transaction(async (tx) => {
         for (const data of validated) {
           const expiryDate = new Date(data.expiryDate);
           await tx.stockBatch.create({
             data: {
+              tenantId: ctx.tenantId,
               medicineId: data.medicineId,
               batchNumber: data.batchNumber?.trim() || null,
               supplierName: data.supplierName?.trim() || null,
@@ -175,6 +178,7 @@ export async function receiveBulkInventory(
                 data.retailSalePrice !== undefined
                   ? new Prisma.Decimal(data.retailSalePrice)
                   : null,
+              receivedById: ctx.session.userId,
             },
           });
         }
