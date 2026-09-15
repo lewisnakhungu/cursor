@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { scopeQueryArgs } from "@/lib/tenant-scope";
+import {
+  getActiveTenantTx,
+  withTenantSchema,
+} from "@/lib/tenant-schema";
 
 type ScopedQueryArgs = {
   operation: string;
@@ -7,29 +11,68 @@ type ScopedQueryArgs = {
   query: (args: Record<string, unknown>) => Promise<unknown>;
 };
 
-function tenantModelExtension(tenantId: string) {
+const TENANT_MODELS = [
+  "stockBatch",
+  "sale",
+  "saleLine",
+  "procurementOrder",
+  "procurementOrderLine",
+  "medicineReorderPolicy",
+  "supplier",
+  "stockMovement",
+] as const;
+
+type TenantModel = (typeof TENANT_MODELS)[number];
+
+type ModelDelegate = Record<string, (args: unknown) => Promise<unknown>>;
+
+function runOnTenantTx(
+  tx: NonNullable<ReturnType<typeof getActiveTenantTx>>,
+  model: TenantModel,
+  operation: string,
+  scopedArgs: Record<string, unknown>,
+): Promise<unknown> {
+  const delegate = tx[model] as unknown as ModelDelegate;
+  const fn = delegate[operation];
+  if (typeof fn !== "function") {
+    throw new Error(`Unsupported tenant operation: ${model}.${operation}`);
+  }
+  return fn(scopedArgs);
+}
+
+function tenantModelExtension(tenantId: string, model: TenantModel) {
   return {
-    async $allOperations({
-      operation,
-      args,
-      query,
-    }: ScopedQueryArgs) {
-      return query(scopeQueryArgs({ operation, args }, tenantId));
+    async $allOperations({ operation, args }: ScopedQueryArgs) {
+      const scopedArgs = scopeQueryArgs({ operation, args }, tenantId);
+      const activeTx = getActiveTenantTx();
+      if (activeTx) {
+        return runOnTenantTx(activeTx, model, operation, scopedArgs);
+      }
+      return withTenantSchema(tenantId, (tx) =>
+        runOnTenantTx(tx, model, operation, scopedArgs),
+      );
     },
   };
 }
 
 function createTenantClient(tenantId: string) {
   return prisma.$extends({
-    name: "tenantIsolation",
+    name: "tenantSchemaIsolation",
     query: {
-      stockBatch: tenantModelExtension(tenantId),
-      sale: tenantModelExtension(tenantId),
-      saleLine: tenantModelExtension(tenantId),
-      procurementOrder: tenantModelExtension(tenantId),
-      procurementOrderLine: tenantModelExtension(tenantId),
-      medicineReorderPolicy: tenantModelExtension(tenantId),
-      supplier: tenantModelExtension(tenantId),
+      stockBatch: tenantModelExtension(tenantId, "stockBatch"),
+      sale: tenantModelExtension(tenantId, "sale"),
+      saleLine: tenantModelExtension(tenantId, "saleLine"),
+      procurementOrder: tenantModelExtension(tenantId, "procurementOrder"),
+      procurementOrderLine: tenantModelExtension(
+        tenantId,
+        "procurementOrderLine",
+      ),
+      medicineReorderPolicy: tenantModelExtension(
+        tenantId,
+        "medicineReorderPolicy",
+      ),
+      supplier: tenantModelExtension(tenantId, "supplier"),
+      stockMovement: tenantModelExtension(tenantId, "stockMovement"),
     },
   });
 }
@@ -44,8 +87,8 @@ const tenantClientCache = new Map<string, ReturnType<typeof createTenantClient>>
 export type TenantPrismaClient = ReturnType<typeof createTenantClient>;
 
 /**
- * Prisma client that scopes stockBatch, sale, and saleLine to one tenant.
- * Medicine / MedicineAlias stay on the base `prisma` client (shared KEML catalog).
+ * Prisma client scoped to one tenant PostgreSQL schema (search_path) plus
+ * tenantId filters. Medicine / MedicineAlias use the base `prisma` client.
  */
 export function getTenantPrisma(tenantId: string): TenantPrismaClient {
   let client = tenantClientCache.get(tenantId);
