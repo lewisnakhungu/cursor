@@ -140,7 +140,6 @@ export async function receiveBulkInventory(
   return runAction(
     "receiveBulkInventory",
     async () => {
-      const { db } = ctx;
       const validated = parseInput(bulkReceiveInventorySchema, items);
 
       const medicineIds = Array.from(

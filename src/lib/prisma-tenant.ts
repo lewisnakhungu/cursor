@@ -11,18 +11,15 @@ type ScopedQueryArgs = {
   query: (args: Record<string, unknown>) => Promise<unknown>;
 };
 
-const TENANT_MODELS = [
-  "stockBatch",
-  "sale",
-  "saleLine",
-  "procurementOrder",
-  "procurementOrderLine",
-  "medicineReorderPolicy",
-  "supplier",
-  "stockMovement",
-] as const;
-
-type TenantModel = (typeof TENANT_MODELS)[number];
+type TenantModel =
+  | "stockBatch"
+  | "sale"
+  | "saleLine"
+  | "procurementOrder"
+  | "procurementOrderLine"
+  | "medicineReorderPolicy"
+  | "supplier"
+  | "stockMovement";
 
 type ModelDelegate = Record<string, (args: unknown) => Promise<unknown>>;
 
