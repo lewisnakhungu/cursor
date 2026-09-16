@@ -6,6 +6,7 @@ import { Keyboard, ShoppingCart, Trash2, WifiOff, X } from "lucide-react";
 import { MedicineCatalogSearch } from "@/components/catalog/medicine-catalog-search";
 import { BatchPicker } from "@/components/pos/batch-picker";
 import { DispenseReceipt, type AnyReceipt } from "@/components/pos/dispense-receipt";
+import { DispenseCompletionScreen } from "@/components/pos/dispense-completion-screen";
 import { StockUnitBadge } from "@/components/pos/stock-unit-badge";
 import {
   Dialog,
@@ -440,6 +441,21 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
+  if (receipt) {
+    return (
+      <DispenseCompletionScreen
+        receipt={receipt}
+        onNewSale={() => {
+          setReceipt(null);
+          setReceiptOpen(false);
+          setTimeout(() => {
+            searchWrapperRef.current?.querySelector("input")?.focus();
+          }, 50);
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <div
@@ -577,12 +593,13 @@ export function PosTerminal({ tenantId, offlineModeEnabled }: PosTerminalProps) 
           </div>
 
           {displayLines.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
-              <ShoppingCart className="size-10 text-muted-foreground/50" />
-              <p className="mt-3 font-medium">Cart is empty</p>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                Each line shows quantity in the unit defined at receive (e.g.
-                tablets or boxes). Stock deducts in that same unit on dispense.
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-12 px-4 text-center bg-muted/10">
+              <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-3">
+                <ShoppingCart className="size-6" />
+              </div>
+              <p className="font-bold text-base text-foreground">Start a Sale</p>
+              <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                Search for a medicine or scan a barcode to add it to the cart with automatic FEFO batch sequencing.
               </p>
             </div>
           ) : (

@@ -21,6 +21,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Package,
   PackageSearch,
   PackagePlus,
   ShoppingCart,
@@ -44,77 +45,97 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 const MOBILE_HEADER =
   "calc(3.5rem + env(safe-area-inset-top, 0px))" as const;
 
+type NavGroup = "main" | "operations" | "business" | "admin";
+
 type NavEntry = {
   navId: NavItemId;
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   description: string;
+  group: NavGroup;
 };
 
 const ALL_NAV: NavEntry[] = [
   {
-    navId: "admin",
-    href: "/admin",
-    label: "Admin",
-    icon: Building2,
-    description: "All facilities",
-  },
-  {
     navId: "dashboard",
     href: "/dashboard",
-    label: "Dashboard",
+    label: "Home",
     icon: LayoutDashboard,
-    description: "Expiry & stock overview",
-  },
-  {
-    navId: "receive",
-    href: "/receive",
-    label: "Receive",
-    icon: PackagePlus,
-    description: "Restock batches",
-  },
-  {
-    navId: "procurement",
-    href: "/procurement",
-    label: "Procurement",
-    icon: PackageSearch,
-    description: "Reorder lists & print",
+    description: "Daily operations & alerts",
+    group: "main",
   },
   {
     navId: "pos",
     href: "/pos",
     label: "Dispense",
     icon: ShoppingCart,
-    description: "Point of sale",
+    description: "Point of sale checkout",
+    group: "main",
+  },
+  {
+    navId: "inventory",
+    href: "/inventory",
+    label: "Inventory",
+    icon: Package,
+    description: "Medicines & batch stock",
+    group: "main",
+  },
+  {
+    navId: "receive",
+    href: "/receive",
+    label: "Receive stock",
+    icon: PackagePlus,
+    description: "Delivery intake & invoices",
+    group: "operations",
+  },
+  {
+    navId: "procurement",
+    href: "/procurement",
+    label: "Procurement",
+    icon: PackageSearch,
+    description: "Reorder lists & purchase orders",
+    group: "operations",
   },
   {
     navId: "sales",
     href: "/sales",
     label: "Sales",
     icon: BarChart3,
-    description: "Today & top drugs",
+    description: "Ledger & daily revenue",
+    group: "business",
   },
   {
     navId: "insights",
     href: "/insights",
     label: "Insights",
     icon: ClipboardList,
-    description: "Restock & sell-through",
+    description: "Sell-through & restock trends",
+    group: "business",
   },
   {
     navId: "reports",
     href: "/reports",
     label: "Reports",
     icon: FileText,
-    description: "Print weekly / monthly",
+    description: "Print weekly & monthly PDFs",
+    group: "business",
   },
   {
     navId: "team",
     href: "/settings/team",
-    label: "Team",
+    label: "Team & seats",
     icon: Users,
-    description: "Staff accounts & roles",
+    description: "Staff accounts & access",
+    group: "admin",
+  },
+  {
+    navId: "admin",
+    href: "/admin",
+    label: "Platform admin",
+    icon: Building2,
+    description: "Facilities & multi-tenancy",
+    group: "admin",
   },
 ];
 
@@ -152,6 +173,13 @@ function SidebarBrand({
   );
 }
 
+const GROUP_TITLES: Record<NavGroup, string | null> = {
+  main: null,
+  operations: "Operations",
+  business: "Business",
+  admin: "Administration",
+};
+
 function SidebarNav({
   pathname,
   navItems,
@@ -161,51 +189,69 @@ function SidebarNav({
   navItems: NavEntry[];
   onNavigate?: () => void;
 }) {
+  const groups: NavGroup[] = ["main", "operations", "business", "admin"];
+
   return (
     <nav
-      className="flex-1 space-y-1 overflow-y-auto overscroll-contain p-3"
+      className="flex-1 space-y-3 overflow-y-auto overscroll-contain p-3"
       aria-label="Main navigation"
     >
-      {navItems.map((item) => {
-        const active =
-          item.href === "/dashboard"
-            ? pathname === "/dashboard"
-            : pathname.startsWith(item.href);
-        const Icon = item.icon;
+      {groups.map((groupKey) => {
+        const itemsInGroup = navItems.filter((item) => item.group === groupKey);
+        if (itemsInGroup.length === 0) return null;
+
+        const title = GROUP_TITLES[groupKey];
 
         return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex min-h-11 items-start gap-3 rounded-lg px-3 py-2.5 transition-colors",
-              active
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-foreground hover:bg-accent",
+          <div key={groupKey} className="space-y-1">
+            {title && (
+              <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                {title}
+              </p>
             )}
-          >
-            <Icon
-              className={cn(
-                "mt-0.5 size-5 shrink-0",
-                active ? "text-primary-foreground" : "text-primary",
-              )}
-              aria-hidden
-            />
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{item.label}</span>
-              <span
-                className={cn(
-                  "block text-[11px] leading-snug",
-                  active
-                    ? "text-primary-foreground/85"
-                    : "text-muted-foreground",
-                )}
-              >
-                {item.description}
-              </span>
-            </span>
-          </Link>
+            {itemsInGroup.map((item) => {
+              const active =
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
+                  : pathname.startsWith(item.href);
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "flex min-h-11 items-start gap-3 rounded-lg px-3 py-2.5 transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-accent",
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "mt-0.5 size-5 shrink-0",
+                      active ? "text-primary-foreground" : "text-primary",
+                    )}
+                    aria-hidden
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">{item.label}</span>
+                    <span
+                      className={cn(
+                        "block text-[11px] leading-snug",
+                        active
+                          ? "text-primary-foreground/85"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {item.description}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         );
       })}
     </nav>

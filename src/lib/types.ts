@@ -504,3 +504,42 @@ export type ProcurementVarianceReport = {
   generatedAt: string;
   rows: ProcurementVarianceRow[];
 };
+
+export type InventoryBatchItem = {
+  id: string;
+  batchNumber: string | null;
+  quantityOnHand: number;
+  expiryDate: string;
+  daysUntilExpiry: number;
+  retailSalePrice: number | null;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  isFefoPriority: boolean;
+};
+
+export type InventoryMedicineRow = {
+  id: string;
+  genericName: string;
+  dosageForm: string;
+  strength: string;
+  category: string | null;
+  totalOnHand: number;
+  stockUnit: StockUnitCode;
+  unitsPerPack: number | null;
+  batchCount: number;
+  status: "HEALTHY" | "LOW_STOCK" | "EXPIRING" | "CRITICAL" | "EXPIRED";
+  statusLabel: string;
+  earliestExpiry: string | null;
+  daysUntilEarliestExpiry: number | null;
+  batches: InventoryBatchItem[];
+};
+
+export type InventoryOverviewData = {
+  medicines: InventoryMedicineRow[];
+  totalMedicines: number;
+  totalActiveBatches: number;
+  totalLowStock: number;
+  totalExpiringSoon: number;
+  totalCritical: number;
+  totalUnits: number;
+};

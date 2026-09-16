@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, Menu, PackagePlus, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Menu, Package, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   canAccessNav,
@@ -31,10 +31,10 @@ const MOBILE_TABS: TabDef[] = [
     icon: ShoppingCart,
   },
   {
-    navId: "receive",
-    href: "/receive",
-    label: "Receive",
-    icon: PackagePlus,
+    navId: "inventory",
+    href: "/inventory",
+    label: "Inventory",
+    icon: Package,
   },
 ];
 

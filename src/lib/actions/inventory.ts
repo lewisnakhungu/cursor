@@ -10,6 +10,9 @@ import type {
   ActionResult,
   BulkReceiveResult,
   ExpiringStockReport,
+  InventoryBatchItem,
+  InventoryMedicineRow,
+  InventoryOverviewData,
   ReceiveInventoryInput,
   StockBatchRow,
   ValidatedInventoryItem,
@@ -227,3 +230,162 @@ export async function getExpiringStock(): Promise<
     };
   }, { tenantId: ctx.tenantId });
 }
+
+export async function getInventoryOverview(): Promise<
+  ActionResult<InventoryOverviewData>
+> {
+  const ctx = await requireTenantContext("dashboard.view");
+  return runAction("getInventoryOverview", async () => {
+    const { db } = ctx;
+
+    const batches = await db.stockBatch.findMany({
+      where: {
+        quantityOnHand: { gt: 0 },
+      },
+      include: {
+        medicine: {
+          select: {
+            id: true,
+            genericName: true,
+            dosageForm: true,
+            strength: true,
+            category: true,
+          },
+        },
+      },
+      orderBy: [{ expiryDate: "asc" }, { receivedAt: "asc" }],
+    });
+
+    const medicineMap = new Map<string, InventoryMedicineRow>();
+
+    let totalLowStock = 0;
+    let totalExpiringSoon = 0;
+    let totalCritical = 0;
+    let totalUnits = 0;
+
+    for (const batch of batches) {
+      const days = daysUntilExpiry(batch.expiryDate);
+      const price = batch.retailSalePrice ? decimalToNumber(batch.retailSalePrice) : null;
+      totalUnits += batch.quantityOnHand;
+
+      const batchItem: InventoryBatchItem = {
+        id: batch.id,
+        batchNumber: batch.batchNumber,
+        quantityOnHand: batch.quantityOnHand,
+        expiryDate: batch.expiryDate.toISOString().slice(0, 10),
+        daysUntilExpiry: days,
+        retailSalePrice: price,
+        stockUnit: batch.stockUnit,
+        unitsPerPack: batch.unitsPerPack,
+        isFefoPriority: false,
+      };
+
+      const existing = medicineMap.get(batch.medicineId);
+      if (existing) {
+        existing.totalOnHand += batch.quantityOnHand;
+        existing.batchCount += 1;
+        existing.batches.push(batchItem);
+      } else {
+        medicineMap.set(batch.medicineId, {
+          id: batch.medicine.id,
+          genericName: batch.medicine.genericName,
+          dosageForm: batch.medicine.dosageForm,
+          strength: batch.medicine.strength,
+          category: batch.medicine.category,
+          totalOnHand: batch.quantityOnHand,
+          stockUnit: batch.stockUnit,
+          unitsPerPack: batch.unitsPerPack,
+          batchCount: 1,
+          status: "HEALTHY",
+          statusLabel: "Healthy",
+          earliestExpiry: batch.expiryDate.toISOString().slice(0, 10),
+          daysUntilEarliestExpiry: days,
+          batches: [batchItem],
+        });
+      }
+    }
+
+    const medicines = Array.from(medicineMap.values()).map((med) => {
+      if (med.batches.length > 0) {
+        med.batches[0].isFefoPriority = true;
+      }
+
+      const earliestDays = med.daysUntilEarliestExpiry ?? 999;
+      if (earliestDays < 0) {
+        med.status = "EXPIRED";
+        med.statusLabel = "Expired";
+      } else if (earliestDays <= 30) {
+        med.status = "CRITICAL";
+        med.statusLabel = "Critical expiry";
+        totalCritical += 1;
+      } else if (earliestDays <= 90) {
+        med.status = "EXPIRING";
+        med.statusLabel = "Expiring soon";
+        totalExpiringSoon += 1;
+      } else if (med.totalOnHand <= LOW_STOCK_THRESHOLD) {
+        med.status = "LOW_STOCK";
+        med.statusLabel = "Low stock";
+        totalLowStock += 1;
+      } else {
+        med.status = "HEALTHY";
+        med.statusLabel = "Healthy";
+      }
+
+      return med;
+    });
+
+    return {
+      medicines,
+      totalMedicines: medicines.length,
+      totalActiveBatches: batches.length,
+      totalLowStock,
+      totalExpiringSoon,
+      totalCritical,
+      totalUnits,
+    };
+  }, { tenantId: ctx.tenantId });
+}
+
+export async function getMedicineStockMovements(medicineId: string): Promise<
+  ActionResult<Array<{
+    id: string;
+    type: string;
+    quantityDelta: number;
+    balanceAfter: number;
+    referenceType: string;
+    reason: string | null;
+    createdAt: string;
+  }>>
+> {
+  const ctx = await requireTenantContext("dashboard.view");
+  return runAction("getMedicineStockMovements", async () => {
+    const { db } = ctx;
+    const movements = await db.stockMovement.findMany({
+      where: {
+        stockBatch: { medicineId },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        type: true,
+        quantityDelta: true,
+        balanceAfter: true,
+        referenceType: true,
+        reason: true,
+        createdAt: true,
+      },
+    });
+
+    return movements.map((m) => ({
+      id: m.id,
+      type: m.type,
+      quantityDelta: m.quantityDelta,
+      balanceAfter: m.balanceAfter,
+      referenceType: m.referenceType,
+      reason: m.reason,
+      createdAt: m.createdAt.toISOString(),
+    }));
+  }, { tenantId: ctx.tenantId });
+}
+

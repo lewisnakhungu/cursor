@@ -33,7 +33,7 @@ export const STOCK_UNIT_OPTIONS: readonly StockUnitOption[] = [
   { value: "VIAL", label: "Vial / ampoule", plural: "vials", supportsPackSize: false },
   { value: "TUBE", label: "Tube", plural: "tubes", supportsPackSize: false },
   { value: "SACHET", label: "Sachet", plural: "sachets", supportsPackSize: false },
-  { value: "UNIT", label: "Unit (generic)", plural: "units", supportsPackSize: true },
+  { value: "UNIT", label: "Unit", plural: "units", supportsPackSize: true },
 ] as const;
 
 const UNIT_MAP = new Map(

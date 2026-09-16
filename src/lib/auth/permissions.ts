@@ -67,6 +67,7 @@ export function requirePermission(
 
 export type NavItemId =
   | "dashboard"
+  | "inventory"
   | "receive"
   | "pos"
   | "sales"
@@ -78,6 +79,7 @@ export type NavItemId =
 
 const NAV_PERMISSION: Record<NavItemId, AppPermission | "platform.admin"> = {
   dashboard: "dashboard.view",
+  inventory: "dashboard.view",
   receive: "receive.stock",
   pos: "dispense.sale",
   sales: "sales.view",

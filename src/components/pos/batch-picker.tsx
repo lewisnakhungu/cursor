@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Minus, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -190,26 +191,56 @@ export function BatchPicker({
               <label className="text-sm font-medium" htmlFor="pick-qty">
                 Quantity ({stockUnitPlural(selectedUnit, 2)})
               </label>
-              <Input
-                id="pick-qty"
-                type="number"
-                min={1}
-                max={selected.quantityOnHand}
-                className={cn(
-                  "h-12 w-full max-w-[8rem] text-center text-lg font-semibold",
-                  compact && "h-11 max-w-none text-base",
-                )}
-                value={pickQty}
-                disabled={disabled}
-                inputMode="numeric"
-                onChange={(e) => setPickQty(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAdd();
-                  }
-                }}
-              />
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="size-11 shrink-0 rounded-xl bg-card"
+                  disabled={disabled || (Number.parseInt(pickQty, 10) || 1) <= 1}
+                  onClick={() => {
+                    const current = Number.parseInt(pickQty, 10) || 1;
+                    if (current > 1) setPickQty(String(current - 1));
+                  }}
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="size-4" />
+                </Button>
+                <Input
+                  id="pick-qty"
+                  type="number"
+                  min={1}
+                  max={selected.quantityOnHand}
+                  className={cn(
+                    "h-11 w-full max-w-[5.5rem] text-center text-lg font-bold rounded-xl",
+                    compact && "h-11 text-base",
+                  )}
+                  value={pickQty}
+                  disabled={disabled}
+                  inputMode="numeric"
+                  onChange={(e) => setPickQty(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAdd();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="size-11 shrink-0 rounded-xl bg-card"
+                  disabled={disabled || (Number.parseInt(pickQty, 10) || 0) >= selected.quantityOnHand}
+                  onClick={() => {
+                    const current = Number.parseInt(pickQty, 10) || 0;
+                    if (current < selected.quantityOnHand) setPickQty(String(current + 1));
+                  }}
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
               <p className="text-xs text-muted-foreground">
                 Max{" "}
                 {formatQuantityWithUnit(
